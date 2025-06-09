@@ -49,13 +49,20 @@ bool TxIntervalInterrupt(struct repeating_timer *t)
 //interrupt routine for 1 Pulse per second input
 void ppsISR(void)
 {
-  PPSActive = 5;              //reset 5 second timeout for PPS signal
+  PPSActive = 3;              //reset 3 second timeout for PPS signal
   if(mode == RX)
     {
       dma_stop();
       dma_handler();        //call dma handler to reset the DMA timing and restart the transfers
       dmaReady = 0;
-      if((halfRate == false ) || (halfRate & (gpsSec & 0x01) )) cachePoint =0;        //Reset ready for the first symbol
+      if((halfRate == false ) || (halfRate & (gpsSec & 0x01) ))
+      {
+        cachePoint = 0;        //Reset ready for the first symbol
+      }
+      else 
+      {
+        cachePoint = 8;        //Reset ready for the first symbol of the second character
+      } 
     } 
   else 
     {

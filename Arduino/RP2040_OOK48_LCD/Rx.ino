@@ -19,8 +19,13 @@ void RxInit(void)
 void RxTick(void)
 {
   uint8_t tn;
-   if(dmaReady)                                                 //Do we have a complete buffer of ADC samples ready?
+  static unsigned long lastDma;
+
+  if((millis() - lastDma) > 250) cachePoint = 0;                //if we have not had a DAm tranfer recently reset the pointer. (allows the spectrum to freerun with no GPS signal)
+
+   if((dmaReady) && (cachePoint < cacheSize))                                                 //Do we have a complete buffer of ADC samples ready?
     {
+      lastDma = millis();
       calcSpectrum();                                           //Perform the FFT of the data
       rp2040.fifo.push(GENPLOT);                                //Ask Core 1 to generate data for the Displays from the FFT results.  
       rp2040.fifo.push(DRAWSPECTRUM);                           //Ask core 1 to draw the Spectrum Display
@@ -37,7 +42,6 @@ void RxTick(void)
 
       if(cachePoint == cacheSize)                               //If the Cache is full (8 bits of data)
         {
-          cachePoint =0;                                        //Reset ready for the next period
           if(PPSActive)                                         //decodes are only valid if the PPS Pulse is present
           { 
            bestBin = findBestBin();                             //search the cached bins to find the bin containing the tone. 

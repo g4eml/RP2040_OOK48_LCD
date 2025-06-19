@@ -14,7 +14,7 @@ void initGUI(void)
     clearBaud();
     Serial2.end();
     loadBaud();
-    Serial2.begin(gpsBaud);
+    Serial2.begin(settings.gpsBaud);
    }
    else
    {
@@ -222,20 +222,11 @@ void drawBut4(void)
 
 void touch_calibrate(bool force)
 {
-  uint16_t calData[5];
-  uint8_t calDataOK = 0;
 
-  // check if calibration exists
-  if (EEPROM.read(EECALVALID) == 0xAA) 
-    {   
-      EEPROM.get(EECAL,calData);
-      calDataOK = 1;
-    }
-
-  if (calDataOK && !REPEAT_CAL && !force)
+  if (settings.calMagic == 0x0A && !REPEAT_CAL && !force)
   {
     // calibration data valid
-    tft.setTouch(calData);
+    tft.setTouch(settings.calData);
   } 
   else 
   {
@@ -257,15 +248,12 @@ void touch_calibrate(bool force)
       tft.println("Set REPEAT_CAL to false to stop this running again!");
     }
 
-    tft.calibrateTouch(calData, TFT_MAGENTA, TFT_BLACK, 15);
+    tft.calibrateTouch(settings.calData, TFT_MAGENTA, TFT_BLACK, 15);
 
     tft.setTextColor(TFT_GREEN, TFT_BLACK);
     tft.println("Calibration complete!");
-
-    // store data in the EEPROM
-    EEPROM.put(EECAL,calData);
-    EEPROM.write(EECALVALID,0xAA);
-    EEPROM.commit();
+    settings.calMagic = 0x0A;
+    saveSettings();
   }
 
 }
@@ -314,8 +302,8 @@ bool screenTouched(void)
    if(touchZone(BUT5LEFT, BUT5TOP, BUT5WIDTH, BUT5HEIGHT) && noTouch && mode == RX)
     {
       TxMessNo = doMemPad();
-      getText("Enter TX Message", TxMessage[TxMessNo], 30);
-      saveMsg();
+      getText("Enter TX Message", settings.TxMessage[TxMessNo], 30);
+      saveSettings();
       homeScreen();
       return;
     }

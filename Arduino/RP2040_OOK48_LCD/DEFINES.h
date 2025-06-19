@@ -1,14 +1,3 @@
-//EEPROM Storage addresses for non volatile variables. 
-
-#define EECALVALID 0                    //EEPROM Calibration Valid flag address
-#define EECAL 1                         //EEPROM calibration data 5 * 16 bits                  
-#define EEBAUDVALID 20                  //EEPROM GPS Baudrate valid flag 
-#define EEBAUD 21                       //EEPROM GPS Baud Rate Uint16_t
-#define EEMSGVALID 99                   //EEPROM Message Valid Flag
-#define EEMSG 100                       //EEPROM Tx Messages
-
-
-
 #define GPSTXPin 4                      //Serial data to GPS module 
 #define GPSRXPin 5                      //Serial data from GPS module
 #define TXPIN 6                         //Transmit output pin

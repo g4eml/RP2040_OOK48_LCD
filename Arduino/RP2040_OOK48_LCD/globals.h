@@ -1,5 +1,19 @@
 //Global variables
 
+//EEPROM Structure. This structure is written to the EEPROM. All members are therefore non-volatile. 
+
+struct eepromstruct
+{
+  uint8_t calMagic;               //calibration magic value to indicate validity
+  uint16_t calData[5];            //screen calibration data
+  uint8_t baudMagic;              //baud rate magic value to indicate validity
+  uint16_t gpsBaud;               //GPS baud rate
+  uint8_t messageMagic;;          //message magic value to indicate validity
+  char TxMessage[10][32];         //message storage
+};
+
+struct eepromstruct settings;
+
 enum core1Message {GENPLOT,DRAWSPECTRUM,DRAWWATERFALL,REDLINE,CYANLINE,SHOWTONE0,SHOWTONE1,MESSAGE,TMESSAGE,ERROR};         //messages for control of Core 1 from Core 2
 
 
@@ -30,7 +44,6 @@ bool halfRate = false;
 char decoded;                         //decoded  Message character
 
 char gpsBuffer[256];                     //GPS data buffer
-uint16_t gpsBaud = 0;
 int gpsPointer;                          //GPS buffer pointer. 
 char gpsCh;
 bool gpsActive = false; 
@@ -56,7 +69,6 @@ bool noTouch = true;
 int TxPointer = 0;
 uint8_t TxBitPointer = 0;
 uint8_t TxBuffer[32];
-char TxMessage[10][32];
 uint8_t TxMessNo;
 uint8_t TxMessLen;
 bool Key;

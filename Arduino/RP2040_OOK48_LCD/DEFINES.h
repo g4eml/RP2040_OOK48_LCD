@@ -35,44 +35,28 @@
 #define WATERLEFT 0                   //Waterfall Display Left Edge in Pixels
 #define WATERTOP 110                  //Waterfall Display Top Edge in Pixels
 #define WATERWIDTH PLOTPOINTS         //Waterfall Disply Width in Pixels
-#define WATERHEIGHT 160               //Waterfall Diaply Height in Pixels
+#define WATERHEIGHT 165               //Waterfall Diaply Height in Pixels
 
 #define TEXTLEFT PLOTPOINTS + 5      //left edge of text output area
 #define TEXTTOP 0                    //top edge of text output area
 #define TEXTWIDTH 241                //width of text output area
-#define TEXTHEIGHT 270               //height of text output area
+#define TEXTHEIGHT 275               //height of text output area
 
-#define BUT1LEFT 5                  //Button locations
-#define BUT1TOP 280
-#define BUT1WIDTH 70
-#define BUT1HEIGHT 40
+#define BUTSLEFT 0
+#define BUTSTOP 280
+#define BUTSWIDTH 480
+#define BUTSHEIGHT 80
 
-#define BUT2LEFT 85                  //Button locations
-#define BUT2TOP 280
-#define BUT2WIDTH 70
-#define BUT2HEIGHT 40
+ 
+#define BUTWIDTH 70
+#define BUTLEFT 5 + BUTWIDTH/2
+#define BUTTOP 300
+#define BUTHEIGHT 40
+#define BUTGAP 10
 
-#define BUT3LEFT 165                  //Button locations
-#define BUT3TOP 280
-#define BUT3WIDTH 70
-#define BUT3HEIGHT 40
+#define BUTKEY_TEXTSIZE 1   // Font size multiplier
 
-#define BUT4LEFT 245                  //Button locations
-#define BUT4TOP 280
-#define BUT4WIDTH 70
-#define BUT4HEIGHT 40
-
-#define BUT5LEFT 325                  //Button locations
-#define BUT5TOP 280
-#define BUT5WIDTH 70
-#define BUT5HEIGHT 40
-
-#define BUT6LEFT 405                  //Button locations
-#define BUT6TOP 280
-#define BUT6WIDTH 70
-#define BUT6HEIGHT 40
-
-
+#define BUTLABEL_FONT &FreeSans9pt7b    // Button label font
 
 #define OVERSAMPLE 32                                           //multiple samples are averaged to reduce noise floor. 
 

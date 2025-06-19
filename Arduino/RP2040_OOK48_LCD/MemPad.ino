@@ -8,8 +8,8 @@
 #define MEMKEY_H 50
 #define MEMKEY_SPACING_X 20 // X and Y gap
 #define MEMKEY_SPACING_Y 12
-#define MEMKEY_TEXTSIZE 1   // Font size multiplier
 
+#define MEMKEY_TEXTSIZE 1
 #define MEMLABEL_FONT &FreeSans9pt7b    // Button label font
 
 

@@ -157,7 +157,7 @@ void loop1()
     }
 
 
-  if(screenTouched())
+  if((screenTouched()) && (noTouch))
     {
       processTouch();
     } 

@@ -24,6 +24,7 @@ void setup()
 {
     Serial.begin();                   //enable the debug serial port
     EEPROM.begin(1024);
+    loadSettings();
     pinMode(PPSINPUT,INPUT);
     pinMode(KEYPIN,OUTPUT);
     digitalWrite(KEYPIN,0);
@@ -78,11 +79,11 @@ void setup1()
 {
   Serial2.setRX(GPSRXPin);              //Configure the GPIO pins for the GPS module
   Serial2.setTX(GPSTXPin);
-  while(gpsBaud == 0)                   //wait for core zero to initialise the baud rate for GPS. 
+  while(settings.gpsBaud == 0)                   //wait for core zero to initialise the baud rate for GPS. 
    {
     delay(1);
    }
-  Serial2.begin(gpsBaud);                        
+  Serial2.begin(settings.gpsBaud);                        
   gpsPointer = 0;
   waterRow = 0;
   initGUI();                        //initialise the GUI screen
@@ -208,6 +209,17 @@ void processNMEA(void)
 
 }
 
+void loadSettings(void)
+{
+  EEPROM.get(0,settings);             //read the settings structure
+}
+
+void saveSettings(void)
+{
+  EEPROM.put(0,settings);
+  EEPROM.commit();
+}
+
 void clearEEPROM(void)
 {
   for(int i=0;i<1024;i++)
@@ -219,47 +231,33 @@ void clearEEPROM(void)
 
 void loadBaud(void)
 {
-  if(EEPROM.read(EEBAUDVALID) == 42)
-   {
-     EEPROM.get(EEBAUD,gpsBaud);
-   }
-  else 
+  if(settings.baudMagic != 42)
    {
      if(autoBaud(9600))
       {
-        gpsBaud = 9600;
-        saveBaud();
+        settings.gpsBaud = 9600;
+        settings.baudMagic = 42;
+        saveSettings();
       }
     else 
       {
-        gpsBaud = 38400;
-        saveBaud();
+        settings.gpsBaud = 38400;
+        settings.baudMagic = 42;
+        saveSettings();
       }
    }
 }
 
 void clearBaud(void)
 {
-  EEPROM.put(EEBAUD,0);
-  EEPROM.write(EEBAUDVALID,0);
-  EEPROM.commit();
+  settings.gpsBaud =0;
+  settings.baudMagic = 0;
+  saveSettings();
 }
-
-void saveBaud(void)
-{
-  EEPROM.put(EEBAUD,gpsBaud);
-  EEPROM.write(EEBAUDVALID,42);
-  EEPROM.commit();
-}
-
 
 void loadMsg(void)
 {
-  if(EEPROM.read(EEMSGVALID) == 173)
-   {
-     EEPROM.get(EEMSG,TxMessage);
-   }
-  else 
+  if(settings.messageMagic != 173)
    {
      clearMsg();
    }
@@ -269,16 +267,12 @@ void clearMsg(void)
   {
     for(int i=0;i<10;i++)
      {
-      strcpy(TxMessage[i] , "Empty\r"); 
-     }  
+      strcpy(settings.TxMessage[i] , "Empty\r"); 
+     } 
+    settings.messageMagic = 173;
+    saveSettings(); 
   }
 
-void saveMsg(void)
-{
-  EEPROM.put(EEMSG,TxMessage);
-  EEPROM.write(EEMSGVALID,173);
-  EEPROM.commit();
-}
 
 bool autoBaud(int rate)
 {

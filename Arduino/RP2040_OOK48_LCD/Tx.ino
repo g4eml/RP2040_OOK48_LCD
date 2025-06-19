@@ -16,7 +16,7 @@ uint8_t encode4from8[70] = { 15, 23, 27, 29, 30, 39, 43, 45, 46, 51,
 
 void TxInit(void) 
 {
-  TxMessLen = encode(TxMessage[TxMessNo],strlen(TxMessage[TxMessNo]) , TxBuffer);
+  TxMessLen = encode(settings.TxMessage[TxMessNo],strlen(settings.TxMessage[TxMessNo]) , TxBuffer);
   TxPointer = 0;
   TxBitPointer = 0;
 }
@@ -34,7 +34,7 @@ void TxSymbol(void)
     {
       Key = 0;
       cancel_repeating_timer(&TxIntervalTimer);
-      TxCharSent = TxMessage[TxMessNo][TxPointer];
+      TxCharSent = settings.TxMessage[TxMessNo][TxPointer];
       if((halfRate == false ) || (halfRate & (gpsSec & 0x01) )) TxSent = true;
     } 
     else 

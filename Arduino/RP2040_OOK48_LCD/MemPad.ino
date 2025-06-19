@@ -30,7 +30,7 @@ int doMemPad(void)
 
   for(int i = 0;i<10;i++)
   {
-    strncpy(s,TxMessage[i],30);
+    strncpy(s,settings.TxMessage[i],30);
     if(strlen(s)>20)
       {
         s[19]=' ';

@@ -32,8 +32,6 @@ void setup()
     digitalWrite(TXPIN,0);
     mode = RX;  
     RxInit();
-    loadMsg();
-    loadBaud();
     TxMessNo = 0;
     TxInit();
     attachInterrupt(PPSINPUT,ppsISR,RISING);
@@ -212,6 +210,32 @@ void processNMEA(void)
 void loadSettings(void)
 {
   EEPROM.get(0,settings);             //read the settings structure
+
+  if(settings.baudMagic != 42)
+   {
+     if(autoBaud(9600))
+      {
+        settings.gpsBaud = 9600;
+        settings.baudMagic = 42;
+        saveSettings();
+      }
+    else 
+      {
+        settings.gpsBaud = 38400;
+        settings.baudMagic = 42;
+        saveSettings();
+      }
+   }
+
+   if(settings.messageMagic != 173)
+   {
+    for(int i=0;i<10;i++)
+     {
+      strcpy(settings.TxMessage[i] , "Empty\r"); 
+     } 
+    settings.messageMagic = 173;
+    saveSettings(); 
+   }
 }
 
 void saveSettings(void)
@@ -228,50 +252,6 @@ void clearEEPROM(void)
     EEPROM.commit();
    }
 }
-
-void loadBaud(void)
-{
-  if(settings.baudMagic != 42)
-   {
-     if(autoBaud(9600))
-      {
-        settings.gpsBaud = 9600;
-        settings.baudMagic = 42;
-        saveSettings();
-      }
-    else 
-      {
-        settings.gpsBaud = 38400;
-        settings.baudMagic = 42;
-        saveSettings();
-      }
-   }
-}
-
-void clearBaud(void)
-{
-  settings.gpsBaud =0;
-  settings.baudMagic = 0;
-  saveSettings();
-}
-
-void loadMsg(void)
-{
-  if(settings.messageMagic != 173)
-   {
-     clearMsg();
-   }
-}
-
-void clearMsg(void)
-  {
-    for(int i=0;i<10;i++)
-     {
-      strcpy(settings.TxMessage[i] , "Empty\r"); 
-     } 
-    settings.messageMagic = 173;
-    saveSettings(); 
-  }
 
 
 bool autoBaud(int rate)

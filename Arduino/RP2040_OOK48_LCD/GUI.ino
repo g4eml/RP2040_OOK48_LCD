@@ -9,11 +9,10 @@ void initGUI(void)
    {
     while(screenTouched());
     delay(500);
-    touch_calibrate(1);
-    clearMsg();
-    clearBaud();
     Serial2.end();
-    loadBaud();
+    clearEEPROM();
+    loadSettings();
+    touch_calibrate(1);
     Serial2.begin(settings.gpsBaud);
    }
    else

@@ -53,6 +53,10 @@ int gpsMin = -1;
 int gpsHr = -1;
 uint8_t PPSActive = 0;
 long lastTimeUpdate = 0;
+double latitude = 0;
+double longitude =0;
+char qthLocator[12] = "----------";
+uint8_t locatorLength = 8; //Default QTH Locator
 
 uint16_t buffer[2][NUMBEROFSAMPLES];     //2 DMA buffers to allow one to be processed while the next is being received.
 double vReal[NUMBEROFBINS];            //Real Array for FFT input and output
@@ -68,7 +72,8 @@ bool noTouch = true;
 
 int TxPointer = 0;
 uint8_t TxBitPointer = 0;
-uint8_t TxBuffer[32];
+uint8_t TxBuffer[50];                       //needs to be large enough to allow for Locator Expansion
+char visualTxMessage[50];
 uint8_t TxMessNo;
 uint8_t TxMessLen;
 bool Key;

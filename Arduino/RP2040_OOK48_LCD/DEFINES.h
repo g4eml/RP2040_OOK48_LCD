@@ -68,4 +68,4 @@
 
 #define TXINTERVAL 111111           //9 symbols per second in microseconds
 
-
+#define LOCTOKEN 0x86

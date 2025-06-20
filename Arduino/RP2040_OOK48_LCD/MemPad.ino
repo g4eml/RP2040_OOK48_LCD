@@ -23,14 +23,17 @@ TFT_eSPI_Button MEMkey[10];
 int doMemPad(void) 
 {
   int ch=TxMessNo;
-  char s[32];
+  char s[50];
 
   // Draw pad background
   tft.fillRect(MEM_X, 0, MEM_WIDTH, MEM_HEIGHT, TFT_DARKGREY);
 
   for(int i = 0;i<10;i++)
   {
-    strncpy(s,settings.TxMessage[i],30);
+//    strncpy(s,settings.TxMessage[i],30);
+
+    replaceToken(s,settings.TxMessage[i], LOCTOKEN, "{LOC}");                     // check for Token and replace if found
+
     if(strlen(s)>20)
       {
         s[19]=' ';

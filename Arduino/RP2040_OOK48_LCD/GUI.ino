@@ -141,7 +141,7 @@ void showTime(void)
   tft.setTextSize(1);
   if((PPSActive > 0) & (gpsSec != -1))
    {
-     sprintf(t,"   %02d:%02d:%02d      ",gpsHr,gpsMin,gpsSec);
+     sprintf(t," %02d:%02d:%02d   %10s",gpsHr,gpsMin,gpsSec,qthLocator);
    }
   else 
   {

@@ -33,10 +33,10 @@ char keybLabel[40][2] = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "0",
                         "A", "S", "D", "F", "G", "H", "J", "K", "L", "/",
                         "Z", "X", "C", "V", "B", "N", "M", "+", "-", "."};
 
-char keybSpecial[4][6] = {"SPACE", "CLR", "DEL", "<-"};
+char keybSpecial[5][6] = {"SPACE", "CLR", "DEL", "<-", "LOC"};
 
 // Invoke the TFT_eSPI button class and create all the button objects
-TFT_eSPI_Button keyb[44];
+TFT_eSPI_Button keyb[45];
 
 
 //------------------------------------------------------------------------------------------
@@ -72,6 +72,7 @@ int getText(const char* prompt, char* st, int len)
   drawKeyBoard();
 
   bool done = false;
+  bool locEntered = false;
 
   while(!done)
   {
@@ -79,7 +80,7 @@ int getText(const char* prompt, char* st, int len)
       bool pressed = tft.getTouch(&t_x, &t_y);
 
       // / Check if any key coordinate boxes contain the touch coordinates
-      for (uint8_t b = 0; b < 44; b++) 
+      for (uint8_t b = 0; b < 45; b++) 
       {
         if (pressed && keyb[b].contains(t_x, t_y)) 
         {
@@ -92,7 +93,7 @@ int getText(const char* prompt, char* st, int len)
       }
 
       // Check if any key has changed state
-      for (uint8_t b = 0; b < 44; b++) 
+      for (uint8_t b = 0; b < 45; b++) 
       {
 
        tft.setFreeFont(KB_FONT);
@@ -146,7 +147,16 @@ int getText(const char* prompt, char* st, int len)
               }
             done = true;
           }
-  
+
+          if ((b == 44) && (!locEntered))          //Locator (Only one allowed per message)
+          {
+            if (textIndex < len)
+            {
+            locEntered = true;
+            textBuffer[textIndex++] = LOCTOKEN; // Place locator token in buffer
+            textBuffer[textIndex] = 0 ; // Place null in buffer
+            }
+          }  
 
           if (b == 41)          //Clear
           {
@@ -171,11 +181,16 @@ int getText(const char* prompt, char* st, int len)
 
 void displaytext(int colour)
 {
+  char newstr[50];                             //allow space for Locator text expansion
+
+    // check for Token and replace if found
+    replaceToken(newstr,textBuffer, LOCTOKEN, "{LOC}");
+
     tft.setTextDatum(TL_DATUM);        // Use top left corner as text coord datum
     tft.setFreeFont(&FreeSans9pt7b);  // Choose a nice font that fits box
     // Draw the string, the value returned is the width in pixels
     tft.setTextColor(colour);
-    int xwidth = tft.drawString(textBuffer, TEXT_X + 4, TEXT_Y + 12);
+    int xwidth = tft.drawString(newstr, TEXT_X + 4, TEXT_Y + 12);
 
     // Now cover up the rest of the line up by drawing a black rectangle.  No flicker this way
     // but it will not work with italic or oblique fonts due to character overlap.
@@ -220,7 +235,7 @@ void drawKeyBoard()
       keyb[41].drawButton();
 
 // Draw the DEL key
-      keyb[42].initButton(&tft, 400,
+      keyb[42].initButton(&tft, 365,
                         KEYB_Y + 4 * (KEYB_H + KEYB_SPACING_Y), // x, y, w, h, outline, fill, text
                         KEYB_W * 2, KEYB_H, TFT_WHITE, TFT_BLUE, TFT_WHITE,
                         keybSpecial[2], KEYB_TEXTSIZE);
@@ -233,5 +248,11 @@ void drawKeyBoard()
                         keybSpecial[3], KEYB_TEXTSIZE);
       keyb[43].drawButton();
 
+// Draw the LOC key
+      keyb[44].initButton(&tft, 440,
+                        KEYB_Y + 4 * (KEYB_H + KEYB_SPACING_Y), // x, y, w, h, outline, fill, text
+                        KEYB_W * 2, KEYB_H, TFT_WHITE, TFT_BLUE, TFT_WHITE,
+                        keybSpecial[4], KEYB_TEXTSIZE);
+      keyb[44].drawButton();
 
 }

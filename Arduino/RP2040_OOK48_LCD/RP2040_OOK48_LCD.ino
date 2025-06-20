@@ -184,27 +184,111 @@ void processNMEA(void)
   float gpsTime;
 
  gpsActive = true;
- if(strstr(gpsBuffer , "RMC") != NULL)                         //is this the RMC sentence?
+ if(RMCValid())                                               //is this a valid RMC sentence?
   {
-    if(strstr(gpsBuffer , "A") != NULL)                       // is the data valid?
+    int p=strcspn(gpsBuffer , ",") +1;                        // find and skip the first comma
+    p= p + strcspn(gpsBuffer+p , ",") + 1;                    // find and skip the second comma 
+    if(gpsBuffer[p] == 'A')                                   // is the data valid?
       {
-       int p=strcspn(gpsBuffer , ",");                         // find the first comma
-       gpsTime = strtof(gpsBuffer+p+1 , NULL);                 //copy the time to a floating point number
+       p=strcspn(gpsBuffer , ",") +1;                         // find and skip the first comma again
+       gpsTime = strtof(gpsBuffer+p , NULL);                  //copy the time to a floating point number
        gpsSec = int(gpsTime) % 100;
        gpsTime = gpsTime / 100;
        gpsMin = int(gpsTime) % 100; 
        gpsTime = gpsTime / 100;
-       gpsHr = int(gpsTime) % 100;         
+       gpsHr = int(gpsTime) % 100;  
+
+       p= p + strcspn(gpsBuffer+p , ",") + 1;                  // find and skip the second comma 
+       p= p + strcspn(gpsBuffer+p , ",") + 1 ;                 // find and skip the third comma
+       latitude = strtof(gpsBuffer+p , NULL);                  // copy the latitude value
+       latitude = convertToDecimalDegrees(latitude);           // convert to ddd.ddd
+       p = p + strcspn(gpsBuffer+p , ",") + 1;                 // find and skip the fourth comma  
+       if(gpsBuffer[p] == 'S')  latitude = 0-latitude;         // adjust southerly Lats to be negative values                
+       p = p + strcspn(gpsBuffer+p , ",") + 1;                 // find and skip the fifth comma      
+       longitude = strtof(gpsBuffer+p , NULL);                 // copy the lpngitude value 
+       longitude = convertToDecimalDegrees(longitude);         // convert to ddd.ddd   
+       p = p + strcspn(gpsBuffer+p , ",") + 1;                 // find and skip the sixth comma  
+       if(gpsBuffer[p] == 'W')  longitude = 0 - longitude;     // adjust easterly Longs to be negative values 
+       convertToMaid();     
       }
     else
      {
        gpsSec = -1;                                            //GPS time not valid
        gpsMin = -1;
        gpsHr = -1;
+       latitude = 0;
+       longitude = 0;
+       strcpy(qthLocator,"----------");
+       qthLocator[locatorLength] = '\0'; // Shorten Locator string
      }
   }
 
 
+}
+
+bool RMCValid(void)
+{
+  if((gpsBuffer[3] == 'R') && (gpsBuffer[4] == 'M') && (gpsBuffer[5] == 'C'))
+   {
+    return checksum(gpsBuffer);
+   }
+   else 
+   {
+    return false;
+   }
+}
+// Converts dddmm.mmm format to decimal degrees (ddd.ddd)
+double convertToDecimalDegrees(double dddmm_mmm) 
+{
+    int degrees = (int)(dddmm_mmm / 100);                 // Extract the degrees part
+    double minutes = dddmm_mmm - (degrees * 100);         // Extract the minutes part
+    double decimalDegrees = degrees + (minutes / 60.0);   // Convert minutes to degrees
+    return decimalDegrees;
+}
+
+void convertToMaid(void)
+{
+      // convert longitude to Maidenhead
+
+    float d = 180.0 + longitude;
+    d = 0.5 * d;
+    int ii = (int)(0.1 * d);
+    qthLocator[0] = char(ii + 65);
+    float rj = d - 10.0 * (float)ii;
+    int j = (int)rj;
+    qthLocator[2] = char(j + 48);
+    float fpd = rj - (float)j;
+    float rk = 24.0 * fpd;
+    int k = (int)rk;
+    qthLocator[4] = char(k + 65);
+    fpd = rk - (float)(k);
+    float rl = 10.0 * fpd;
+    int l = (int)(rl);
+    qthLocator[6] = char(l + 48);
+    fpd = rl - (float)(l);
+    float rm = 24.0 * fpd;
+    int mm = (int)(rm);
+    qthLocator[8] = char(mm + 65);
+    //  convert latitude to Maidenhead
+    d = 90.0 + latitude;
+    ii = (int)(0.1 * d);
+    qthLocator[1] = char(ii + 65);
+    rj = d - 10. * (float)ii;
+    j = (int)rj;
+    qthLocator[3] = char(j + 48);
+    fpd = rj - (float)j;
+    rk = 24.0 * fpd;
+    k = (int)rk;
+    qthLocator[5] = char(k + 65);
+    fpd = rk - (float)(k);
+    rl = 10.0 * fpd;
+    l = int(rl);
+    qthLocator[7] = char(l + 48);
+    fpd = rl - (float)(l);
+    rm = 24.0 * fpd;
+    mm = (int)(rm);
+    qthLocator[9] = char(mm + 65);
+    qthLocator[locatorLength] = '\0'; // Shorten Locator string
 }
 
 void loadSettings(void)
@@ -278,4 +362,60 @@ bool autoBaud(int rate)
     }     
    Serial2.end();     
    return gotit;
+}
+
+//replaces a token with an expanded string. returns the result in new. 
+void replaceToken(char * news, char * orig, char search, char * rep)
+{
+  int outp=0;
+  for(int i=0 ; ;i++ )
+    {
+      if(orig[i] == search)
+       {
+         for(int q=0 ; ; q++)
+          {
+            if(rep[q] == 0)
+             {
+              break;
+             }
+            news[outp++] = rep[q];
+          }
+       }
+      else 
+       {
+         news[outp++] = orig[i];
+       }
+       if(orig[i] == 0)
+        {
+          break;
+        }
+    }
+}
+
+bool checksum(const char *sentence) 
+{
+    if (sentence == NULL || sentence[0] != '$') 
+    {
+        return false;
+    }
+
+    const char *checksum_str = strchr(sentence, '*');
+    if (checksum_str == NULL || strlen(checksum_str) < 3) 
+    {
+        return false;
+    }
+
+    unsigned char calculated_checksum = 0;
+    for (const char *p = sentence + 1; p < checksum_str; ++p) 
+    {
+        calculated_checksum ^= (unsigned char)(*p);
+    }
+
+    unsigned int provided_checksum = 0;
+    if (sscanf(checksum_str + 1, "%2x", &provided_checksum) != 1) 
+    {
+        return false;
+    }
+
+    return calculated_checksum == (unsigned char)provided_checksum;
 }

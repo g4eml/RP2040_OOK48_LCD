@@ -77,7 +77,7 @@ void setup1()
 {
   Serial2.setRX(GPSRXPin);              //Configure the GPIO pins for the GPS module
   Serial2.setTX(GPSTXPin);
-  while(settings.gpsBaud == 0)                   //wait for core zero to initialise the baud rate for GPS. 
+  while(settings.baudMagic != 42)                   //wait for core zero to initialise the baud rate for GPS. 
    {
     delay(1);
    }
@@ -293,6 +293,7 @@ void convertToMaid(void)
 
 void loadSettings(void)
 {
+  bool ss = false;
   EEPROM.get(0,settings);             //read the settings structure
 
   if(settings.baudMagic != 42)
@@ -301,13 +302,13 @@ void loadSettings(void)
       {
         settings.gpsBaud = 9600;
         settings.baudMagic = 42;
-        saveSettings();
+        ss=true;
       }
     else 
       {
         settings.gpsBaud = 38400;
         settings.baudMagic = 42;
-        saveSettings();
+        ss=true;
       }
    }
 
@@ -315,17 +316,19 @@ void loadSettings(void)
    {
     for(int i=0;i<10;i++)
      {
-      strcpy(settings.TxMessage[i] , "Empty\r"); 
+      strcpy(settings.TxMessage[i] , "EMPTY\r"); 
      } 
     settings.messageMagic = 173;
-    saveSettings(); 
+    ss=true; 
    }
 
   if((settings.locatorLength <6) || (settings.locatorLength > 10))
    {
     settings.locatorLength = 8;
-    saveSettings();
+    ss=true;
    }
+
+   if(ss) saveSettings();
 }
 
 void saveSettings(void)
@@ -339,7 +342,6 @@ void clearEEPROM(void)
   for(int i=0;i<1024;i++)
    {
     EEPROM.write(i,0);
-    EEPROM.commit();
    }
 }
 

@@ -68,10 +68,15 @@ bool cfgLoop = false;
       break;
     case 5:
       settings.gpsBaud = 9600;
+      settings.baudMagic = 42;
+      Serial2.end();
+      Serial2.begin(settings.gpsBaud);
       break;
     case 6:
       settings.gpsBaud = 38400;
-      halfRate = true;
+      settings.baudMagic = 42;
+      Serial2.end();
+      Serial2.begin(settings.gpsBaud);
       break;
     case 7:
       cfgLoop = true;

@@ -11,8 +11,8 @@ void initGUI(void)
     delay(500);
     Serial2.end();
     clearEEPROM();
-    loadSettings();
     touch_calibrate(1);
+    loadSettings();
     Serial2.begin(settings.gpsBaud);
    }
    else
@@ -137,22 +137,28 @@ void textPrintChar(char m, uint16_t col)
 void showTime(void)
 {
   char t[20];
-  char v[10];
+  char q[12];
   tft.setTextSize(1);
   if((PPSActive > 0) & (gpsSec != -1))
    {
-     sprintf(t," %02d:%02d:%02d   %10s",gpsHr,gpsMin,gpsSec,qthLocator);
+     sprintf(t," %02d:%02d:%02d      ",gpsHr,gpsMin,gpsSec);
    }
   else 
   {
      sprintf(t,"Waiting for GPS");
   }
 
+  sprintf(q,"%10s",qthLocator);
+
+
   tft.fillRect(0,0,230,20,TFT_CYAN);
   tft.setTextColor(TFT_BLACK);
   tft.setFreeFont(&FreeSans9pt7b);
   tft.setTextDatum(TL_DATUM);
   tft.drawString(t,0,0);
+  tft.setTextDatum(TR_DATUM);
+  tft.drawString(q,228,0);
+  tft.setTextDatum(TL_DATUM);  
 }
 
 
@@ -292,6 +298,7 @@ void processTouch(void)
       
       case 1:
       noTouch = false;
+      mode = RX;
       configPage();
       saveSettings();
       homeScreen();

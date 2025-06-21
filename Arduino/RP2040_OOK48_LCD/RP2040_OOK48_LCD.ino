@@ -219,7 +219,7 @@ void processNMEA(void)
        latitude = 0;
        longitude = 0;
        strcpy(qthLocator,"----------");
-       qthLocator[locatorLength] = '\0'; // Shorten Locator string
+       qthLocator[settings.locatorLength] = '\0'; // Shorten Locator string
      }
   }
 
@@ -288,7 +288,7 @@ void convertToMaid(void)
     rm = 24.0 * fpd;
     mm = (int)(rm);
     qthLocator[9] = char(mm + 65);
-    qthLocator[locatorLength] = '\0'; // Shorten Locator string
+    qthLocator[settings.locatorLength] = '\0'; // Shorten Locator string
 }
 
 void loadSettings(void)
@@ -319,6 +319,12 @@ void loadSettings(void)
      } 
     settings.messageMagic = 173;
     saveSettings(); 
+   }
+
+  if((settings.locatorLength <6) || (settings.locatorLength > 10))
+   {
+    settings.locatorLength = 8;
+    saveSettings();
    }
 }
 

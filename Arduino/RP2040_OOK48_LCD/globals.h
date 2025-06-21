@@ -10,6 +10,7 @@ struct eepromstruct
   uint16_t gpsBaud;               //GPS baud rate
   uint8_t messageMagic;;          //message magic value to indicate validity
   char TxMessage[10][32];         //message storage
+  uint8_t locatorLength;          //Default QTH Locator
 };
 
 struct eepromstruct settings;
@@ -56,7 +57,6 @@ long lastTimeUpdate = 0;
 double latitude = 0;
 double longitude =0;
 char qthLocator[12] = "----------";
-uint8_t locatorLength = 8; //Default QTH Locator
 
 uint16_t buffer[2][NUMBEROFSAMPLES];     //2 DMA buffers to allow one to be processed while the next is being received.
 double vReal[NUMBEROFBINS];            //Real Array for FFT input and output

@@ -165,7 +165,7 @@ void textLine(void)
 }
 
 // Create 6 Buttons
-char BUTLabel[6][10] = {"Clear","","","1S","Set Tx","Tx"};
+char BUTLabel[6][10] = {"Clear","Config","","","Set Tx","Tx"};
 
 // Invoke the TFT_eSPI button class and create all the  objects
 TFT_eSPI_Button BUTkey[6];
@@ -292,6 +292,9 @@ void processTouch(void)
       
       case 1:
       noTouch = false;
+      configPage();
+      saveSettings();
+      homeScreen();
       break;
 
       case 2:
@@ -300,17 +303,6 @@ void processTouch(void)
 
       case 3:
       noTouch = false;
-      halfRate = !halfRate;
-      if(halfRate) 
-       {
-        cacheSize = 16;
-        BUTkey[3].drawButton(0,"2S");
-       }
-      else 
-       {
-        cacheSize = 8;
-        BUTkey[3].drawButton(0,"1S");  
-       }
       break;
 
       case 4:

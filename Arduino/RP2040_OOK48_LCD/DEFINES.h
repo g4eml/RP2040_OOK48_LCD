@@ -52,6 +52,19 @@
 #define NUMBEROFBINS 1024                                       // 1024 samples gives a scan rate of the bitrate
 #define NUMBEROFSAMPLES NUMBEROFBINS * OVERSAMPLE              // ADC samples. will be averaged to number of Bins to reduce sampling noise.
 
+// Setup/config selection start position, key sizes and spacing
+#define CFG_X 0
+#define CFG_WIDTH 480
+#define CFG_HEIGHT 320
+#define CFG_LINESPACING 20
+#define CFG_TEXTLEFT 10
+#define CFG_BUTTONSLEFT CFG_WIDTH/2
+#define CFG_W 72 // Width and height
+#define CFG_H 33
+#define CFG_SPACING_X 10 // X and Y gap
+#define CFG_SPACING_Y 20
+#define CFG_TEXTSIZE 1   // Font size multiplier
+#define CFG_NUMBEROFBUTTONS 8     //number of config buttons.
 
 //Detection Values
 
@@ -69,3 +82,5 @@
 #define TXINTERVAL 111111           //9 symbols per second in microseconds
 
 #define LOCTOKEN 0x86
+
+

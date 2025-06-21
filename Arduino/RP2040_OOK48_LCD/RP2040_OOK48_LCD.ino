@@ -371,7 +371,7 @@ bool autoBaud(int rate)
 }
 
 //replaces a token with an expanded string. returns the result in new. 
-void replaceToken(char * news, char * orig, char search, char * rep)
+void replaceToken(char * news, char * orig, char search, const char * rep)
 {
   int outp=0;
   for(int i=0 ; ;i++ )

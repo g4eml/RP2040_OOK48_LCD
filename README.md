@@ -14,7 +14,9 @@ The data rate is similar to Morse code, so the module can be connected directly 
 
 Real time visual confirmation of the message, character by character. No need to wait 30 seconds to see if the reception has succeeded.
 
-Uses the GPS 1 Pulse per second signal for accurate character synchronisation. 
+Uses the GPS 1 Pulse per second signal for accurate character synchronisation.  
+
+Optional 2 Seconds per character mode which increases the decode sensitiviy slightly. 
 
 Stand alone Device with LCD touch screen display. 
 
@@ -23,6 +25,8 @@ No special programming hardware or software required.
 Programming using the RP2040s built in standard boot loader. 
 
 10 Preset Messages are saved to EEPROM for automatic load on power on. 
+
+Automatic calculation of QTH Lacator. Selectable for 6, 8 or 10 character accuracy. This locator can be inserted in any of the 10 Preset Messages. 
 
 ## Operation Description
 
@@ -43,9 +47,9 @@ At the bottom of the screen there are 6 touch buttons. Only 4 of these are curre
 
 Clear Screen.   Clears the Message display.
 
-1S 2S.     Select the normal 1 second per character mode or the optional 2 seconds per character.  In the 2 second mode each character is sent twice and the two received versions are combined giving a slight improvement in low signal sensitivity as the expense of slowing down the character rate.  
+Config. Displays a config page which allows the QTH Locator Length, Character Period, and GPS Baud Rate to be set.  
 
-Set Tx Text.  This shows a menu of the 10 stored messages to be used for transmit. Selecting a messsage allows it to be edited on the next screen. Pressing the Enter Button saves the message.
+Set Tx.  This shows a menu of the 10 stored messages to be used for transmit. Selecting a messsage allows it to be edited on the next screen. Pressing the Enter Button saves the message.
 
 Tx / Rx   Starts and stops the transmission of the currently selected Message. 
 

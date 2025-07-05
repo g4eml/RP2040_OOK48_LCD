@@ -299,6 +299,8 @@ void processTouch(void)
       case 1:
       noTouch = false;
       mode = RX;
+      digitalWrite(KEYPIN, 0);
+      digitalWrite(TXPIN, 0);
       configPage();
       saveSettings();
       homeScreen();

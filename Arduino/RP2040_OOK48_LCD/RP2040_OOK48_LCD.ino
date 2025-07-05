@@ -19,6 +19,8 @@ ArduinoFFT<double> FFT = ArduinoFFT<double>(vReal, vImag, NUMBEROFBINS, SAMPLERA
 
 struct repeating_timer TxIntervalTimer;                   //repeating timer for Tx bit interval
 
+struct repeating_timer PPSIntervalTimer;                  // and another for the 1PPS signal delay
+
 //Run once on power up. Core 0 does the time critical work. Core 1 handles the GUI.  
 void setup() 
 {
@@ -41,12 +43,47 @@ void setup()
 bool TxIntervalInterrupt(struct repeating_timer *t)
 {
   TxSymbol();
-  return true;
+  return true;                    //retrigger this timer
+}
+
+//Interrupt called when the 1PPS delay has expired. 
+bool PPSIntervalInterrupt(struct repeating_timer *t)
+{
+  doPPS();
+  return false;                   //dont retrigger this timer
+}
+
+//1PPS Interrupt 
+void ppsISR(void)
+{
+  if(mode == RX)
+  {
+   if(settings.rxRetard == 0)           // no delay, call the 1PPS routine immediately
+   {
+    doPPS();
+   }
+   else                                 // call the 1PPS routine after a delay 
+   {
+      add_repeating_timer_ms(settings.rxRetard,PPSIntervalInterrupt,NULL,&PPSIntervalTimer);    //start a delayed callback
+   }
+  }
+
+  else                //Tx
+  {
+   if(settings.txAdvance == 0)           // no delay, call the 1PPS routine immediately
+   {
+    doPPS();
+   }
+   else                                 // call the 1PPS routine after a delay 
+   {
+      add_repeating_timer_ms(1000 - settings.txAdvance,PPSIntervalInterrupt,NULL,&PPSIntervalTimer);    //start a delayed callback
+   }
+  }
 }
 
 
-//interrupt routine for 1 Pulse per second input
-void ppsISR(void)
+// Indirect interrupt routine for 1 Pulse per second input Delayed by retard or advance settings. 
+void doPPS(void)
 {
   PPSActive = 3;              //reset 3 second timeout for PPS signal
   if(mode == RX)
@@ -331,6 +368,18 @@ void loadSettings(void)
   if(settings.decodeMode > 1)
    {
     settings.decodeMode =0;
+    ss = true;
+   }
+
+  if(settings.txAdvance > 999)
+   {
+    settings.txAdvance =0;
+    ss = true;
+   }
+
+  if(settings.rxRetard > 999)
+   {
+    settings.rxRetard =0;
     ss = true;
    }
 

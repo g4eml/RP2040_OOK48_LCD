@@ -328,6 +328,12 @@ void loadSettings(void)
     ss=true;
    }
 
+  if(settings.decodeMode > 1)
+   {
+    settings.decodeMode =0;
+    ss = true;
+   }
+
    if(ss) saveSettings();
 }
 

@@ -78,7 +78,16 @@ bool cfgLoop = false;
       Serial2.end();
       Serial2.begin(settings.gpsBaud);
       break;
+
     case 7:
+      settings.decodeMode = NORMALMODE;
+      break;
+    
+    case 8:
+      settings.decodeMode = ALTMODE;
+      break;
+
+    case 9:
       cfgLoop = true;
       break;
     }
@@ -88,7 +97,7 @@ bool cfgLoop = false;
 
 
 void drawCFGKbd(void){
-char congfglabels[CFG_NUMBEROFBUTTONS][6]={"6", "8", "10", "1s", "2s", "9600", "38400","EXIT"};
+char congfglabels[CFG_NUMBEROFBUTTONS][6]={"6", "8", "10", "1s", "2s", "9600", "38400", "Norm", "Alt","EXIT"};
 
 uint16_t cfgTextcolour;
 
@@ -104,6 +113,7 @@ uint16_t cfgTextcolour;
   
   tft.drawString("Character Period ", CFG_TEXTLEFT, CFG_LINESPACING*4);
   tft.drawString("GPS Baud Rate", CFG_TEXTLEFT, CFG_LINESPACING*6);
+  tft.drawString("Decode Mode", CFG_TEXTLEFT, CFG_LINESPACING*8);
   tft.setFreeFont(KB_FONT); 
 
    //Locator Buttons
@@ -154,10 +164,24 @@ uint16_t cfgTextcolour;
                         congfglabels[6], CFG_TEXTSIZE);
       cfgKbd[6].drawButton(); 
 
+// Decode Mode Buttons
+      if (settings.decodeMode == NORMALMODE) cfgTextcolour = TFT_GREEN; else cfgTextcolour = TFT_WHITE;
+      cfgKbd[7].initButton(&tft, CFG_BUTTONSLEFT + CFG_W/2,
+                        CFG_LINESPACING*8 + CFG_LINESPACING/2, // x, y, w, h, outline, fill, text
+                        CFG_W, CFG_H, TFT_WHITE, TFT_BLUE, cfgTextcolour,
+                        congfglabels[7], CFG_TEXTSIZE);
+      cfgKbd[7].drawButton(); 
+      if (settings.decodeMode == ALTMODE) cfgTextcolour = TFT_GREEN; else cfgTextcolour = TFT_WHITE;
+      cfgKbd[8].initButton(&tft, CFG_BUTTONSLEFT + CFG_W + CFG_W/2 + CFG_SPACING_X,
+                        CFG_LINESPACING*8 + CFG_LINESPACING/2, // x, y, w, h, outline, fill, text
+                        CFG_W, CFG_H, TFT_WHITE, TFT_BLUE, cfgTextcolour,
+                        congfglabels[8], CFG_TEXTSIZE);
+      cfgKbd[8].drawButton();
+
 // Exit Button
-      cfgKbd[7].initButton(&tft, CFG_WIDTH - (CFG_W),
+      cfgKbd[9].initButton(&tft, CFG_WIDTH - (CFG_W),
                         CFG_LINESPACING*14 + CFG_LINESPACING/2, // x, y, w, h, outline, fill, text
                         CFG_W, CFG_H, TFT_WHITE, TFT_BLUE, TFT_WHITE,
-                        congfglabels[7],  CFG_TEXTSIZE);
-      cfgKbd[7].drawButton(); 
+                        congfglabels[9],  CFG_TEXTSIZE);
+      cfgKbd[9].drawButton(); 
 }

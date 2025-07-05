@@ -64,7 +64,7 @@
 #define CFG_SPACING_X 10 // X and Y gap
 #define CFG_SPACING_Y 20
 #define CFG_TEXTSIZE 1   // Font size multiplier
-#define CFG_NUMBEROFBUTTONS 10     //number of config buttons.
+#define CFG_NUMBEROFBUTTONS 12     //number of config buttons.
 
 //Detection Values
 

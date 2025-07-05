@@ -12,6 +12,8 @@ struct eepromstruct
   char TxMessage[10][32];         //message storage
   uint8_t locatorLength;          //Default QTH Locator
   uint8_t decodeMode;             //allow multiple decode modes
+  uint16_t txAdvance;             //Tx timing advance in ms
+  uint16_t rxRetard;              //Rx Timing retard in ms
 };
 
 struct eepromstruct settings;

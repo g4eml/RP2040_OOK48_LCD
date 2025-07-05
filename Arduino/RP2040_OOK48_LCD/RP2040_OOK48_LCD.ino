@@ -334,6 +334,18 @@ void loadSettings(void)
     ss = true;
    }
 
+  if(settings.txAdvance > 999)
+   {
+    settings.txAdvance =0;
+    ss = true;
+   }
+
+  if(settings.rxRetard > 999)
+   {
+    settings.rxRetard =0;
+    ss = true;
+   }
+
    if(ss) saveSettings();
 }
 

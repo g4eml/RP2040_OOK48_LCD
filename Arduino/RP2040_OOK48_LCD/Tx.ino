@@ -16,9 +16,10 @@ uint8_t encode4from8[70] = { 15, 23, 27, 29, 30, 39, 43, 45, 46, 51,
 
 void TxInit(void) 
 {
-  replaceToken(visualTxMessage,settings.TxMessage[TxMessNo],LOCTOKEN, qthLocator );
+  replaceToken(visualTxMessage+1,settings.TxMessage[TxMessNo],LOCTOKEN, qthLocator ); 
+  visualTxMessage[0]=13;
   TxMessLen = encode(visualTxMessage,strlen(visualTxMessage) , TxBuffer);
-  TxPointer = 0;
+  TxPointer = 0;                   
   TxBitPointer = 0;
 }
 
@@ -28,7 +29,7 @@ void TxSymbol(void)
   {
     if (TxPointer == TxMessLen) 
     {
-      TxPointer = 0;
+      TxPointer = 1;                //don't repeat the first character as this is for the first transmission only
       TxBitPointer = 0;
     }
     if (TxBitPointer == 8) 

@@ -332,7 +332,7 @@ void processTouch(void)
          BUTkey[5].drawButton(0,"Rx");
          BUTkey[4].drawButton(0,"");
          displayTx();
-         textPrintChar(13,TFT_RED);
+
          TxPointer = 0;
          TxBitPointer = 0;
        }

@@ -42,9 +42,7 @@ float sigNoise;
 float snBins;
 double threshold;
 double toneCache[1 + MAXTONETOLERANCE * 2][CACHESIZE *2];          // Array large enough for the biggest tone magnitude cache
-uint16_t cachePoint;                  // Pointer to next cache entry.
-int bestBin;
-double tempCache[CACHESIZE *2];         //form a temporary cache of the largest magnitudes for each timeslot
+uint16_t cachePoint;                  // Pointer to next cache entry. 
 bool halfRate = false;
 
 char decoded;                         //decoded  Message character

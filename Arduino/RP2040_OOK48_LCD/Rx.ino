@@ -31,42 +31,13 @@ void RxTick(void)
       rp2040.fifo.push(DRAWSPECTRUM);                           //Ask core 1 to draw the Spectrum Display
       rp2040.fifo.push(DRAWWATERFALL);                          //Ask core 1 to draw the Waterfall Display      
       saveCache();                                              //save the FFT magnitudes to the cache.
-      if(toneCache[bestBin][cachePoint++] > threshold)
-       {
-         rp2040.fifo.push(SHOWTONE1);     //Ask Core 1 to highlight the Tone Green. 
-       }
-       else 
-       {
-         rp2040.fifo.push(SHOWTONE0);     //Ask Core 1 to highlight the Tone Orange.
-       }
-
+      cachePoint++;
       if(cachePoint == cacheSize)                               //If the Cache is full (8 bits of data)
         {
           if(PPSActive)                                         //decodes are only valid if the PPS Pulse is present
           { 
-           if(settings.decodeMode == NORMALMODE)
-            {
-              bestBin = findBestBin();                             //search the cached bins to find the bin containing the tone. 
-              if(decodeCache(bestBin))                              //Try to extract the character
-                {
-                  rp2040.fifo.push(MESSAGE);                         //Successful 1st decode. Ask Core 1 to display it 
-                } 
-               else 
-                {
-                   rp2040.fifo.push(ERROR);                         //Unsuccessful 1st decode. Ask Core 1 to display the possible char 
-                } 
-            }
-           else 
-            { 
-              if(decodeCacheAlt())                                   //Try to extract the character using the Alt method
-                {
-                  rp2040.fifo.push(MESSAGE);                         //Successful 1st decode. Ask Core 1 to display it 
-                } 
-               else 
-                {
-                   rp2040.fifo.push(ERROR);                         //Unsuccessful 1st decode. Ask Core 1 to display the possible char 
-                } 
-            } 
+            decodeCache();                                      //extract the character
+            rp2040.fifo.push(MESSAGE);                         //Ask Core 1 to display it 
           }
         }                                  
       dmaReady = false;                                         //Clear the flag ready for next time     
@@ -117,145 +88,40 @@ double findLargest(int timeslot)
 }
 
 
-//Search the Tone Cache to try to decode the character. 
-bool decodeCache(int bin)
-{
-  if(halfRate)                        //half rate decoding. Sum the two received chars into one. 
-   {
-    for(int i=0; i<CACHESIZE ; i++)
-      {
-        toneCache[bin][i] = toneCache[bin][i] + toneCache[bin][i+8];
-      }
-   }
-
-//calculate the threshold as the mean of the received tone magnitudes. 
-  threshold=0;
-  for(int i = 0; i < CACHESIZE ; i++)
-    {
-      threshold=threshold + toneCache[bin][i];
-    }
-  threshold = threshold / CACHESIZE;
-
-// now take each received symbol and determine if it is a 1 or a zero
-  uint8_t dec = 0;
-  for(int i = 0; i < CACHESIZE; i++)
-    {
-      if(toneCache[bin][i] > threshold) 
-        {
-          dec = dec | (0x80 >> i);        //add a one bit if detected. 
-        }
-    }
-
-
-  decoded = decode4from8[dec];           //use the decode array to recover the original Character
-
-  if(decoded > 0)
-    {
-       return 1;                     // return 1 if it is a valid 4 from 8 character
-    }
-  else 
-    {
-      force4from8(bin);                    //try to recover the best 4 from 8 character. 
-      return 0;                         //unreliable character
-    }
-}
-
-//crude error correction. Picks the highest 4 Magnitudes and sets them to 1 creating a 4 from 8 character.
-void force4from8(int bin)
+//Search the Tone Cache to try to decode the character. Pick the four largest magnitudes and set them to one. This will always result in a valid value.  
+bool decodeCache(void)
 {
   uint8_t dec;
   double largest;
+  int bestbin;
   uint8_t largestbits[4];
-  double temp[CACHESIZE];         //temporary array for finding the largest magnitudes
+  double temp[CACHESIZE*2];         //temporary array for finding the largest magnitudes
 
-  
-  memcpy(temp,toneCache[bin],sizeof(temp));        //make a copy of the tone cache
+  Serial.printf("Decode");
 
-  //find the four largest magnitudes and save their bit positions.
-  for(int l= 0; l < 4; l++)
-    {
-      largest = 0;
-      for(int i = 0 ; i < CACHESIZE ; i++)
-      {
-        if(temp[i] > largest)
-        {
-        largest=temp[i];
-        largestbits[l]=i;
-        }
-      }
-      temp[largestbits[l]] = 0;
-    }
-
-  //convert the 4 bit positions to a valid 4 from 8 char
-    for(int l = 0;l<4;l++)
-    {
-      dec = dec | (0x80 >> largestbits[l]);        //add a one bit. 
-    }
-
-   decoded = decode4from8[dec];           //use the decode array to recover the original Character
-}
-
-
-
-//Search the Tone Cache using the alternative Method to try to decode the character. 
-bool decodeCacheAlt(void)
-{
+  if(settings.decodeMode == NORMALMODE)
+   {
+    bestbin = findBestBin(); 
     for(int i =0; i< cacheSize; i++)
      {
-      tempCache[i] = findLargest(i);
+      temp[i] = toneCache[bestbin][i];
      }
-
+   }
+  else 
+   {
+      for(int i =0; i< cacheSize; i++)
+     {
+      temp[i] = findLargest(i);
+     }
+   }
 
   if(halfRate)                        //half rate decoding. Sum the two received chars into one. 
    {
     for(int i=0; i<CACHESIZE ; i++)
       {
-        tempCache[i] = tempCache[i] + tempCache[i+8];
+        temp[i] = temp[i] + temp[i+8];
       }
    }
-
-//calculate the threshold as the mean of the received tone magnitudes. 
-  threshold=0;
-  for(int i = 0; i < CACHESIZE ; i++)
-    {
-      threshold=threshold + tempCache[i];
-    }
-  threshold = threshold / CACHESIZE;
-
-// now take each received symbol and determine if it is a 1 or a zero
-  uint8_t dec = 0;
-  for(int i = 0; i < CACHESIZE; i++)
-    {
-      if(tempCache[i] > threshold) 
-        {
-          dec = dec | (0x80 >> i);        //add a one bit if detected. 
-        }
-    }
-
-
-  decoded = decode4from8[dec];           //use the decode array to recover the original Character
-
-  if(decoded > 0)
-    {
-       return 1;                     // return 1 if it is a valid 4 from 8 character
-    }
-  else 
-    {
-      force4from8Alt();                 //try to recover the best 4 from 8 character. 
-      return 0;                         //unreliable character
-    }
-}
-
-//crude error correction. Picks the highest 4 Magnitudes and sets them to 1 creating a 4 from 8 character.
-void force4from8Alt(void)
-{
-  uint8_t dec;
-  double largest;
-  uint8_t largestbits[4];
-  double temp[CACHESIZE];         //temporary array for finding the largest magnitudes
-
-  
-  memcpy(temp,tempCache,sizeof(temp));        //make a copy of the tone cache
 
   //find the four largest magnitudes and save their bit positions.
   for(int l= 0; l < 4; l++)
@@ -279,4 +145,8 @@ void force4from8Alt(void)
     }
 
    decoded = decode4from8[dec];           //use the decode array to recover the original Character
+   return 1;
 }
+
+
+

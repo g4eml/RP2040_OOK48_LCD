@@ -20,7 +20,7 @@ struct eepromstruct settings;
 
 enum decodemodes {NORMALMODE,ALTMODE};
 
-enum core1Message {GENPLOT,DRAWSPECTRUM,DRAWWATERFALL,REDLINE,CYANLINE,SHOWTONE0,SHOWTONE1,MESSAGE,TMESSAGE,ERROR};         //messages for control of Core 1 from Core 2
+enum core1Message {GENPLOT,DRAWSPECTRUM,DRAWWATERFALL,REDLINE,CYANLINE,MESSAGE,TMESSAGE,ERROR};         //messages for control of Core 1 from Core 2
 
 
 uint dma_chan;                        //DMA Channel Number

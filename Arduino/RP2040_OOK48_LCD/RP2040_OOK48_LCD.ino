@@ -174,12 +174,6 @@ void loop1()
         case CYANLINE:
         markWaterfall(TFT_CYAN);
         break;
-        case SHOWTONE0:
-        showTone(0);
-        break;
-        case SHOWTONE1:
-        showTone(1);
-        break;
         case MESSAGE:
         textPrintChar(decoded,TFT_BLUE);                                 
         break;

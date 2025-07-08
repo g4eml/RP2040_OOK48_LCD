@@ -415,24 +415,6 @@ void drawLegend(void)
   tft.fillRect(toneLegend[0], LEGTOP, 1 + toneLegend[1] , LEGHEIGHT , TFT_ORANGE);
 }
 
-void showTone(uint8_t tone)
-{
-  static uint8_t lastTone = 0;
-
-  if((tone != lastTone)&(mode == RX))
-    {
-      if(tone == 1)
-      {
-      tft.fillRect(toneLegend[0], LEGTOP,toneLegend[1], LEGHEIGHT , TFT_GREEN);
-      }
-      else 
-      {
-      tft.fillRect(toneLegend[0], LEGTOP,toneLegend[1], LEGHEIGHT , TFT_ORANGE);
-      }
-      lastTone = tone;     
-    }
-}
-
 void calcLegend(void)
 {
     int point;

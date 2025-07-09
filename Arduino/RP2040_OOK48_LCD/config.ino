@@ -7,10 +7,11 @@ void configPage(void){
 /*
 Configuration items
 
-1S/2S Timing
 6/8/10 character QTH locator
-Clear 'EEPROM' - allows new GPS and clears all messages
-
+1S/2S Timing
+Decode Mode
+Tx Timing Advance
+Rx Timing Retard
 */
 
 char txt[10];
@@ -121,10 +122,17 @@ uint16_t cfgTextcolour;
   tft.fillRect(CFG_X, 0, CFG_WIDTH, CFG_HEIGHT, TFT_DARKGREY);
 
 
-  // Line 1
-  tft.setFreeFont(&FreeSans12pt7b);  // Font
+
+
+ 
+  
   // Draw the string, the value returned is the width in pixels
   tft.setTextColor(TFT_CYAN);
+   //Version Number
+  tft.setFreeFont(&FreeSans9pt7b);
+  tft.drawString(VERSION, CFG_TEXTLEFT, 300);
+  // Line 1
+  tft.setFreeFont(&FreeSans12pt7b);  // Font
   ypos=CFG_LINESPACING*0.5;
   tft.drawString("Set Locator length", CFG_TEXTLEFT, ypos);
   ypos=ypos + CFG_LINESPACING*2;

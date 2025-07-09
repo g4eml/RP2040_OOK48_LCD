@@ -1,3 +1,5 @@
+#define VERSION "Version 0.8"
+
 #define GPSTXPin 4                      //Serial data to GPS module 
 #define GPSRXPin 5                      //Serial data from GPS module
 #define TXPIN 6                         //Transmit output pin

@@ -45,6 +45,7 @@ void displayTx(void)
   tft.setTextColor(TFT_BLACK);
   tft.setFreeFont(&FreeSansBold24pt7b);
   tft.setTextDatum(TL_DATUM);
+  tft.setTextSize(1);
   tft.drawString("TX",SPECLEFT + (SPECWIDTH)/2 -40,SPECTOP + SPECHEIGHT);
 }
 
@@ -316,10 +317,22 @@ void processTouch(void)
 
       case 4:
       noTouch = false;
+      messageChanging = true;
       TxMessNo = doMemPad();
       getText("Enter TX Message", settings.TxMessage[TxMessNo], 30);
       saveSettings();
       homeScreen();
+      if(mode == TX)
+       {
+         mode = RX;
+         digitalWrite(KEYPIN, 0);
+         cancel_repeating_timer(&TxIntervalTimer);
+         mode = TX;
+         TxInit();
+         BUTkey[5].drawButton(0,"Rx");
+         displayTx();        
+       }
+       messageChanging = false;
       break;
 
       case 5:
@@ -330,7 +343,6 @@ void processTouch(void)
          TxInit();
          digitalWrite(TXPIN, 1);
          BUTkey[5].drawButton(0,"Rx");
-         BUTkey[4].drawButton(0,"");
          displayTx();
 
          TxPointer = 0;

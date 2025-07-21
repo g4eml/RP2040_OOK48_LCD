@@ -99,7 +99,7 @@ bool decodeCache(void)
 
   Serial.printf("Decode");
 
-  if(settings.decodeMode == NORMALMODE)
+  if(settings.decodeMode == ALTMODE)
    {
     bestbin = findBestBin(); 
     for(int i =0; i< cacheSize; i++)

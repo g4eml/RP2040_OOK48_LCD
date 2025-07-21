@@ -82,6 +82,8 @@ uint8_t TxMessLen;
 bool Key;
 bool TxSent;
 char TxCharSent;
+bool messageChanging;
+
 
 uint8_t plotData[PLOTPOINTS];        //Array of Plot points for spectrum display. Log scaled and offset to 0 - SPECHEIGHT and used to display new line.  
 uint8_t lastplotData[PLOTPOINTS];    //Array of Plot points for last Spectrum display. Used to erase previous line.

@@ -28,6 +28,8 @@ Programming using the RP2040s built in standard boot loader.
 
 Automatic calculation of QTH Lacator. Selectable for 6, 8 or 10 character accuracy. This locator can be inserted in any of the 10 Preset Messages. 
 
+Recording of messages to SD card for later viewing on a PC.
+
 ## Operation Description
 
 ### Display
@@ -48,6 +50,10 @@ At the bottom of the screen there are 6 touch buttons. Only 4 of these are curre
 Clear Screen.   Clears the Message display.
 
 Config. Displays a config page which allows the QTH Locator Length, Character Period, and GPS Baud Rate to be set.  
+
+Record Button (Red Circle).  Displayed when a FAT formatted SD card is fitted. Click to start recording of text to the SD card. Filename will be based on the current time HH_MM_SS.txt.
+
+Stop Button (White Square). Displayed when recording is in progress. Click to stop recording. 
 
 Set Tx.  This shows a menu of the 10 stored messages to be used for transmit. Selecting a messsage allows it to be edited on the next screen. Pressing the Enter Button saves the message.
 

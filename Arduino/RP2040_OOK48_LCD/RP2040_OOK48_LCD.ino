@@ -12,6 +12,8 @@
 #include "DEFINES.h"                  //include the defines for this project
 #include "globals.h"                  //global variables
 #include "float.h"
+#include <SPI.h>
+#include <SD.h>
 
 TFT_eSPI tft = TFT_eSPI();            // Invoke custom library
  
@@ -118,7 +120,14 @@ void setup1()
    {
     delay(1);
    }
-  Serial2.begin(settings.gpsBaud);                        
+  Serial2.begin(settings.gpsBaud);    
+
+  SPI1.setRX(SDO);
+  SPI1.setTX(SDI);
+  SPI1.setSCK(SDCLK);
+
+  sdpresent = SD.begin(SDCS,SPI1);
+
   gpsPointer = 0;
   waterRow = 0;
   initGUI();                        //initialise the GUI screen

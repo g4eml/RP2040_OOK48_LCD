@@ -108,6 +108,11 @@ void textPrintLine(const char* message)
 
 void textPrintChar(char m, uint16_t col)
 {
+  if((sdpresent) & (sdfile))
+   {
+    sdfile.write(&m,1);
+   }
+
  if(textrow > (TEXTTOP + TEXTHEIGHT - tft.fontHeight()))
     {
       textClear();
@@ -132,6 +137,11 @@ void textPrintChar(char m, uint16_t col)
    }
   
   
+
+}
+
+void fileprintChar(char m)
+{
 
 }
 
@@ -183,7 +193,6 @@ void drawButtons(void)
 
 // Draw the keys
   int tsz;
-
   for (uint8_t i= 0; i< 6; i++) 
   {
       char blank[2] = " ";
@@ -205,6 +214,17 @@ void drawButtons(void)
       BUTkey[i].drawButton(0,BUTLabel[i]);
   }
 
+ if(sdpresent)
+  {
+    if(sdfile) 
+     {
+       stopButton();
+     }
+    else
+     {
+       recButton();
+     }
+  }
 
 }
 
@@ -270,6 +290,7 @@ bool screenTouched(void)
 void processTouch(void)
 {
   int butPressed = -1;
+  char fname[16];
 // Check if any key coordinate boxes contain the touch coordinates
       for (uint8_t b = 0; b < 6; b++) 
       {
@@ -308,6 +329,20 @@ void processTouch(void)
       break;
 
       case 2:
+      if(sdpresent)
+       {
+        if(sdfile)                 //is the SD file Open?
+         {
+           sdfile.close();        //close it
+           recButton();
+         }
+       else
+         {
+           sprintf(fname,"%02d_%02d_%02d.txt",gpsHr,gpsMin,gpsSec);
+           sdfile = SD.open(fname,FILE_WRITE);
+           if(sdfile) stopButton();  
+         }
+       }
       noTouch = false;
       break;
 
@@ -443,4 +478,16 @@ void calcLegend(void)
     freq = freq - SPECLOW;
     point = (freq / plotIncrement) - point;
     toneLegend[1] = point;
+}
+
+void stopButton(void)
+{
+    tft.fillRect(BUTLEFT +2 * (BUTWIDTH + BUTGAP)-10,BUTTOP-10, 20, 20, TFT_WHITE);
+}
+
+
+void recButton(void)
+{
+  tft.fillRect(BUTLEFT +2 * (BUTWIDTH + BUTGAP)-10,BUTTOP-10, 20, 20, TFT_BLUE);
+  tft.fillCircle(BUTLEFT +2 * (BUTWIDTH + BUTGAP), BUTTOP , 10 , TFT_RED);
 }

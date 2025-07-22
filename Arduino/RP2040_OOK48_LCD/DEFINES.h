@@ -1,4 +1,4 @@
-#define VERSION "Version 0.8"
+#define VERSION "Version 0.9"
 
 #define GPSTXPin 4                      //Serial data to GPS module 
 #define GPSRXPin 5                      //Serial data from GPS module
@@ -7,6 +7,10 @@
 #define PPSINPUT 3                      //1 PPS signal from GPS 
 #define ADC_CHAN 2                      //ADC2 is on GPIO Pin 28. Analogue input from Receiver. DC biased to half Supply rail.
 #define ADC_VOLTS 3                     //ADC 3 is battery voltage/2
+#define SDCLK 10                        //SD card Clock
+#define SDI 11                          //SD card data in
+#define SDO 12                          //SD card data out
+#define SDCS 22                         //SD card select
 
 #define REPEAT_CAL false              // Set REPEAT_CAL to true instead of false to run calibration again, otherwise it will only be done once.
 #define PLOTPOINTS 234                //Number of FFT points to display

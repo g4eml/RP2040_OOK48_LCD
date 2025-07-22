@@ -97,7 +97,6 @@ bool decodeCache(void)
   uint8_t largestbits[4];
   double temp[CACHESIZE*2];         //temporary array for finding the largest magnitudes
 
-  Serial.printf("Decode");
 
   if(settings.decodeMode == ALTMODE)
    {

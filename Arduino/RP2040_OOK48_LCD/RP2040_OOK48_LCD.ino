@@ -13,7 +13,16 @@
 #include "globals.h"                  //global variables
 #include "float.h"
 #include <SPI.h>
-#include <SD.h>
+#include "SdFat_Adafruit_Fork.h"
+#include "Adafruit_TinyUSB.h"
+
+SdFat sd;
+
+SdFile sdfile;
+
+Adafruit_USBD_MSC usb_msc;                // USB Mass Storage object
+
+#define SD_CONFIG SdSpiConfig(SDCS, SHARED_SPI,SD_SCK_MHZ(12), &SPI1)
 
 TFT_eSPI tft = TFT_eSPI();            // Invoke custom library
  
@@ -26,7 +35,6 @@ struct repeating_timer PPSIntervalTimer;                  // and another for the
 //Run once on power up. Core 0 does the time critical work. Core 1 handles the GUI.  
 void setup() 
 {
-    Serial.begin();                   //enable the debug serial port
     EEPROM.begin(1024);
     loadSettings();
     pinMode(PPSINPUT,INPUT);
@@ -126,7 +134,12 @@ void setup1()
   SPI1.setTX(SDI);
   SPI1.setSCK(SDCLK);
 
-  sdpresent = SD.begin(SDCS,SPI1);
+  sdpresent = sd.begin(SD_CONFIG);
+
+  if(sdpresent)
+    {
+//      initUSBDrive();
+    }
 
   gpsPointer = 0;
   waterRow = 0;

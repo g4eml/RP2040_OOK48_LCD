@@ -338,9 +338,13 @@ void processTouch(void)
          }
        else
          {
+          if(gpsHr !=-1)
+          {
            sprintf(fname,"%02d_%02d_%02d.txt",gpsHr,gpsMin,gpsSec);
-           sdfile = SD.open(fname,FILE_WRITE);
-           if(sdfile) stopButton();  
+           sdfile.open(fname,FILE_WRITE);
+           if(sdfile) stopButton(); 
+          }
+ 
          }
        }
       noTouch = false;

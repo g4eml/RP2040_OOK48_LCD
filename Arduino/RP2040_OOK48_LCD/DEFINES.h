@@ -1,4 +1,4 @@
-#define VERSION "Version 0.9"
+#define VERSION "Version 0.10"
 
 #define GPSTXPin 4                      //Serial data to GPS module 
 #define GPSRXPin 5                      //Serial data from GPS module
@@ -70,7 +70,7 @@
 #define CFG_SPACING_X 10 // X and Y gap
 #define CFG_SPACING_Y 20
 #define CFG_TEXTSIZE 1   // Font size multiplier
-#define CFG_NUMBEROFBUTTONS 12     //number of config buttons.
+#define CFG_NUMBEROFBUTTONS 13     //number of config buttons.
 
 //Detection Values
 

@@ -9,9 +9,11 @@ Configuration items
 
 6/8/10 character QTH locator
 1S/2S Timing
+GPS Baud Rate
 Decode Mode
 Tx Timing Advance
 Rx Timing Retard
+USB Download
 */
 
 char txt[10];
@@ -104,6 +106,12 @@ bool cfgLoop = false;
       if(settings.rxRetard > 999) settings.rxRetard = 999;
       break;
     case 11:
+      if(sdpresent)
+       {
+         doUSBDrive();
+       }
+      break;
+    case 12:
       cfgLoop = true;
       break;
     }
@@ -113,7 +121,7 @@ bool cfgLoop = false;
 
 
 void drawCFGKbd(void){
-char congfglabels[CFG_NUMBEROFBUTTONS][6]={"6", "8", "10", "1s", "2s", "9600", "38400", "Norm", "Alt", "","","EXIT"};
+char congfglabels[CFG_NUMBEROFBUTTONS][6]={"6", "8", "10", "1s", "2s", "9600", "38400", "Norm", "Alt", "","","USB","EXIT"};
 char txt[10];
 int ypos;
 uint16_t cfgTextcolour;
@@ -145,6 +153,12 @@ uint16_t cfgTextcolour;
   tft.drawString("Tx Timing Advance                  ms", CFG_TEXTLEFT, ypos);
   ypos=ypos + CFG_LINESPACING*2;
   tft.drawString("Rx Timing Retard                     ms", CFG_TEXTLEFT, ypos);
+  if(sdpresent)
+    {
+      ypos=ypos + CFG_LINESPACING*2;
+      tft.drawString("Activate USB Drive Mode", CFG_TEXTLEFT, ypos);
+    }
+
   tft.setFreeFont(KB_FONT); 
 
   ypos=CFG_LINESPACING*0.5; 
@@ -230,10 +244,21 @@ uint16_t cfgTextcolour;
       sprintf(txt,"%d",settings.rxRetard);      
       cfgKbd[10].drawButton(false,txt);
 
+// USB Drive Button
+      if(sdpresent)
+       {
+         ypos=ypos + CFG_LINESPACING*2;
+         cfgTextcolour = TFT_WHITE;
+         cfgKbd[11].initButton(&tft,CFG_BUTTONSLEFT + CFG_W/2 + CFG_W/2 +10,
+                        ypos + CFG_LINESPACING/2, // x, y, w, h, outline, fill, text
+                        CFG_W, CFG_H, TFT_WHITE, TFT_BLUE, cfgTextcolour,
+                        congfglabels[11], CFG_TEXTSIZE);     
+         cfgKbd[11].drawButton();
+       }
 // Exit Button
-      cfgKbd[11].initButton(&tft, CFG_WIDTH - (CFG_W),
-                        CFG_LINESPACING*14 + CFG_LINESPACING/2, // x, y, w, h, outline, fill, text
+      cfgKbd[12].initButton(&tft, CFG_WIDTH - (CFG_W) + 20,
+                        CFG_LINESPACING*14 + CFG_LINESPACING/2 +10, // x, y, w, h, outline, fill, text
                         CFG_W, CFG_H, TFT_WHITE, TFT_BLUE, TFT_WHITE,
-                        congfglabels[11],  CFG_TEXTSIZE);
-      cfgKbd[11].drawButton(); 
+                        congfglabels[12],  CFG_TEXTSIZE);
+      cfgKbd[12].drawButton(); 
 }

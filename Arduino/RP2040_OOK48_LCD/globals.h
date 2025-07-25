@@ -86,7 +86,6 @@ bool messageChanging;
 
 bool sdpresent;
 
-File sdfile;
 
 
 uint8_t plotData[PLOTPOINTS];        //Array of Plot points for spectrum display. Log scaled and offset to 0 - SPECHEIGHT and used to display new line.  

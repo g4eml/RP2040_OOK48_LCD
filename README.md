@@ -30,6 +30,8 @@ Automatic calculation of QTH Lacator. Selectable for 6, 8 or 10 character accura
 
 Recording of messages to SD card for later viewing on a PC.
 
+USB Drive mode to allow downloading of SD card files to a PC. 
+
 ## Operation Description
 
 ### Display
@@ -125,6 +127,8 @@ The RP2040 is programmed using the Arduino IDE with the Earl F. Philhower, III  
 3. Click Install
 4. Now search for 'TFT_eSPI' and find the TFT graphics library by Bodmer.
 5. Click Install
+6. Now search for 'SdFat - Adafruit Fork" and find the library by Bill Greiman.
+7. Click Install
 
 #### Downloading the Software.
 
@@ -169,7 +173,7 @@ This will normaly be found at 'Documents/Arduino/libraries/TFT_eSPI'
 
    Upload Method: "Default (UF2)"
 
-   USB Stack: "Pico SDK"  
+   USB Stack: "Adafruit TinyUSB"  
 
 5. Connect the HMI Module to the USB port, hold down the BOOT button and briefly press the reset Button. 
 
@@ -189,6 +193,12 @@ The firmware requires the connection of a GPS module. This is used to accurately
 GPS data to the HMI module is connected to IO pin 5.
 GPS data from the HMI module is connected to IO pin 4.
 1 PPS pulse from the GPS module is conneced to IO pin 3.
+
+## USB Drive Mode. 
+
+If an SD card is present there will be an additonal line visible on the Config Page. 'Activate USB Drive Mode" .  Clicking on this button will activate the USB Memory stick emulation mode. You can then connect the HMI module to a PC and the contents of its SD card will appear as a USB drive. This allows the download and deletion of the saved text files without removing the SD card. 
+
+This mode can pnly be exited by powering off the module. 
 
 
 

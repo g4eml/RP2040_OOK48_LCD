@@ -40,8 +40,8 @@ int overlap = 1;
 
 float sigNoise;
 float snBins;
-double threshold;
-double toneCache[1 + MAXTONETOLERANCE * 2][CACHESIZE *2];          // Array large enough for the biggest tone magnitude cache
+float threshold;
+float toneCache[NUMBEROFBINS][CACHESIZE *2];          // Array large enough for the biggest tone magnitude cache
 uint16_t cachePoint;                  // Pointer to next cache entry. 
 bool halfRate = false;
 
@@ -57,14 +57,13 @@ int gpsMin = -1;
 int gpsHr = -1;
 uint8_t PPSActive = 0;
 long lastTimeUpdate = 0;
-double latitude = 0;
-double longitude =0;
+float latitude = 0;
+float longitude =0;
 char qthLocator[12] = "----------";
 
-uint16_t buffer[2][NUMBEROFSAMPLES];     //2 DMA buffers to allow one to be processed while the next is being received.
-double vReal[NUMBEROFBINS];            //Real Array for FFT input and output
-double vImag[NUMBEROFBINS];            //Imaginary Array for FFT input and output
-
+uint16_t buffer[2][NUMBEROFOVERSAMPLES];     //2 DMA buffers to allow one to be processed while the next is being received.
+float sample[NUMBEROFSAMPLES];              //array for the averaged samples 
+float magnitude[NUMBEROFBINS];            //Array for signal spectrum
 uint16_t t_x = 0, t_y = 0;            // To store the touch coordinates
 uint16_t textrow;                    //current row for text output
 uint16_t textcol;                    //current colume position for text output
@@ -88,8 +87,8 @@ bool sdpresent;
 
 
 
-uint8_t plotData[PLOTPOINTS];        //Array of Plot points for spectrum display. Log scaled and offset to 0 - SPECHEIGHT and used to display new line.  
-uint8_t lastplotData[PLOTPOINTS];    //Array of Plot points for last Spectrum display. Used to erase previous line.
+uint8_t plotData[NUMBEROFBINS];        //Array of Plot points for spectrum display. Log scaled and offset to 0 - SPECHEIGHT and used to display new line.  
+uint8_t lastplotData[NUMBEROFBINS];    //Array of Plot points for last Spectrum display. Used to erase previous line.
 
 uint8_t toneLegend[2];                  // start and end pixels for tone indicator legend
 

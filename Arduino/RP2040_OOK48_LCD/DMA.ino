@@ -31,7 +31,7 @@ void dma_init(void)
     channel_config_set_read_increment(&cfg, false);              //Do not increment the read address after each transfer
     channel_config_set_write_increment(&cfg, true);              //Increment the Write address after each transfer
     channel_config_set_dreq(&cfg, DREQ_ADC);                     // Pace transfers based on availability of ADC samples
-    dma_channel_configure(dma_chan, &cfg, buffer[bufIndex], &adc_hw->fifo, NUMBEROFSAMPLES, false);    //configure DMA to copy ADC FIFO to buffer 
+    dma_channel_configure(dma_chan, &cfg, buffer[bufIndex], &adc_hw->fifo, NUMBEROFOVERSAMPLES, false);    //configure DMA to copy ADC FIFO to buffer 
     dma_channel_set_irq0_enabled(dma_chan, true);                //Enable DMA IRQ 0. 
     irq_set_exclusive_handler(DMA_IRQ_0, dma_handler);           //Link DMA IRQ0 to the interrupt handler
     irq_set_enabled(DMA_IRQ_0, true);                            //Enable the interrupt

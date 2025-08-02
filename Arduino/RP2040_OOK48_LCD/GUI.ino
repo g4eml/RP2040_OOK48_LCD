@@ -55,9 +55,13 @@ void drawWaterfall(void)
   if(mode == RX)
   {
     if(waterRow < WATERHEIGHT-1) tft.drawFastHLine(WATERLEFT,WATERTOP + waterRow + 1,WATERWIDTH,TFT_WHITE);       //Draw White line acrost the Waterfall to highlight the current position.
-    for(int p=0 ; p < PLOTPOINTS ; p++)                                              //for each of the data points in the current row
+    for(int p=0 ; p < NUMBEROFBINS ; p++)                                              //for each of the data points in the current row
     {
-      tft.drawPixel(WATERLEFT + p,WATERTOP + waterRow, waterColours[(plotData[p] + 10) *2]);             //draw a pixel of the required colour
+      for(int pc=0;pc<PIXELSPERBIN;pc++)
+      {
+        tft.drawPixel(WATERLEFT + p*PIXELSPERBIN + pc, WATERTOP + waterRow, waterColours[(plotData[p] + 10) *2]);             //draw a pixel of the required colour
+      }
+
     } 
     waterRow++;                                                                      //Increment the row for next time
     if(waterRow >= WATERHEIGHT) waterRow = 0;                                        //Cycle back to the start at the end of the display. (would be nice to scroll the display but this is too slow)
@@ -77,12 +81,12 @@ void drawSpectrum(void)
 {
   if(mode == RX)
   {
-    for(int p=1 ; p < PLOTPOINTS ; p++)                                             //for each of the data points in the current row
+    for(int p=1 ; p < NUMBEROFBINS ; p++)                                             //for each of the data points in the current row
       {
-        tft.drawLine(SPECLEFT + p - 1, SPECTOP + SPECHEIGHT - lastplotData[p-1], SPECLEFT + p, SPECTOP + SPECHEIGHT - lastplotData[p], TFT_CYAN);   //erase previous plot
-        tft.drawLine(SPECLEFT + p - 1, SPECTOP + SPECHEIGHT - plotData[p-1], SPECLEFT + p, SPECTOP + SPECHEIGHT - plotData[p], TFT_RED);            //draw new plot
+        tft.drawLine(SPECLEFT + p*PIXELSPERBIN - 1, SPECTOP + SPECHEIGHT - lastplotData[p-1], SPECLEFT + p*PIXELSPERBIN +PIXELSPERBIN, SPECTOP + SPECHEIGHT - lastplotData[p], TFT_CYAN);   //erase previous plot
+        tft.drawLine(SPECLEFT + p*PIXELSPERBIN - 1, SPECTOP + SPECHEIGHT - plotData[p-1], SPECLEFT + p*PIXELSPERBIN +PIXELSPERBIN, SPECTOP + SPECHEIGHT - plotData[p], TFT_RED);            //draw new plot
       }
-    memcpy(lastplotData , plotData, PLOTPOINTS);       //need to save this plot so that we can erase it next time (faster than clearing the screen)
+    memcpy(lastplotData , plotData, NUMBEROFBINS);       //need to save this plot so that we can erase it next time (faster than clearing the screen)
   }  
 }
 
@@ -162,14 +166,12 @@ void showTime(void)
   sprintf(q,"%10s",qthLocator);
 
 
-  tft.fillRect(0,0,230,20,TFT_CYAN);
+  tft.fillRect(0,0,SPECWIDTH,40,TFT_CYAN);
   tft.setTextColor(TFT_BLACK);
   tft.setFreeFont(&FreeSans9pt7b);
   tft.setTextDatum(TL_DATUM);
   tft.drawString(t,0,0);
-  tft.setTextDatum(TR_DATUM);
-  tft.drawString(q,228,0);
-  tft.setTextDatum(TL_DATUM);  
+  tft.drawString(q,0,16);  
 }
 
 
@@ -425,23 +427,12 @@ void processTouch(void)
       switch(toneTolerance)
       {
         case 5:
-        rxTone = TONE800;
         toneTolerance = 11;
         break;       
         case 11:
-        rxTone = TONE800;
-        toneTolerance = 28;
+        toneTolerance = 33;
         break;
-        case 28:
-        rxTone = TONE800;
-        toneTolerance = 55;
-        break;
-        case 55:
-        rxTone = TONE1250;
-        toneTolerance = MAXTONETOLERANCE;
-        break;
-        case 105:
-        rxTone = TONE800;
+        case 33:
         toneTolerance = 5;
         break;       
       }
@@ -463,25 +454,13 @@ void processTouch(void)
 void drawLegend(void)
 {
   tft.fillRect(LEGLEFT,LEGTOP,LEGWIDTH,LEGHEIGHT, TFT_WHITE);
-  tft.fillRect(toneLegend[0], LEGTOP, 1 + toneLegend[1] , LEGHEIGHT , TFT_ORANGE);
+  tft.fillRect(toneLegend[0]*PIXELSPERBIN, LEGTOP, 1 + toneLegend[1]*PIXELSPERBIN , LEGHEIGHT , TFT_ORANGE);
 }
 
 void calcLegend(void)
 {
-    int point;
-    int width;
-    float freq;
-    float plotIncrement;
-    plotIncrement = (SPECHIGH - SPECLOW) / (float) PLOTPOINTS;
-
-    freq = hzPerBin * ((float) rxTone - (float)toneTolerance);
-    freq = freq - SPECLOW;
-    point = freq / plotIncrement;
-    toneLegend[0] = point;
-    freq = hzPerBin * ((float) rxTone  + (float)toneTolerance);
-    freq = freq - SPECLOW;
-    point = (freq / plotIncrement) - point;
-    toneLegend[1] = point;
+    toneLegend[0] = TONE800 - toneTolerance;
+    toneLegend[1] = toneTolerance *2;
 }
 
 void stopButton(void)

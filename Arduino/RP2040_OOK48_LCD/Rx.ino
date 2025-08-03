@@ -52,7 +52,7 @@ int findBestBin(void)
 
   bestRange =0;
   topBin = 0;
-  for(int b=0 ; b < 1 + toneTolerance *2; b++)        //search each possible bin in the search range
+  for(int b=rxTone - toneTolerance ; b < rxTone + toneTolerance; b++)        //search each possible bin in the search range
     {
       max = 0 - DBL_MAX;
       min = DBL_MAX;
@@ -72,12 +72,12 @@ int findBestBin(void)
   return topBin;
 }
 
-//search the FFT cache to find the magnitude of the largest tone tone. 
+//search the magnitude cache to find the magnitude of the largest tone tone. 
 float findLargest(int timeslot)
 {
   float max;
   max = 0 - DBL_MAX;
-  for(int b=0 ; b < 1 + toneTolerance *2; b++)        //search each possible bin in the search range to find the largest magnitude
+  for(int b=rxTone - toneTolerance ; b < rxTone + toneTolerance; b++)        //search each possible bin in the search range to find the largest magnitude
     {
       if(toneCache[b][timeslot] > max) max = toneCache[b][timeslot];
     }

@@ -30,7 +30,7 @@
 #define WATERWIDTH NUMBEROFBINS * PIXELSPERBIN         //Waterfall Disply Width in Pixels
 #define WATERHEIGHT 165               //Waterfall Diaply Height in Pixels
 
-#define TEXTLEFT NUMBEROFBINS * PIXELSPERBIN                 //left edge of text output area
+#define TEXTLEFT NUMBEROFBINS * PIXELSPERBIN +5                 //left edge of text output area
 #define TEXTTOP 0                    //top edge of text output area
 #define TEXTWIDTH 480-TEXTLEFT                //width of text output area
 #define TEXTHEIGHT 275               //height of text output area
@@ -79,9 +79,9 @@
 
 #define TONETOLERANCE 11                                        // 11 * 9  = 99Hz Tolerance
 
-#define NUMBEROFBINS 67
+#define NUMBEROFBINS 68                                         //68 bins between STARTFREQ and ENDFREQ
 
-#define CACHESIZE 8                // 8 bits 
+#define CACHESIZE 8                                           // 8 bits per character
 
 //Tx constants
 

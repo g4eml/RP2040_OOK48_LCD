@@ -430,9 +430,9 @@ void processTouch(void)
         toneTolerance = 11;
         break;       
         case 11:
-        toneTolerance = 33;
+        toneTolerance = 34;
         break;
-        case 33:
+        case 34:
         toneTolerance = 5;
         break;       
       }

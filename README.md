@@ -8,29 +8,29 @@ It is described in the document https://github.com/g4eml/RP2040_OOK48_LCD/blob/m
 
 ## Features
 
-Uses On/Off keying which is easier to implement than Frequency Shift keying on the higher microwave bands. 
+- Uses On/Off keying which is easier to implement than Frequency Shift keying on the higher microwave bands. 
 
-The data rate is similar to Morse code, so the module can be connected directly to the CW key input of any radio. 
+- The data rate is similar to Morse code, so the module can be connected directly to the CW key input of any radio. 
 
-Real time visual confirmation of the message, character by character. No need to wait 30 seconds to see if the reception has succeeded.
+- Real time visual confirmation of the message, character by character. No need to wait 30 seconds to see if the reception has succeeded.
 
-Uses the GPS 1 Pulse per second signal for accurate character synchronisation.  
+- Uses the GPS 1 Pulse per second signal for accurate character synchronisation.  
 
-Optional 2 Seconds per character mode which increases the decode sensitiviy slightly. 
+- Optional 2 Seconds per character mode which increases the decode sensitiviy slightly. 
 
-Stand alone Device with LCD touch screen display. 
+- Stand alone Device with LCD touch screen display. 
 
-No special programming hardware or software required. 
+- No special programming hardware or software required. 
 
-Programming using the RP2040s built in standard boot loader. 
+- Programming using the RP2040s built in standard boot loader. 
 
-10 Preset Messages are saved to EEPROM for automatic load on power on. 
+- 10 Preset Messages are saved to EEPROM for automatic load on power on. 
 
-Automatic calculation of QTH Lacator. Selectable for 6, 8 or 10 character accuracy. This locator can be inserted in any of the 10 Preset Messages. 
+- Automatic calculation of QTH Lacator. Selectable for 6, 8 or 10 character accuracy. This locator can be inserted in any of the 10 Preset Messages. 
 
-Recording of messages to SD card for later viewing on a PC.
+- Recording of messages to SD card for later viewing on a PC.
 
-USB Drive mode to allow downloading of SD card files to a PC. 
+- USB Drive mode to allow downloading of SD card files to a PC. 
 
 ## Operation Description
 
@@ -199,6 +199,16 @@ GPS data from the HMI module is connected to IO pin 4.
 If an SD card is present there will be an additonal line visible on the Config Page. 'Activate USB Drive Mode" .  Clicking on this button will activate the USB Memory stick emulation mode. You can then connect the HMI module to a PC and the contents of its SD card will appear as a USB drive. This allows the download and deletion of the saved text files without removing the SD card. 
 
 This mode can pnly be exited by powering off the module. 
+
+## 3D Printed Enclosure
+
+Files for a 3D printable enclosure are included in the Enclosure directory. 
+
+Additional parts required.
+- 3 Phono Sockets for Audio Input, Key Output and PTT Output
+- PAM8403 amplifier module with volume control. Wired in parallel with input audio to allow monitoring of the signal
+- 28mm Speaker
+- 18650 Lithium Cell. (can be switched with the audio amp voulme control on/off switch)
 
 
 

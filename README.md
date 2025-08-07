@@ -206,9 +206,11 @@ Files for a 3D printable enclosure are included in the Enclosure directory.
 
 Additional parts required.
 - 3 Phono Sockets for Audio Input, Key Output and PTT Output
-- PAM8403 amplifier module with volume control. Wired in parallel with input audio to allow monitoring of the signal
-- 28mm Speaker
+- PAM8403 amplifier module with volume control. Wired in parallel with input audio to allow monitoring of the signal 
+- 28mm Speaker 
 - 18650 Lithium Cell. (can be switched with the audio amp voulme control on/off switch)
 
-
+  
+![Pam2303](https://github.com/user-attachments/assets/8c209f55-b711-41c5-a5d7-33df65cf7edd)
+![Speaker](https://github.com/user-attachments/assets/70e4076a-ec9e-46bb-a499-0e55d69f436d) 
 

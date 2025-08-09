@@ -23,7 +23,7 @@ void RxTick(void)
    if((dmaReady) && (cachePoint < cacheSize))                                                 //Do we have a complete buffer of ADC samples ready?
     {
       lastDma = millis();
-      calcSpectrum();                                           //Perform the FFT of the data
+      calcSpectrumF();                                           //Perform the FFT of the data
       rp2040.fifo.push(GENPLOT);                                //Ask Core 1 to generate data for the Displays from the FFT results.  
       rp2040.fifo.push(DRAWSPECTRUM);                           //Ask core 1 to draw the Spectrum Display
       rp2040.fifo.push(DRAWWATERFALL);                          //Ask core 1 to draw the Waterfall Display      
@@ -54,8 +54,8 @@ int findBestBin(void)
   topBin = 0;
   for(int b=rxTone - toneTolerance ; b < rxTone + toneTolerance; b++)        //search each possible bin in the search range
     {
-      max = 0 - DBL_MAX;
-      min = DBL_MAX;
+      max = 0 - FLT_MAX;
+      min = FLT_MAX;
       for(int s=0; s < cacheSize ; s++)               //search all 8 or 16 symbols in this bin to find the largest and smallest
         {
           if(toneCache[b][s] > max) max = toneCache[b][s];
@@ -76,7 +76,7 @@ int findBestBin(void)
 float findLargest(int timeslot)
 {
   float max;
-  max = 0 - DBL_MAX;
+  max = 0 - FLT_MAX;
   for(int b=rxTone - toneTolerance ; b < rxTone + toneTolerance; b++)        //search each possible bin in the search range to find the largest magnitude
     {
       if(toneCache[b][timeslot] > max) max = toneCache[b][timeslot];

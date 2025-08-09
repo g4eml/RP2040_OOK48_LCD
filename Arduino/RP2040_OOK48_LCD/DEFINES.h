@@ -1,4 +1,4 @@
-#define VERSION "Version 0.11G"
+#define VERSION "Version 0.11F"
 
 #define GPSTXPin 4                      //Serial data to GPS module 
 #define GPSRXPin 5                      //Serial data from GPS module
@@ -67,12 +67,13 @@
 
 //Detection Values
 #define OVERSAMPLE 8                                           //multiple samples are averaged to reduce noise floor. 
-#define NUMBEROFSAMPLES 1000                                       // 1024 samples gives a scan rate of the bitrate
+#define NUMBEROFSAMPLES 1024                                       // 1024 samples gives a scan rate of the bitrate
 #define NUMBEROFOVERSAMPLES NUMBEROFSAMPLES * OVERSAMPLE              // ADC samples. will be averaged to number of Bins to reduce sampling noise.
-#define SAMPLERATE 9000                                         //9000 samples per second with 1000 bins gives 9Hz sample rate and 9Hz bins. 
+#define SAMPLERATE 9216                                         //9216 samples per second with 1024 bins gives 9Hz sample rate and 9Hz bins. 
 #define OVERSAMPLERATE SAMPLERATE * OVERSAMPLE         
 
 #define STARTFREQ 495                                          //first frequency of interest (to nearest 9 Hz)
+#define STARTBIN 55                                            // equivalent bin number from 512 FFT bins 
 #define ENDFREQ 1098                                           //last frequency of interest (to nearest 9 Hz)
 
 #define TONE800 34                                             // 800 Hz is the 34th bin between STARTFREQ and ENDFREQ

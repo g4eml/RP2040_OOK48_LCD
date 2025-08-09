@@ -6,6 +6,7 @@
 #include <hardware/dma.h>
 #include <hardware/adc.h>
 #include "hardware/irq.h"
+#include "arduinoFFT.h"
 #include <EEPROM.h>
 #include <TFT_eSPI.h>                 // Hardware-specific library. Must be pre-configured for this display and touchscreen
 #include "DEFINES.h"                  //include the defines for this project
@@ -25,6 +26,7 @@ Adafruit_USBD_MSC usb_msc;                // USB Mass Storage object
 
 TFT_eSPI tft = TFT_eSPI();            // Invoke custom library
  
+ArduinoFFT<float> FFT = ArduinoFFT<float>(sample, sampleI, NUMBEROFSAMPLES, SAMPLERATE);         //Declare FFT function
 
 struct repeating_timer TxIntervalTimer;                   //repeating timer for Tx bit interval
 

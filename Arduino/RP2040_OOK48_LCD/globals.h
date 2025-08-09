@@ -63,7 +63,9 @@ char qthLocator[12] = "----------";
 
 uint16_t buffer[2][NUMBEROFOVERSAMPLES];     //2 DMA buffers to allow one to be processed while the next is being received.
 float sample[NUMBEROFSAMPLES];              //array for the averaged samples 
+float sampleI[NUMBEROFSAMPLES];             //imaginary part for FFT
 float magnitude[NUMBEROFBINS];            //Array for signal spectrum
+
 uint16_t t_x = 0, t_y = 0;            // To store the touch coordinates
 uint16_t textrow;                    //current row for text output
 uint16_t textcol;                    //current colume position for text output

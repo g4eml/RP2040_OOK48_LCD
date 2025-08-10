@@ -327,7 +327,10 @@ void processTouch(void)
       mode = RX;
       digitalWrite(KEYPIN, 0);
       digitalWrite(TXPIN, 0);
+      adc_select_input(ADC_VOLTS);                                  //select the Battery input channel.
       configPage();
+      waterRow = 0;
+      adc_select_input(ADC_CHAN);                                  //return to normal input channel.
       saveSettings();
       homeScreen();
       break;

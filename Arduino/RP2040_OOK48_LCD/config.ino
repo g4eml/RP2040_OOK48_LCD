@@ -23,6 +23,7 @@ bool cfgLoop = false;
   {
   drawCFGKbd();
   delay(50); // UI debouncing
+  showVoltage(true);
     while(!done)
     {
 
@@ -50,6 +51,7 @@ bool cfgLoop = false;
             done = true;
           }
         }
+       showVoltage(false);
     }
 
   switch(ch)
@@ -263,4 +265,27 @@ uint16_t cfgTextcolour;
                         CFG_W, CFG_H, TFT_WHITE, TFT_BLUE, TFT_WHITE,
                         congfglabels[12],  CFG_TEXTSIZE);
       cfgKbd[12].drawButton(); 
+}
+
+void showVoltage(bool force)
+{
+  char txt[10];
+  float voltage;
+  static float lastvolt;
+  
+  for(int i=0;i<1024;i++)
+   {
+    voltage = voltage + (float) buffer[bufIndex][i]/620.0;
+   }
+  voltage = voltage / 1024;
+  if((abs(voltage - lastvolt) > 0.01) | (force))
+   {
+     sprintf(txt,"%0.2f V",voltage);
+     tft.setFreeFont(&FreeSans12pt7b);  // Font
+     tft.setTextColor(TFT_CYAN);
+     tft.fillRect(200, 300, 70, 20, TFT_DARKGREY);
+     tft.drawString(txt, 200, 300);
+     lastvolt = voltage;
+   }
+
 }

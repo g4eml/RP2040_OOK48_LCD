@@ -1,4 +1,4 @@
-#define VERSION "Version 0.11F"
+#define VERSION "Version 0.11"
 
 #define GPSTXPin 4                      //Serial data to GPS module 
 #define GPSRXPin 5                      //Serial data from GPS module

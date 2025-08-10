@@ -26,7 +26,7 @@ Adafruit_USBD_MSC usb_msc;                // USB Mass Storage object
 
 TFT_eSPI tft = TFT_eSPI();            // Invoke custom library
  
-ArduinoFFT<double> FFT = ArduinoFFT<double>(vReal, vImag, NUMBEROFBINS, SAMPLERATE);         //Declare FFT function
+ArduinoFFT<float> FFT = ArduinoFFT<float>(sample, sampleI, NUMBEROFSAMPLES, SAMPLERATE);         //Declare FFT function
 
 struct repeating_timer TxIntervalTimer;                   //repeating timer for Tx bit interval
 
@@ -291,11 +291,11 @@ bool RMCValid(void)
    }
 }
 // Converts dddmm.mmm format to decimal degrees (ddd.ddd)
-double convertToDecimalDegrees(double dddmm_mmm) 
+float convertToDecimalDegrees(float dddmm_mmm) 
 {
     int degrees = (int)(dddmm_mmm / 100);                 // Extract the degrees part
-    double minutes = dddmm_mmm - (degrees * 100);         // Extract the minutes part
-    double decimalDegrees = degrees + (minutes / 60.0);   // Convert minutes to degrees
+    float minutes = dddmm_mmm - (degrees * 100);         // Extract the minutes part
+    float decimalDegrees = degrees + (minutes / 60.0);   // Convert minutes to degrees
     return decimalDegrees;
 }
 

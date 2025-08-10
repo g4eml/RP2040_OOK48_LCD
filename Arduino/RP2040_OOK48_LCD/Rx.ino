@@ -2,18 +2,16 @@
 
 void RxInit(void)
 {
-  sampleRate = SAMPLERATE;                  //samples per second.
-  rxTone = TONE800;                              //tone in bins. 
-  toneTolerance = TONETOLERANCE;            //Tone tolerance in bins. 
+  sampleRate = OVERSAMPLERATE;                  //samples per second.  
   cacheSize = CACHESIZE;                    // tone decode samples.
-  hzPerBin = HZPERBIN;
-  snBins = SNBINS;
+  if(halfRate) cacheSize = CACHESIZE*2;
+  rxTone = TONE800;
+  toneTolerance = TONETOLERANCE;
   calcLegend();
   dma_init();                       //Initialise and start ADC conversions and DMA transfers. 
   dma_handler();                    //call the interrupt handler once to start transfers
   dmaReady = false;                 //reset the transfer ready flag
   cachePoint = 0;                   //zero the data received cache
-  sigNoise = -100.00;
 }
 
 void RxTick(void)
@@ -26,7 +24,7 @@ void RxTick(void)
    if((dmaReady) && (cachePoint < cacheSize))                                                 //Do we have a complete buffer of ADC samples ready?
     {
       lastDma = millis();
-      calcSpectrum();                                           //Perform the FFT of the data
+      calcSpectrumF();                                           //Perform the FFT of the data
       rp2040.fifo.push(GENPLOT);                                //Ask Core 1 to generate data for the Displays from the FFT results.  
       rp2040.fifo.push(DRAWSPECTRUM);                           //Ask core 1 to draw the Spectrum Display
       rp2040.fifo.push(DRAWWATERFALL);                          //Ask core 1 to draw the Waterfall Display      
@@ -47,18 +45,18 @@ void RxTick(void)
 //search the FFT cache to find the bin containing the tone. Use the bin with the greatest max to min range 
 int findBestBin(void)
 {
-  double max;
-  double min;
-  double range;
-  double bestRange;
+  float max;
+  float min;
+  float range;
+  float bestRange;
   int topBin;
 
   bestRange =0;
   topBin = 0;
-  for(int b=0 ; b < 1 + toneTolerance *2; b++)        //search each possible bin in the search range
+  for(int b=rxTone - toneTolerance ; b < rxTone + toneTolerance; b++)        //search each possible bin in the search range
     {
-      max = 0 - DBL_MAX;
-      min = DBL_MAX;
+      max = 0 - FLT_MAX;
+      min = FLT_MAX;
       for(int s=0; s < cacheSize ; s++)               //search all 8 or 16 symbols in this bin to find the largest and smallest
         {
           if(toneCache[b][s] > max) max = toneCache[b][s];
@@ -75,12 +73,12 @@ int findBestBin(void)
   return topBin;
 }
 
-//search the FFT cache to find the magnitude of the largest tone tone. 
-double findLargest(int timeslot)
+//search the magnitude cache to find the magnitude of the largest tone tone. 
+float findLargest(int timeslot)
 {
-  double max;
-  max = 0 - DBL_MAX;
-  for(int b=0 ; b < 1 + toneTolerance *2; b++)        //search each possible bin in the search range to find the largest magnitude
+  float max;
+  max = 0 - FLT_MAX;
+  for(int b=rxTone - toneTolerance ; b < rxTone + toneTolerance; b++)        //search each possible bin in the search range to find the largest magnitude
     {
       if(toneCache[b][timeslot] > max) max = toneCache[b][timeslot];
     }
@@ -92,10 +90,10 @@ double findLargest(int timeslot)
 bool decodeCache(void)
 {
   uint8_t dec;
-  double largest;
+  float largest;
   int bestbin;
   uint8_t largestbits[4];
-  double temp[CACHESIZE*2];         //temporary array for finding the largest magnitudes
+  float temp[CACHESIZE*2];         //temporary array for finding the largest magnitudes
 
 
   if(settings.decodeMode == ALTMODE)

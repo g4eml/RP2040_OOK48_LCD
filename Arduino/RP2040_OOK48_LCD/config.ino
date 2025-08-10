@@ -65,9 +65,11 @@ bool cfgLoop = false;
       break;    
     case 3:
       halfRate = false;
+      cacheSize = CACHESIZE;
       break;
     case 4:
       halfRate = true;
+      cacheSize = CACHESIZE *2;
       break;
     case 5:
       settings.gpsBaud = 9600;

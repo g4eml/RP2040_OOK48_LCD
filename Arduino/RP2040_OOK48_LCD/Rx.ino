@@ -4,6 +4,7 @@ void RxInit(void)
 {
   sampleRate = OVERSAMPLERATE;                  //samples per second.  
   cacheSize = CACHESIZE;                    // tone decode samples.
+  if(halfRate) cacheSize = CACHESIZE*2;
   rxTone = TONE800;
   toneTolerance = TONETOLERANCE;
   calcLegend();

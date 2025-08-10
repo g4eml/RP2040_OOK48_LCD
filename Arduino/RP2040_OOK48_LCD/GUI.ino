@@ -156,11 +156,11 @@ void showTime(void)
   tft.setTextSize(1);
   if((PPSActive > 0) & (gpsSec != -1))
    {
-     sprintf(t," %02d:%02d:%02d      ",gpsHr,gpsMin,gpsSec);
+     sprintf(t,"%02d:%02d:%02d        ",gpsHr,gpsMin,gpsSec);
    }
   else 
   {
-     sprintf(t,"Waiting for GPS");
+     sprintf(t,"No GPS");
   }
 
   sprintf(q,"%10s",qthLocator);
@@ -171,7 +171,9 @@ void showTime(void)
   tft.setFreeFont(&FreeSans9pt7b);
   tft.setTextDatum(TL_DATUM);
   tft.drawString(t,0,0);
-  tft.drawString(q,0,16);  
+  tft.setTextDatum(TR_DATUM);
+  tft.drawString(q,200,0);
+  tft.setTextDatum(TL_DATUM);  
 }
 
 

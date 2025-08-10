@@ -80,7 +80,7 @@ void generatePlotData(void)
 
     for(int p =0;p < NUMBEROFBINS; p++)                         
     {
-      db[p]=(20*(log10(magnitude[p] / vref)));               //calculate bin amplitude relative to FS in dB
+      db[p]=2*(20*(log10(magnitude[p] / vref)));               //calculate bin amplitude relative to FS in dB
  
     if(autolevel)
       {

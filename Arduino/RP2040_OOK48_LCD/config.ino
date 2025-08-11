@@ -23,7 +23,7 @@ bool cfgLoop = false;
   {
   drawCFGKbd();
   delay(50); // UI debouncing
-  showVoltage(true);
+  showVoltage(true,false);
     while(!done)
     {
 
@@ -42,6 +42,11 @@ bool cfgLoop = false;
           }
         }
 
+        if(pressed && t_y > 300 && t_x > 200 && t_x <270)             //touch on voltage display 
+         {
+           showVoltage(true,true);                                    //recalibrate to 4.2V
+         }
+
         // Check if any key has changed state
         for (uint8_t b = 0; b < CFG_NUMBEROFBUTTONS; b++) 
         {
@@ -51,7 +56,7 @@ bool cfgLoop = false;
             done = true;
           }
         }
-       showVoltage(false);
+       showVoltage(false,false);
     }
 
   switch(ch)
@@ -267,7 +272,7 @@ uint16_t cfgTextcolour;
       cfgKbd[12].drawButton(); 
 }
 
-void showVoltage(bool force)
+void showVoltage(bool force,bool cal)
 {
   char txt[10];
   float voltage;
@@ -275,9 +280,14 @@ void showVoltage(bool force)
   
   for(int i=0;i<1024;i++)
    {
-    voltage = voltage + (float) buffer[bufIndex][i]/620.0;
+    voltage = voltage + (float) buffer[bufIndex][i]/settings.batcal;
    }
   voltage = voltage / 1024;
+  if(cal)                                 //if we are calibrating adjust settings.batcal so that the result is 4.20
+   {
+    float error = voltage/4.20;           //calculate the error percentage
+    settings.batcal = settings.batcal * error;
+   }
   if((abs(voltage - lastvolt) > 0.01) | (force))
    {
      sprintf(txt,"%0.2f V",voltage);

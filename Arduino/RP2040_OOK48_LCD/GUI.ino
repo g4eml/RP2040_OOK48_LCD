@@ -400,6 +400,7 @@ void processTouch(void)
          digitalWrite(KEYPIN, 0);
          digitalWrite(TXPIN, 0);
          cancel_repeating_timer(&TxIntervalTimer);
+         tft.setFreeFont(BUTLABEL_FONT);
          BUTkey[5].drawButton(0,"Tx");
          BUTkey[4].drawButton(0,"Set Tx");
          clearSpectrum();

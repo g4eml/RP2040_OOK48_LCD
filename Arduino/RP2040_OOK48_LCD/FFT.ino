@@ -1,7 +1,7 @@
 //This file contains the functions used to frequency sample and analyse the incoming audio
 
 //Perform an FFT on the ADC sample buffer. Calculate the magnitude of each frequency bin. Results are in the first half of the vReal[] array. 
-void calcSpectrumF(void)
+void calcSpectrum(void)
 {
   int bin;
   for(int i = 0;i < (NUMBEROFOVERSAMPLES); i=i+OVERSAMPLE)                       //for each of the oversamples calculate the average value and save inb the sample[] array
@@ -26,44 +26,6 @@ void calcSpectrumF(void)
 
 }
 
-//Alternative (much Slower) Perform Goertzel function on the ADC sample buffer. Calculate the magnitude of each frequency bin. Results are in the magnitude[] array. 
-void calcSpectrumG(void)
-{
-  int bin;
-  for(int i = 0;i < (NUMBEROFOVERSAMPLES); i=i+OVERSAMPLE)                       //for each of the oversamples calculate the average value and save inb the sample[] array
-  {
-    bin = i/OVERSAMPLE;
-    sample[bin]=0;
-    for(int s=0;s<OVERSAMPLE;s++)
-    {
-      sample[bin] += buffer[bufIndex][i+s] - 2048;     //average the samples and copy the result into the Real array. Offsetting to allow for ADC bias point
-    }
-    sample[bin] = sample[bin]/OVERSAMPLE;
-  }
-  
-  //Averaged samples are now in the sample[] array calculate the magnitude of each of the scanned frequencies
-   for (int m=0 ; m < NUMBEROFBINS ; m++)
-    {
-      magnitude[m]= goertzel(sample , NUMBEROFSAMPLES, STARTFREQ + m*9);
-    }
-  //Spectrum magnitudes are now in the magnitude[] array.                     
-}
-
-// Goertzel algorithm implementation
-float goertzel(float* samples, int N, int targetFreq) 
-{
-  float omega = 2.0 * PI * targetFreq / SAMPLERATE;
-  float coeff = 2.0 * cos(omega);
-  float q1 = 0, q2 = 0;
-
-  for (int i = 0; i < N; i++) {
-    float q0 = coeff * q1 - q2 + samples[i];
-    q2 = q1;
-    q1 = q0;
-  }
-
-  return q1 * q1 + q2 * q2 - q1 * q2 * coeff;
-}
 
 //Generate the display output array from the magnitude array with log scaling. Add offset and gain to the values.
 void generatePlotData(void)

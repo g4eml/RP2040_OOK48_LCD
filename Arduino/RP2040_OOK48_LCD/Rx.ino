@@ -24,7 +24,7 @@ void RxTick(void)
    if((dmaReady) && (cachePoint < cacheSize))                                                 //Do we have a complete buffer of ADC samples ready?
     {
       lastDma = millis();
-      calcSpectrumF();                                           //Perform the FFT of the data
+      calcSpectrum();                                           //Perform the FFT of the data
       rp2040.fifo.push(GENPLOT);                                //Ask Core 1 to generate data for the Displays from the FFT results.  
       rp2040.fifo.push(DRAWSPECTRUM);                           //Ask core 1 to draw the Spectrum Display
       rp2040.fifo.push(DRAWWATERFALL);                          //Ask core 1 to draw the Waterfall Display      

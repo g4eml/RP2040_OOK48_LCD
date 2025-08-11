@@ -17,10 +17,21 @@ void dma_stop(void)
     dma_channel_set_irq0_enabled(dma_chan, true);                       //re-enable interrupts                                 
 }
 
+void dma_halt(void)
+{
+    adc_run(false);
+    dma_channel_set_irq0_enabled(dma_chan, false);                      //disable DMA interrupts
+    dma_channel_abort(dma_chan);                                        //stop the DMA
+    dma_hw->ints0 = 1u << dma_chan;                                     //clear any spurious IRQ 
+    dma_channel_unclaim(dma_chan);   
+}
+
+
 //Initialise and start ADC and DMA transfers. 
 void dma_init(void)
 {
     adc_gpio_init(26 + ADC_CHAN);                                //Assign GPIO Pin to ADC for audio input
+    adc_gpio_init(26 + ADC_VOLTS);                                //Assign GPIO Pin to ADC for audio input
     adc_init();                                                  //initialise the ADC hardware
     adc_select_input(ADC_CHAN);                                  //select the Analogue input channel.
     adc_fifo_setup(true,true,1,false,false);                     //Enable ADC FIFO. Raise DRQ when 1 conversion is available. No Error bit and no bit shifting. 

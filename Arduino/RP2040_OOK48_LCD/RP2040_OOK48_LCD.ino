@@ -399,6 +399,11 @@ void loadSettings(void)
     ss = true;
    }
 
+  if((settings.batcal < 300) | (settings.batcal > 1000))
+   {
+    settings.batcal = BATCAL;
+   }
+
    if(ss) saveSettings();
 }
 

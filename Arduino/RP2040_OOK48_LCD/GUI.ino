@@ -327,7 +327,10 @@ void processTouch(void)
       mode = RX;
       digitalWrite(KEYPIN, 0);
       digitalWrite(TXPIN, 0);
+      adc_select_input(ADC_VOLTS);                                  //select the Battery input channel.
       configPage();
+      waterRow = 0;
+      adc_select_input(ADC_CHAN);                                  //return to normal input channel.
       saveSettings();
       homeScreen();
       break;
@@ -397,6 +400,7 @@ void processTouch(void)
          digitalWrite(KEYPIN, 0);
          digitalWrite(TXPIN, 0);
          cancel_repeating_timer(&TxIntervalTimer);
+         tft.setFreeFont(BUTLABEL_FONT);
          BUTkey[5].drawButton(0,"Tx");
          BUTkey[4].drawButton(0,"Set Tx");
          clearSpectrum();

@@ -14,6 +14,7 @@ struct eepromstruct
   uint8_t decodeMode;             //allow multiple decode modes
   uint16_t txAdvance;             //Tx timing advance in ms
   uint16_t rxRetard;              //Rx Timing retard in ms
+  float batcal;                   //battery voltage calibration factor
 };
 
 struct eepromstruct settings;

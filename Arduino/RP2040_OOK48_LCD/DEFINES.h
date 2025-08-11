@@ -72,6 +72,8 @@
 #define SAMPLERATE 9216                                         //9216 samples per second with 1024 bins gives 9Hz sample rate and 9Hz bins. 
 #define OVERSAMPLERATE SAMPLERATE * OVERSAMPLE         
 
+#define BATCAL 587.0                                            //default battery calibration value. (can be reset in config menu)
+
 #define STARTFREQ 495                                          //first frequency of interest (to nearest 9 Hz)
 #define STARTBIN 55                                            // equivalent bin number from 512 FFT bins 
 #define ENDFREQ 1098                                           //last frequency of interest (to nearest 9 Hz)

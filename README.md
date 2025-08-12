@@ -37,23 +37,21 @@ It is described in the document https://github.com/g4eml/RP2040_OOK48_LCD/blob/m
 ### Display
 The display is split into 4 main areas. On the left are the Spectrum display and Waterfall. These are used to tune the reciever to the correct frequency. 
 
-The Spectrum and Waterfall span from 300 Hz to 2200 Hz. Underneath the spectrum display there is an orange band which indicates the correct frequency for decoding (800 Hz) . The receiver needs to be tuned such that the received tone falls withing this orange band. 
+The Spectrum and Waterfall span from 500 Hz to 1100 Hz. Underneath the spectrum display there is an orange band which indicates the correct frequency range for decoding (centred on 800 Hz) . The receiver needs to be tuned such that the received tone falls withing this orange band. 
 
-When a signal is being received the orange band will turn green to indicate a tone is being detected.
-
-Received messages will appear at one character per second on the right hand side of the display. Characters in Blue have the highest confidence factor but may still be in error. Characters in Orange have a lower confidence factor and the chance of an error is higher. 
+Received messages will appear at one character per second on the right hand side of the display. 
 
 When Transmitting the Spectrum display is replaced with a RED box and the Text 'TX'. The transmitted message appears on the right hand side in red as it is sent. 
 
 ### Controls
 
-At the bottom of the screen there are 6 touch buttons. Only 4 of these are currently in use. 
+At the bottom of the screen there are 6 touch buttons. Only 5 of these are currently in use. 
 
-Clear Screen.   Clears the Message display.
+Clear.   Clears the Message display.
 
-Config. Displays a config page which allows the QTH Locator Length, Character Period, and GPS Baud Rate to be set.  
+Config. Displays a config page which allows settings to be changed.  
 
-Record Button (Red Circle).  Displayed when a FAT formatted SD card is fitted. Click to start recording of text to the SD card. Filename will be based on the current time HH_MM_SS.txt.
+Record Button (Red Circle).  Displayed when a FAT formatted SD card is fitted. Click to start recording of text to the SD card. (GPS must be active). The filename will be based on the current date and time DDMMYY-HHMMSS.txt.
 
 Stop Button (White Square). Displayed when recording is in progress. Click to stop recording. 
 
@@ -62,10 +60,40 @@ Set Tx.  This shows a menu of the 10 stored messages to be used for transmit. Se
 Tx / Rx   Starts and stops the transmission of the currently selected Message. 
 
 Touching the Waterfall display area of the screen will cycle through a selection of Tone detection ranges indicated by the width of the orange band. 
-Available ranges are +-50 Hz, +_ 100Hz, +-250Hz, +-500Hz and the full width 300-2200 Hz.
+Available ranges are +-50 Hz, +_ 100Hz and the full width 500-1100 Hz.
 Wider ranges require less accurate tuning but have a slightly higher chance of errors with weak signals. 
 
 A 'Factory Reset' can be done by holding your finger on the display while powering on. This will clear the EEPROM to its default values and run the screen calibration routine. 
+
+## USB Drive Mode. 
+
+If an SD card is present there will be an additonal line visible on the Config Page. 'Activate USB Drive Mode" .  Clicking on this button will activate the USB Memory stick emulation mode. You can then connect the HMI module to a PC and the contents of its SD card will appear as a USB drive. This allows the download and deletion of the saved text files without removing the SD card. 
+
+This mode can pnly be exited by powering off the module. 
+
+## Config page settings
+
+- Set Locator Length.  Allows selection of 6, 8 or 10 digit locators.
+
+- Character Period. Selects the normal 1S per character or the optional 2 Seconds per character. Both ends of the link need to have the same settings. 
+
+- GPS Baud Rate. Selects 9600 Baud for the older GPS modules or 38400 for more recent modules. 
+
+- Decode Mode. Selects Normal or Alternate mode. Normal mode is tolerant of frequency drift and chirping. Alternate mode needs a very stable drift free tone but is slightly more sensitive.
+
+- Tx Timing Advance. Allows a fixed delay to be added to compensate for signal processing delays in the Tx chain. (such as DSP audio processing)
+
+- Rx Timing Retard. Allows a fixed delay to be added to compensate for any signal processing delays in the Rx chain. (such as noise reduction)
+
+- Activate USB Drive Mode.  Allows the module to be connected to a PC where it will appear as a USB drive allowing the contents of the SD card to be read or deleted. The module must be powered off to exit this mode. 
+
+- Exit. Return to the previous screen.
+
+- Version Number. 
+
+- Voltage Display. This shows the current battery voltage.  This reading may need calibrating for each module. Power the module using the USB port and disconnect or turn off the battery. The voltage should then read 4.20V. 
+If calibration is required, just touch the voltage area of the screen and it will automatically calibrate to read 4.20V. Reconnect the battery to view the battery voltage. 
+
 
 ## Hardware Requirements
 
@@ -194,11 +222,6 @@ GPS data to the HMI module is connected to IO pin 5.
 GPS data from the HMI module is connected to IO pin 4.
 1 PPS pulse from the GPS module is conneced to IO pin 3.
 
-## USB Drive Mode. 
-
-If an SD card is present there will be an additonal line visible on the Config Page. 'Activate USB Drive Mode" .  Clicking on this button will activate the USB Memory stick emulation mode. You can then connect the HMI module to a PC and the contents of its SD card will appear as a USB drive. This allows the download and deletion of the saved text files without removing the SD card. 
-
-This mode can pnly be exited by powering off the module. 
 
 ## 3D Printed Enclosure
 

@@ -347,7 +347,7 @@ void processTouch(void)
          {
           if(gpsHr !=-1)
           {
-           sprintf(fname,"%02d_%02d_%02d.txt",gpsHr,gpsMin,gpsSec);
+           sprintf(fname,"%02d%02d%02d-%02d%02d%02d.txt",gpsDay,gpsMonth,gpsYear,gpsHr,gpsMin,gpsSec);
            sdfile.open(fname,FILE_WRITE);
            if(sdfile) stopButton(); 
           }

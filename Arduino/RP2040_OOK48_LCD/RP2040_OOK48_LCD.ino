@@ -138,7 +138,7 @@ void setup1()
 
   if(sdpresent)
     {
-//      initUSBDrive();
+       SdFile::dateTimeCallback(dateTime);           //set a callback function to set the files attributes. 
     }
 
   gpsPointer = 0;
@@ -235,6 +235,7 @@ void loop1()
 void processNMEA(void)
 {
   float gpsTime;
+  float gpsDate;
 
  gpsActive = true;
  if(RMCValid())                                               //is this a valid RMC sentence?
@@ -262,6 +263,17 @@ void processNMEA(void)
        longitude = convertToDecimalDegrees(longitude);         // convert to ddd.ddd   
        p = p + strcspn(gpsBuffer+p , ",") + 1;                 // find and skip the sixth comma  
        if(gpsBuffer[p] == 'W')  longitude = 0 - longitude;     // adjust easterly Longs to be negative values 
+       p = p + strcspn(gpsBuffer+p , ",") + 1;                 // find and skip the seventh comma 
+       p = p + strcspn(gpsBuffer+p , ",") + 1;                 // find and skip the eighth comma 
+       p = p + strcspn(gpsBuffer+p , ",") + 1;                 // find and skip the nineth comma 
+
+       gpsDate = strtof(gpsBuffer+p , NULL);                  //copy the time to a floating point number
+       gpsYear = int(gpsDate) % 100;
+       gpsDate = gpsDate / 100;
+       gpsMonth = int(gpsDate) % 100; 
+       gpsDate = gpsDate / 100;
+       gpsDay = int(gpsDate) % 100;
+
        convertToMaid();     
       }
     else
@@ -502,4 +514,15 @@ bool checksum(const char *sentence)
     }
 
     return calculated_checksum == (unsigned char)provided_checksum;
+}
+
+//callback, called by FAT library whenever a file is created 
+void dateTime(uint16_t* date, uint16_t* time) 
+{
+
+  // Set FAT date (bits: YYYYYYYMMMMDDDDD)
+  *date = FAT_DATE(gpsYear + 2000, gpsMonth, gpsDay);
+
+  // Set FAT time (bits: HHHHHMMMMMMSSSSS, seconds/2)
+  *time = FAT_TIME(gpsHr, gpsMin, gpsSec);
 }

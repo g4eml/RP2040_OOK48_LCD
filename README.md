@@ -166,7 +166,7 @@ The RP2040 is programmed using the Arduino IDE with the Earl F. Philhower, III  
 
 The TFT_eSPI Library is unusual in that it needs to be configured to the TFT display in use by modifying library files. 
 The required modified versions of the files are located in the 'LCD-eSPI Settings' folder of this repository. 
-Copy the files 'User_Setup.h' and 'User_Setup_Select.h' from  the downloaded 'LCD-eSPI Settings' folder to your Arduino libraries directory.
+Copy the files 'Setup_Elecraft_HMI.h' and 'User_Setup_Select.h' from  the downloaded 'LCD-eSPI Settings' folder to your Arduino libraries directory.
 This will normaly be found at 'Documents/Arduino/libraries/TFT_eSPI'
 
 #### Programming the RP2040

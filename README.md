@@ -103,12 +103,24 @@ If calibration is required, just touch the voltage area of the screen and it wil
 
 ## Hardware Requirements
 
-This code is designed to work with the Elecrow CrowPanel Pico-3.5 inch 480x320 TFT LCD HMI Module. https://www.aliexpress.com/item/1005007250778536.html 
+This code was originally designed to work with the Elecrow CrowPanel Pico-3.5 inch 480x320 TFT LCD HMI Module. https://www.aliexpress.com/item/1005007250778536.html 
 
 ![hmi](https://github.com/user-attachments/assets/27250811-edb9-4df4-908e-7b8d27edb42c)
 
-
 Note:- similar HMI Panels are available using the ESP32 processor chip. Make sure that you are purchasing the RP2040 version. 
+
+However the correct module now appears to be difficult to obtain. A new interface board has been designed to allow a Raspberry Pi Pico to be fitted to a more easily available 3.5" TFT touch panel.
+
+![0](https://github.com/user-attachments/assets/fa00744f-22ee-419a-9da9-5c53a10e216b)
+
+![3D View](https://github.com/user-attachments/assets/c0c89eb0-a581-4dc8-8c9a-07ca197b37ea)
+
+
+The LCD screen, controller chip and Touch Screen controller appear to be exactly the same as the original module.
+ 
+If you are searching for these online the critical points are that it needs to be a 3.5" display  320 x 480 resolution with an ILI9488 controller and touch screen. 
+There are lots of similar displays out there but the correct ones are usually Red and have 14 connections at one end of the board and 4 connections at the other. Be careful as these are also available without the touch screen. 
+Full schematic and PCB designs are in the PCB V2 folder. 
 
 A GPS module is also essential and must have a 1 Pulse per second output. This pulse is used to synchronise the start of each character. 
 
@@ -231,7 +243,7 @@ GPS data from the HMI module is connected to IO pin 4.
 
 ## 3D Printed Enclosure
 
-Files for a 3D printable enclosure are included in the Enclosure directory. 
+Files for a 3D printable enclosure for the original module are included in the Enclosure directory. 
 
 Additional parts required.
 - 3 Phono Sockets for Audio Input, Key Output and PTT Output

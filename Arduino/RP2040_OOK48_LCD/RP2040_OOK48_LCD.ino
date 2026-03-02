@@ -1,7 +1,8 @@
 
 // OOK48 Encoder and Decoder LCD version
 // Plus Beacon Decoder
-// Colin Durbridge G4EML 2025
+// Plus Morse Encoder and Decoder
+// Colin Durbridge G4EML 2026
 
 
 #include <hardware/dma.h>
@@ -43,7 +44,7 @@ void setup()
     digitalWrite(KEYPIN,0);
     pinMode(TXPIN,OUTPUT);
     digitalWrite(TXPIN,0);
-    if(settings.app == OOK48)
+    if((settings.app == OOK48) || (settings.app == MORSE))
      {
        mode = RX;  
        RxInit();
@@ -167,15 +168,18 @@ void setup1()
   textClear();
   switch(settings.app)
    {
-    case 0:
+    case OOK48:
     textPrintLine("OOK48 Selected");
     break;
-    case 1:
+    case BEACONJT4:
     textPrintLine("JT4G Selected");
     break;
-    case 2:
+    case BEACONPI4:
     textPrintLine("PI4 Selected");
-    break;    
+    break;
+    case MORSE: 
+    textPrintLine("Morse Selected");
+    break;   
    }
    textPrintLine("");
 }
@@ -184,7 +188,7 @@ void setup1()
 //Main Loop Core 0. Runs forever. Does most of the work.
 void loop() 
 {
-  if(settings.app == OOK48)
+  if((settings.app == OOK48) || (settings.app == MORSE))
    {
      if(mode == RX)
       {

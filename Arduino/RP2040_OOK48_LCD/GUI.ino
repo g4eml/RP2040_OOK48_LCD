@@ -364,7 +364,7 @@ void processTouch(void)
       break;
 
       case 4:
-      if(settings.app == OOK48)
+      if((settings.app == OOK48) || (settings.app == MORSE))
       {
         noTouch = false;
         messageChanging = true;
@@ -387,7 +387,7 @@ void processTouch(void)
       break;
 
       case 5:
-      if(settings.app == OOK48)
+      if((settings.app == OOK48) || (settings.app == MORSE))
         {
         noTouch = false;
         if(mode == RX)
@@ -435,7 +435,7 @@ void processTouch(void)
       return;
     }
 
-   if(touchZone(WATERLEFT, WATERTOP, WATERWIDTH, WATERHEIGHT)&& noTouch && settings.app == OOK48)
+   if(touchZone(WATERLEFT, WATERTOP, WATERWIDTH, WATERHEIGHT)&& noTouch && ((settings.app == OOK48) || (settings.app == MORSE)))
     {
       noTouch = false;
       switch(toneTolerance)
@@ -477,7 +477,7 @@ void drawLegend(void)
 
 void calcLegend(void)
 {
-   if(settings.app == OOK48)
+   if((settings.app == OOK48) || (settings.app == MORSE))
    {
     toneLegend[0][0] = (rxTone - toneTolerance)*  SPECWIDTH /numberOfBins ;
     toneLegend[0][1] = (toneTolerance *2) * SPECWIDTH/ numberOfBins ;   

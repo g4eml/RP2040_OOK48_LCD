@@ -29,7 +29,7 @@ uint dma_chan;                        //DMA Channel Number
 bool dmaReady;                        //Flag to indicate a DMA buffer is ready to be processed.
 uint8_t bufIndex = 0;                 //Index to the current DMA buffer. Alternates 0/1.
 
-enum apps {OOK48,BEACONJT4,BEACONPI4};
+enum apps {OOK48,MORSE,BEACONJT4,BEACONPI4};
 
 uint8_t mode;
 enum modes {RX,TX};

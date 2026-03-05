@@ -1,3 +1,4 @@
+#include "morse_rx.h"
 //Global variables
 
 //EEPROM Structure. This structure is written to the EEPROM. All members are therefore non-volatile. 
@@ -16,13 +17,14 @@ struct eepromstruct
   uint16_t rxRetard;              //Rx Timing retard in ms
   float batcal;                   //battery voltage calibration factor
   uint8_t app;                    //currently selected application OOK48 JT4G or PI4
+  uint8_t  morseWpm;
 };
 
 struct eepromstruct settings;
 
-enum decodemodes {NORMALMODE,ALTMODE};
+enum decodemodes {NORMALMODE,ALTMODE,RAINSCATTERMODE};
 
-enum core1Message {GENPLOT,DRAWSPECTRUM,DRAWWATERFALL,REDLINE,CYANLINE,MESSAGE,TMESSAGE,ERROR,JTMESSAGE,PIMESSAGE};         //messages for control of Core 1 from Core 2
+enum core1Message {GENPLOT,DRAWSPECTRUM,DRAWWATERFALL,REDLINE,CYANLINE,MESSAGE,TMESSAGE,ERROR,JTMESSAGE,PIMESSAGE,MORSEMESSAGE,MORSELOCKED,MORSELOST};         //messages for control of Core 1 from Core 2
 
 
 uint dma_chan;                        //DMA Channel Number
@@ -88,6 +90,7 @@ uint16_t buffer[2][NUMBEROFOVERSAMPLES];     //2 DMA buffers to allow one to be 
 float sample[NUMBEROFSAMPLES];              //array for the averaged samples 
 float sampleI[NUMBEROFSAMPLES];             //imaginary part for FFT
 float magnitude[JT4NUMBEROFBINS];            //Array for signal spectrum
+uint8_t  audioLevel;    // RX audio level 0-100 (peak-smoothed, for volume guidance)
 
 uint16_t t_x = 0, t_y = 0;            // To store the touch coordinates
 uint16_t textrow;                    //current row for text output
@@ -110,7 +113,12 @@ bool messageChanging;
 
 bool sdpresent;
 
-
+// Morse RX
+MorseRxDecoder morseDecoder;
+char  morseDecoded;   // last decoded char/space, cross-core via FIFO
+float morseWpmEst;    // WPM at lock, for status display
+float morseCentroidHz; // tracked Morse centroid frequency (Hz), for WF marker
+uint32_t dmaTransferCount;  // set by RxInit(), read by dma_init()
 
 uint8_t plotData[SPECWIDTH];        //Array of Plot points for spectrum display. Log scaled and offset to 0 - SPECHEIGHT and used to display new line.  
 uint8_t lastplotData[SPECWIDTH];    //Array of Plot points for last Spectrum display. Used to erase previous line.

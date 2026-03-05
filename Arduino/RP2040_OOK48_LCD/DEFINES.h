@@ -136,3 +136,15 @@
 #define PI4TONETOLERANCE 12                                        //Tone tolerance 12 * 6 = +- 72Hz 
 #define PI4NUMBEROFBINS 167                                        //167 bins between STARTFREQ and ENDFREQ
 
+// Morse RX mode FFT / DMA parameters
+// 256-pt FFT at 9216 Hz effective → 36 Hz/bin, ~36 fps
+#define MORSE_FFT_SIZE        256
+#define MORSE_FRAME_SAMPLES   (MORSE_FFT_SIZE * OVERSAMPLE)   // 2048 ADC samples/frame
+#define MORSE_FRAME_RATE      36
+#define MORSE_TONE_BIN        22    // 800 Hz / 36 Hz per bin ≈ bin 22
+#define MORSE_FFT_BINS        (MORSE_FFT_SIZE / 2)            // 128 positive-freq bins
+#define MORSE_WF_FRAMES       4     // accumulate N frames before waterfall send (~9/sec)
+#define MORSE_DEFAULT_WPM   12
+#define MORSE_MIN_WPM       5
+#define MORSE_MAX_WPM       40
+#define CONFIDENCE_THRESHOLD 0.180f     // below this → UNK decode (empirically derived) - default

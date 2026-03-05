@@ -2,26 +2,152 @@
 
 void RxInit(void)
 {
-  sampleRate = OVERSAMPLERATE;                  //samples per second.  
-  cacheSize = CACHESIZE;                    // tone decode samples.
-  if(halfRate) cacheSize = CACHESIZE*2;
-  rxTone = TONE800;
-  toneTolerance = TONETOLERANCE;
-  numberOfTones = 1;
-  numberOfBins = OOKNUMBEROFBINS;
-  startBin = OOKSTARTBIN;
-
-  calcLegend();
+  sampleRate = OVERSAMPLERATE;
+  
+  if (settings.app == MORSE)
+  {
+    dmaTransferCount = MORSE_FRAME_SAMPLES;      // 2048 ADC samples → ~36 fps
+    numberOfBins     = MORSE_FFT_BINS;
+    startBin         = 0;
+    rxTone           = MORSE_TONE_BIN;
+    toneTolerance    = 3;
+    numberOfTones    = 1;
+    morseDecoder.begin(MORSE_FRAME_RATE, MORSE_MIN_WPM, MORSE_MAX_WPM, MORSE_TONE_BIN);
+    morseCentroidHz = (float)(MORSE_TONE_BIN * (SAMPLERATE / MORSE_FFT_SIZE));
+  }
+  else
+  {
+    dmaTransferCount = NUMBEROFOVERSAMPLES;
+    cacheSize        = CACHESIZE;
+    if (halfRate) cacheSize = CACHESIZE * 2;
+    rxTone           = TONE800;
+    toneTolerance    = TONETOLERANCE;
+    numberOfTones    = 1;
+    numberOfBins     = OOKNUMBEROFBINS;
+    startBin         = OOKSTARTBIN;
+    calcLegend();
+  }
   dma_init();                       //Initialise and start ADC conversions and DMA transfers. 
   dma_handler();                    //call the interrupt handler once to start transfers
   dmaReady = false;                 //reset the transfer ready flag
   cachePoint = 0;                   //zero the data received cache
 }
 
+// Waterfall accumulator for morse mode (file-static, persists across calls)
+static float  morseWfAccum[MORSE_FFT_BINS] = {};
+static uint8_t morseWfCount = 0;
+static float morseCentroidFiltBin = (float)MORSE_TONE_BIN;
+
 void RxTick(void)
 {
   uint8_t tn;
   static unsigned long lastDma;
+
+    if (settings.app == MORSE)
+  {
+    if (!dmaReady) return;
+    lastDma = millis();
+    calcMorseSpectrum();
+
+    const float binHz = (float)SAMPLERATE / (float)MORSE_FFT_SIZE;
+    bool morseRainscatter = (settings.decodeMode == RAINSCATTERMODE);
+
+    if (!morseRainscatter)
+    {
+      // Track centroid around expected Morse tone and smooth for stable GUI marker.
+      // Use local energy weighting in a narrow band to avoid whole-spectrum bias.
+      int lo = MORSE_TONE_BIN - 10;
+      int hi = MORSE_TONE_BIN + 10;
+      if (lo < 1) lo = 1;
+      if (hi > MORSE_FFT_BINS - 2) hi = MORSE_FFT_BINS - 2;
+
+      float weighted = 0.0f;
+      float sumMag = 0.0f;
+      for (int b = lo; b <= hi; b++)
+      {
+        float m = magnitude[b];
+        if (m < 0.0f) m = 0.0f;
+        weighted += (float)b * m;
+        sumMag += m;
+      }
+
+      if (sumMag > 0.0f)
+      {
+        float centroidBin = weighted / sumMag;
+        morseCentroidFiltBin = morseCentroidFiltBin * 0.75f + centroidBin * 0.25f;
+      }
+
+      morseCentroidHz = morseCentroidFiltBin * binHz;
+    }
+    else
+    {
+      // In rainscatter mode we deliberately avoid single-tone tracking.
+      morseCentroidHz = 0.0f;
+    }
+
+    // Accumulate bin magnitudes for waterfall
+    for (int i = 0; i < MORSE_FFT_BINS; i++)
+      morseWfAccum[i] += magnitude[i];
+
+    // Feed morse decoder:
+    //  - normal mode: nominal tone bin magnitude
+    //  - rainscatter mode: wideband power sum above ~200 Hz (avoid DC/very-low bins)
+    float decoderMag;
+    if (!morseRainscatter)
+    {
+      decoderMag = magnitude[MORSE_TONE_BIN];
+    }
+    else
+    {
+      int lowBin = (int)(200.0f / binHz);
+      if (((float)lowBin * binHz) < 200.0f) lowBin++;
+      if (lowBin < 1) lowBin = 1;
+      if (lowBin > MORSE_FFT_BINS - 1) lowBin = MORSE_FFT_BINS - 1;
+
+      float p = 0.0f;
+      for (int b = lowBin; b < MORSE_FFT_BINS; b++)
+      {
+        float m = magnitude[b];
+        if (m > 0.0f) p += m;
+      }
+      decoderMag = p;
+    }
+
+    int n = morseDecoder.feed(decoderMag);
+    for (int i = 0; i < n; i++)
+    {
+      MorseEvent ev = morseDecoder.event(i);
+      if (ev.kind == MorseEvt::CHAR || ev.kind == MorseEvt::WORD_SEP)
+      {
+        morseDecoded = ev.ch;
+        rp2040.fifo.push(MORSEMESSAGE);
+      }
+      else if (ev.kind == MorseEvt::LOCKED)
+      {
+        morseWpmEst = ev.wpm;
+        rp2040.fifo.push(MORSELOCKED);
+      }
+      else if (ev.kind == MorseEvt::LOST)
+      {
+        rp2040.fifo.push(MORSELOST);
+      }
+    }
+
+    // Send waterfall every MORSE_WF_FRAMES frames (~9/sec)
+    if (++morseWfCount >= MORSE_WF_FRAMES)
+    {
+      morseWfCount = 0;
+      for (int i = 0; i < MORSE_FFT_BINS; i++)
+        magnitude[i] = morseWfAccum[i];
+      rp2040.fifo.push(GENPLOT);
+      rp2040.fifo.push(DRAWSPECTRUM);
+      rp2040.fifo.push(DRAWWATERFALL);
+      memset(morseWfAccum, 0, sizeof(morseWfAccum));
+    }
+
+    dmaReady = false;
+    return;
+  }
 
   if((millis() - lastDma) > 250) cachePoint = 0;                //if we have not had a DAm tranfer recently reset the pointer. (allows the spectrum to freerun with no GPS signal)
 
@@ -87,6 +213,16 @@ float findLargest(int timeslot)
       if(toneCache[b][timeslot] > max) max = toneCache[b][timeslot];
     }
   return max;
+}
+
+// Sum magnitude across all OOK bins for one symbol time slot.
+// Used by rainscatter mode where energy is spread across frequency.
+float findWidebandPower(int timeslot)
+{
+  float sum = 0.0f;
+  for(int b = 0; b < numberOfBins; b++)
+    sum += toneCache[b][timeslot];
+  return sum;
 }
 
 

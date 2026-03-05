@@ -14,6 +14,7 @@ void JT4Init(void)
   numberOfTones = 4;
   numberOfBins = JT4NUMBEROFBINS;
   startBin = JT4STARTBIN;
+  dmaTransferCount = NUMBEROFOVERSAMPLES;
   
   dma_init();                       //Initialise and start ADC conversions and DMA transfers. 
   dma_handler();                    //call the interrupt handler once to start transfers

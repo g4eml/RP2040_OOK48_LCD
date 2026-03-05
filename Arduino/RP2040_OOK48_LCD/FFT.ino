@@ -61,7 +61,7 @@ void calcMorseSpectrum(void)
     MorseFFT.complexToMagnitude();
 
     for (int m = 0; m < MORSE_FFT_BINS; m++)
-        magnitude[m] = sample[m];
+        magnitude[m] = sample[startBin + m];
 }
 
 //Generate the display output array from the magnitude array with log scaling. Add offset and gain to the values.

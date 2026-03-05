@@ -3,17 +3,17 @@
 void RxInit(void)
 {
   sampleRate = OVERSAMPLERATE;
-  
+
   if (settings.app == MORSE)
   {
     dmaTransferCount = MORSE_FRAME_SAMPLES;      // 2048 ADC samples → ~36 fps
     numberOfBins     = MORSE_FFT_BINS;
-    startBin         = 0;
+    startBin         = MORSESTARTBIN;
     rxTone           = MORSE_TONE_BIN;
     toneTolerance    = 3;
     numberOfTones    = 1;
     morseDecoder.begin(MORSE_FRAME_RATE, MORSE_MIN_WPM, MORSE_MAX_WPM, MORSE_TONE_BIN);
-    morseCentroidHz = (float)(MORSE_TONE_BIN * (SAMPLERATE / MORSE_FFT_SIZE));
+    morseCentroidHz = (float)(MORSE_TONE_BIN + MORSESTARTBIN * (SAMPLERATE / MORSE_FFT_SIZE));
   }
   else
   {
@@ -58,7 +58,7 @@ void RxTick(void)
       // Use local energy weighting in a narrow band to avoid whole-spectrum bias.
       int lo = MORSE_TONE_BIN - 10;
       int hi = MORSE_TONE_BIN + 10;
-      if (lo < 1) lo = 1;
+      if (lo < MORSESTARTBIN) lo = MORSESTARTBIN;
       if (hi > MORSE_FFT_BINS - 2) hi = MORSE_FFT_BINS - 2;
 
       float weighted = 0.0f;
@@ -77,7 +77,7 @@ void RxTick(void)
         morseCentroidFiltBin = morseCentroidFiltBin * 0.75f + centroidBin * 0.25f;
       }
 
-      morseCentroidHz = morseCentroidFiltBin * binHz;
+      morseCentroidHz = morseCentroidFiltBin+startBin * binHz;
     }
     else
     {
@@ -91,7 +91,7 @@ void RxTick(void)
 
     // Feed morse decoder:
     //  - normal mode: nominal tone bin magnitude
-    //  - rainscatter mode: wideband power sum above ~200 Hz (avoid DC/very-low bins)
+    //  - rainscatter mode: wideband power sum
     float decoderMag;
     if (!morseRainscatter)
     {
@@ -99,13 +99,8 @@ void RxTick(void)
     }
     else
     {
-      int lowBin = (int)(200.0f / binHz);
-      if (((float)lowBin * binHz) < 200.0f) lowBin++;
-      if (lowBin < 1) lowBin = 1;
-      if (lowBin > MORSE_FFT_BINS - 1) lowBin = MORSE_FFT_BINS - 1;
-
       float p = 0.0f;
-      for (int b = lowBin; b < MORSE_FFT_BINS; b++)
+      for (int b = 0; b < MORSE_FFT_BINS; b++)
       {
         float m = magnitude[b];
         if (m > 0.0f) p += m;

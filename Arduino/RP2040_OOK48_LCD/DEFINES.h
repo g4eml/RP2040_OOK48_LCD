@@ -137,12 +137,16 @@
 #define PI4NUMBEROFBINS 167                                        //167 bins between STARTFREQ and ENDFREQ
 
 // Morse RX mode FFT / DMA parameters
-// 256-pt FFT at 9216 Hz effective → 36 Hz/bin, ~36 fps
+// 256-pt FFT at 9216 Hz effective → 36 Hz/bin, 36 fps
+//spectrum plot is 288Hz to 3024 Hz in 36Hz Bins
 #define MORSE_FFT_SIZE        256
 #define MORSE_FRAME_SAMPLES   (MORSE_FFT_SIZE * OVERSAMPLE)   // 2048 ADC samples/frame
 #define MORSE_FRAME_RATE      36
-#define MORSE_TONE_BIN        22    // 800 Hz / 36 Hz per bin ≈ bin 22
-#define MORSE_FFT_BINS        (MORSE_FFT_SIZE / 2)            // 128 positive-freq bins
+#define MORSESTARTFREQ        288                             //Lowest frequency we are interested in to nearest 36 Hz
+#define MORSEENDFREQ          3024                            //Highest frequency we are interested in     
+#define MORSESTARTBIN         8                             //corresponding bin number
+#define MORSE_TONE_BIN        14                              // 800 Hz / 36 Hz per bin ≈ bin 22 - start bin =14
+#define MORSE_FFT_BINS        76                             // End bin - start bin 
 #define MORSE_WF_FRAMES       4     // accumulate N frames before waterfall send (~9/sec)
 #define MORSE_DEFAULT_WPM   12
 #define MORSE_MIN_WPM       5

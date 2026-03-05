@@ -392,14 +392,29 @@ void processTouch(void)
         noTouch = false;
         if(mode == RX)
          {
+          if(settings.app == OOK48)
+          {
            mode = TX;
            TxInit();
            digitalWrite(TXPIN, 1);
            BUTkey[5].drawButton(0,"Rx");
            displayTx();
-
            TxPointer = 0;
            TxBitPointer = 0;
+          }
+          else
+          {
+            morseTx.buildSequence(settings.TxMessage[TxMessNo]);
+            messageChanging = true;
+            cancel_repeating_timer(&TxIntervalTimer);
+            morseTx.start(); 
+            mode = TX; 
+            digitalWrite(TXPIN, 1);
+            Key = 0;
+            add_repeating_timer_us(-((int32_t)morseTx.intervalUs()), TxIntervalInterrupt, NULL, &TxIntervalTimer);
+            messageChanging = false;          
+          }
+           
          }
          else 
          {

@@ -98,6 +98,7 @@ bool MorseTx::buildSequence(const char *text)
         }
     }
 
+    appendUnits(-10);                   //add a long gap at the end of the message
     return seqLen_ > 0;
 }
 
@@ -172,9 +173,7 @@ void MorseTx::tick(bool inTxMode, bool &keyOut)
     {
         if (seqPos_ >= seqLen_)
         {
-            keyOut = 0;
-            mode_ = NONE;
-            completeRequest_ = true;
+            seqPos_ = 0;
             return;
         }
 

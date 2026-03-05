@@ -410,6 +410,8 @@ void processTouch(void)
             morseTx.start(); 
             mode = TX; 
             digitalWrite(TXPIN, 1);
+            BUTkey[5].drawButton(0,"Rx");
+            displayTx();
             Key = 0;
             add_repeating_timer_us(-((int32_t)morseTx.intervalUs()), TxIntervalInterrupt, NULL, &TxIntervalTimer);
             messageChanging = false;          
@@ -418,6 +420,8 @@ void processTouch(void)
          }
          else 
          {
+           if(settings.app == MORSE)  morseTx.stop();
+
            mode = RX;
            digitalWrite(KEYPIN, 0);
            digitalWrite(TXPIN, 0);

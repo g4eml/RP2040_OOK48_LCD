@@ -232,6 +232,7 @@ void loop()
 void loop1()
 {
   uint32_t command;
+  uint32_t value;
   char m[64];
   unsigned long inc;
  
@@ -246,7 +247,7 @@ void loop1()
 
   if(rp2040.fifo.pop_nb(&command))          //have we got something to process from core 0?
     {
-      switch(command)
+      switch(command & 0xFFFF)
       {
         case GENPLOT:
         generatePlotData();
@@ -264,10 +265,10 @@ void loop1()
         markWaterfall(TFT_CYAN);
         break;
         case MESSAGE:
-        textPrintChar(decoded,TFT_BLUE);                                 
+        textPrintChar(command >> 16,TFT_BLUE);                                 
         break;
         case TMESSAGE:
-        textPrintChar(TxCharSent,TFT_RED);                               
+        textPrintChar(command >> 16,TFT_RED);                               
         break;
         case JTMESSAGE:
         sprintf(m,"%02d:%02d %.0lf :%s",gpsHr,gpsMin, sigNoise,JTmessage);
@@ -277,11 +278,8 @@ void loop1()
         sprintf(m,"%02d:%02d %.0lf :%s",gpsHr,gpsMin, sigNoise,PImessage);
         textPrintLine(m);                                  
         break;
-        case ERROR:
-        textPrintChar(decoded,TFT_ORANGE);                                           
-        break;
         case MORSEMESSAGE:
-        textPrintChar(morseDecoded,TFT_BLUE);
+        textPrintChar(command >> 16,TFT_BLUE);
         break;
         case MORSELOCKED:
         break;
@@ -505,6 +503,12 @@ void loadSettings(void)
   if(settings.app >3) 
    {
     settings.app = 0;
+    ss = true;
+   }
+
+   if((settings.morseWpm > MORSE_MAX_WPM) || (settings.morseWpm < MORSE_MIN_WPM))
+   {
+    settings.morseWpm = MORSE_DEFAULT_WPM;
     ss = true;
    }
 

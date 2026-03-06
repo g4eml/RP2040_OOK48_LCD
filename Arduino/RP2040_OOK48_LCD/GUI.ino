@@ -414,6 +414,7 @@ void processTouch(void)
           }
           else
           {
+            morseTx.setWpm(settings.morseWpm);
             morseTx.buildSequence(settings.TxMessage[TxMessNo]);
             messageChanging = true;
             cancel_repeating_timer(&TxIntervalTimer);

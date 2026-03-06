@@ -17,14 +17,15 @@ struct eepromstruct
   uint16_t rxRetard;              //Rx Timing retard in ms
   float batcal;                   //battery voltage calibration factor
   uint8_t app;                    //currently selected application OOK48 JT4G or PI4
-  uint8_t  morseWpm;
+  uint8_t  morseWpm;              //Morse WPM
+  uint8_t morseDecodeMode;        //Morse normal or rainscatter modes.
 };
 
 struct eepromstruct settings;
 
 enum decodemodes {NORMALMODE,ALTMODE,RAINSCATTERMODE};
 
-enum core1Message {GENPLOT,DRAWSPECTRUM,DRAWWATERFALL,REDLINE,CYANLINE,MESSAGE,TMESSAGE,ERROR,JTMESSAGE,PIMESSAGE,MORSEMESSAGE,MORSELOCKED,MORSELOST};         //messages for control of Core 1 from Core 2
+enum core1Message {GENPLOT,DRAWSPECTRUM,DRAWWATERFALL,REDLINE,CYANLINE,MESSAGE,TMESSAGE,JTMESSAGE,PIMESSAGE,MORSEMESSAGE,MORSELOCKED,MORSELOST};         //messages for control of Core 1 from Core 2
 
 
 uint16_t dma_chan;                        //DMA Channel Number
@@ -115,7 +116,6 @@ bool sdpresent;
 
 // Morse RX
 MorseRxDecoder morseDecoder;
-char  morseDecoded;   // last decoded char/space, cross-core via FIFO
 float morseWpmEst;    // WPM at lock, for status display
 float morseCentroidHz; // tracked Morse centroid frequency (Hz), for WF marker
 uint32_t dmaTransferCount;  // set by RxInit(), read by dma_init()

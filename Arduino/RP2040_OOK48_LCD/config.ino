@@ -102,12 +102,20 @@ bool cfgLoop = false;
        {
         settings.decodeMode = NORMALMODE;
        }
+    if(settings.app == MORSE)
+       {
+        settings.morseDecodeMode = NORMALMODE;
+       }
       break;
     
     case 8:
       if(settings.app == OOK48)
        {
         settings.decodeMode = ALTMODE;
+       }
+      if(settings.app == MORSE)
+       {
+        settings.morseDecodeMode = RAINSCATTERMODE;
        }
       break;
     case 9:
@@ -119,6 +127,15 @@ bool cfgLoop = false;
         settings.txAdvance = atoi(txt);
         if(settings.txAdvance <0) settings.txAdvance = 0;
         if(settings.txAdvance >999) settings.txAdvance = 999;
+       }
+      if(settings.app == MORSE)
+       {
+        txt[0] = 32;
+        txt[1] = 0;
+        getText("Enter Morse Tx Speed in WPM", txt,2);
+        settings.morseWpm = atoi(txt);
+        if(settings.morseWpm <MORSE_MIN_WPM) settings.morseWpm = MORSE_MIN_WPM;
+        if(settings.morseWpm >MORSE_MAX_WPM) settings.morseWpm = MORSE_MAX_WPM;
        }
       break;
     case 10:
@@ -175,9 +192,10 @@ uint16_t cfgTextcolour;
   ypos=ypos + CFG_LINESPACING*2;
   tft.drawString("GPS Baud Rate", CFG_TEXTLEFT, ypos);
   ypos=ypos + CFG_LINESPACING*2;
-  if(settings.app == OOK48) tft.drawString("Decode Mode", CFG_TEXTLEFT, ypos);
+  if((settings.app == OOK48)||(settings.app == MORSE)) tft.drawString("Decode Mode", CFG_TEXTLEFT, ypos);
   ypos=ypos + CFG_LINESPACING*2;
   if(settings.app == OOK48) tft.drawString("Tx Timing Advance                  ms", CFG_TEXTLEFT, ypos);
+  if(settings.app == MORSE) tft.drawString("Morse WPM", CFG_TEXTLEFT, ypos);
   ypos=ypos + CFG_LINESPACING*2;
   if(settings.app == OOK48) tft.drawString("Rx Timing Retard                     ms", CFG_TEXTLEFT, ypos);
   if(sdpresent)
@@ -256,6 +274,21 @@ uint16_t cfgTextcolour;
                         congfglabels[8], CFG_TEXTSIZE);
       cfgKbd[8].drawButton();
    }
+ if(settings.app == MORSE)
+   {
+      if (settings.morseDecodeMode == NORMALMODE) cfgTextcolour = TFT_GREEN; else cfgTextcolour = TFT_WHITE;
+      cfgKbd[7].initButton(&tft, CFG_BUTTONSLEFT + CFG_W/2,
+                        ypos + CFG_LINESPACING/2, // x, y, w, h, outline, fill, text
+                        CFG_W, CFG_H, TFT_WHITE, TFT_BLUE, cfgTextcolour,
+                        congfglabels[7], CFG_TEXTSIZE);
+      cfgKbd[7].drawButton(); 
+      if (settings.morseDecodeMode == RAINSCATTERMODE) cfgTextcolour = TFT_GREEN; else cfgTextcolour = TFT_WHITE;
+      cfgKbd[8].initButton(&tft, CFG_BUTTONSLEFT + CFG_W + CFG_W/2 + CFG_SPACING_X,
+                        ypos + CFG_LINESPACING/2, // x, y, w, h, outline, fill, text
+                        CFG_W, CFG_H, TFT_WHITE, TFT_BLUE, cfgTextcolour,
+                        "RS", CFG_TEXTSIZE);
+      cfgKbd[8].drawButton();
+   }
     ypos=ypos + CFG_LINESPACING*2;
 // Tx Advance Button
 if(settings.app == OOK48)
@@ -266,6 +299,16 @@ if(settings.app == OOK48)
                         CFG_W, CFG_H, TFT_WHITE, TFT_BLUE, cfgTextcolour,
                         congfglabels[9], CFG_TEXTSIZE);
       sprintf(txt,"%d",settings.txAdvance);
+      cfgKbd[9].drawButton(false,txt); 
+  }
+  if(settings.app == MORSE)
+  {
+      cfgTextcolour = TFT_WHITE;
+      cfgKbd[9].initButton(&tft, CFG_BUTTONSLEFT + CFG_W/2,
+                        ypos + CFG_LINESPACING/2, // x, y, w, h, outline, fill, text
+                        CFG_W, CFG_H, TFT_WHITE, TFT_BLUE, cfgTextcolour,
+                        congfglabels[9], CFG_TEXTSIZE);
+      sprintf(txt,"%d",settings.morseWpm);
       cfgKbd[9].drawButton(false,txt); 
   }
     ypos=ypos + CFG_LINESPACING*2;

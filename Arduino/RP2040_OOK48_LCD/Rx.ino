@@ -50,7 +50,7 @@ void RxTick(void)
     calcMorseSpectrum();
 
     const float binHz = (float)SAMPLERATE / (float)MORSE_FFT_SIZE;
-    bool morseRainscatter = (settings.decodeMode == RAINSCATTERMODE);
+    bool morseRainscatter = (settings.morseDecodeMode == RAINSCATTERMODE);
 
     if (!morseRainscatter)
     {
@@ -112,10 +112,9 @@ void RxTick(void)
     for (int i = 0; i < n; i++)
     {
       MorseEvent ev = morseDecoder.event(i);
-      if (ev.kind == MorseEvt::CHAR || ev.kind == MorseEvt::WORD_SEP)
+      if ((ev.kind == MorseEvt::CHAR)||(ev.kind == MorseEvt::WORD_SEP)) 
       {
-        morseDecoded = ev.ch;
-        rp2040.fifo.push(MORSEMESSAGE);
+        rp2040.fifo.push(MORSEMESSAGE + (ev.ch <<16));
       }
       else if (ev.kind == MorseEvt::LOCKED)
       {
@@ -160,7 +159,7 @@ void RxTick(void)
           if(PPSActive)                                         //decodes are only valid if the PPS Pulse is present
           { 
             decodeCache();                                      //extract the character
-            rp2040.fifo.push(MESSAGE);                         //Ask Core 1 to display it 
+            rp2040.fifo.push(MESSAGE + decoded << 16);          //Ask Core 1 to display it 
           }
         }                                  
       dmaReady = false;                                         //Clear the flag ready for next time     

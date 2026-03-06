@@ -151,4 +151,3 @@
 #define MORSE_DEFAULT_WPM   12
 #define MORSE_MIN_WPM       5
 #define MORSE_MAX_WPM       40
-#define CONFIDENCE_THRESHOLD 0.180f     // below this → UNK decode (empirically derived) - default

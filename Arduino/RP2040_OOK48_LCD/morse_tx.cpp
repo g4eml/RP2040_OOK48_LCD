@@ -194,7 +194,7 @@ void MorseTx::tick(bool inTxMode, bool &keyOut)
         while(seg > 10)
          {
            TxCharSent=seg;                                  //this is the actual character embeded in the morse sequence. 
-           rp2040.fifo.push(TMESSAGE + TxCharSent <<16);          //Ask Core 1 to display it. 
+           rp2040.fifo.push(TMESSAGE + (TxCharSent <<16));          //Ask Core 1 to display it. 
            seg = seq_[seqPos_++];
          }
         currentKey_ = (seg > 0);

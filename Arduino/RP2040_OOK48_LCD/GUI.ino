@@ -89,7 +89,8 @@ void textClear(void)
 {
   tft.fillRect(TEXTLEFT, TEXTTOP, TEXTWIDTH, TEXTHEIGHT, TFT_WHITE);
   tft.setTextSize(1);
-  textrow = tft.fontHeight();
+  tft.setTextDatum(TL_DATUM);
+  textrow = 0;
   textcol = 0;
 }
 
@@ -133,7 +134,7 @@ void textPrintChar(char m, uint16_t col)
    }
    else 
    {
-     int16_t w = tft.drawChar(m,TEXTLEFT + textcol,TEXTTOP+textrow);
+     int16_t w = tft.drawChar(m,TEXTLEFT + textcol,TEXTTOP+textrow+12);
      textcol=textcol+w;
      if(textcol > (TEXTWIDTH - w))
        {

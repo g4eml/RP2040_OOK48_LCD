@@ -89,7 +89,7 @@ void textClear(void)
 {
   tft.fillRect(TEXTLEFT, TEXTTOP, TEXTWIDTH, TEXTHEIGHT, TFT_WHITE);
   tft.setTextSize(1);
-  textrow = 0;
+  textrow = tft.fontHeight();
   textcol = 0;
 }
 
@@ -377,8 +377,18 @@ void processTouch(void)
            mode = RX;
            digitalWrite(KEYPIN, 0);
            cancel_repeating_timer(&TxIntervalTimer);
-           mode = TX;
+           if(settings.app == MORSE)
+           {
+            morseTx.stop();
+            morseTx.buildSequence(settings.TxMessage[TxMessNo]);
+            morseTx.start();
+            add_repeating_timer_us(-((int32_t)morseTx.intervalUs()), TxIntervalInterrupt, NULL, &TxIntervalTimer);
+           }
+           else
+           {
            TxInit();
+           }
+           mode = TX;
            BUTkey[5].drawButton(0,"Rx");
            displayTx();        
          }

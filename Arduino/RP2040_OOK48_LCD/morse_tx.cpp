@@ -1,6 +1,11 @@
 #include <ctype.h>
 #include "defines.h"
 #include "morse_tx.h"
+#include <Arduino.h>
+
+#define TMESSAGE 6
+
+extern char TxCharSent;
 
 struct MorseMap
 {
@@ -84,6 +89,10 @@ bool MorseTx::buildSequence(const char *text)
         {
             uint8_t letterGap = (pendingGap > 0) ? pendingGap : 3;
             if (!appendUnits(-(int8_t)letterGap)) return false;
+            if(pendingGap > 6) 
+            {
+                appendUnits(' ');                           //add a space for the display
+            }
         }
         pendingGap = 0;
 
@@ -96,9 +105,13 @@ bool MorseTx::buildSequence(const char *text)
                 if (!appendUnits(-1)) return false;
             }
         }
+        appendUnits(c);                         //embed the actual character in the sequence
     }
 
     appendUnits(-10);                   //add a long gap at the end of the message
+    appendUnits(13);                     //add a CR for the display
+    appendUnits(-1);
+
     return seqLen_ > 0;
 }
 
@@ -178,6 +191,12 @@ void MorseTx::tick(bool inTxMode, bool &keyOut)
         }
 
         int8_t seg = seq_[seqPos_++];
+        while(seg > 10)
+         {
+           TxCharSent=seg;                      //this is the actual character embeded in the morse sequence. 
+           rp2040.fifo.push(TMESSAGE);          //Ask Core 1 to display it. 
+           seg = seq_[seqPos_++];
+         }
         currentKey_ = (seg > 0);
         unitsLeft_ = (uint8_t)(seg > 0 ? seg : -seg);
     }

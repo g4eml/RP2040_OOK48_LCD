@@ -27,7 +27,7 @@ enum decodemodes {NORMALMODE,ALTMODE,RAINSCATTERMODE};
 enum core1Message {GENPLOT,DRAWSPECTRUM,DRAWWATERFALL,REDLINE,CYANLINE,MESSAGE,TMESSAGE,ERROR,JTMESSAGE,PIMESSAGE,MORSEMESSAGE,MORSELOCKED,MORSELOST};         //messages for control of Core 1 from Core 2
 
 
-uint dma_chan;                        //DMA Channel Number
+uint16_t dma_chan;                        //DMA Channel Number
 bool dmaReady;                        //Flag to indicate a DMA buffer is ready to be processed.
 uint8_t bufIndex = 0;                 //Index to the current DMA buffer. Alternates 0/1.
 

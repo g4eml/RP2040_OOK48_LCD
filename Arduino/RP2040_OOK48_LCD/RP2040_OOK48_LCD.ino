@@ -282,8 +282,13 @@ void loop1()
         textPrintChar(command >> 16,TFT_BLUE);
         break;
         case MORSELOCKED:
+        sprintf(m,"Morse Locked at %.1f WPM",morseWpmEst);
+        textPrintLine(m);
         break;
         case MORSELOST:
+        sprintf(m,"Morse Lock Lost");
+        textPrintChar(13,TFT_BLUE);
+        textPrintLine(m);
         break;
       }
     }

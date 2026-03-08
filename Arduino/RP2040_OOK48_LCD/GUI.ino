@@ -320,6 +320,7 @@ void processTouch(void)
       case 0:
       noTouch = false;
       textClear();
+      if(settings.app == MORSE) morseDecoder.reset();
       break;
       
       case 1:

@@ -333,8 +333,8 @@ void MorseRxDecoder::_estimateWpm(const RunEntry *runs, int count,
     float step = (_state == MorseState::ACQUIRE) ? 1.0f : 0.5f;
     for (float wpm = _wpmMin; wpm <= _wpmMax + 1e-4f; wpm += step)
     {
-        int uf = (int)(_ditFrames(wpm) +0.5f);
-        if (uf < 1) uf = 1;
+        float uf = _ditFrames(wpm);
+        if (uf < 0.5f) uf = 0.5f;
 
         // Sub-threshold fraction
         int subThresh = 0;
@@ -347,7 +347,7 @@ void MorseRxDecoder::_estimateWpm(const RunEntry *runs, int count,
         for (int i = 0; i < count; i++)
         {
             int   s = runs[i].state, n = runs[i].len;
-            float units = (float)n / (float)uf;
+            float units = (float)n /uf;
             if (units < 0.5f)
               {
                    // Run is far too short for this WPM — add a fixed penalty
@@ -356,7 +356,7 @@ void MorseRxDecoder::_estimateWpm(const RunEntry *runs, int count,
                 tw  += (float)runs[i].len;
                 continue;
               }
-            float weight = (float)(n < 10*uf ? n : 10*uf);
+            float weight = (n < 10.0f*uf ? (float)n : 10.0f*uf);
             float err, w;
             if (s == 1)
             {
@@ -391,7 +391,7 @@ void MorseRxDecoder::_estimateWpm(const RunEntry *runs, int count,
         int hits = 0;
         for (int i = 0; i < markCount; i++)
         {
-            float d1 = (float)markRuns[i] - (float)uf;  if (d1 < 0) d1 = -d1;
+            float d1 = (float)markRuns[i] - uf;  if (d1 < 0) d1 = -d1;
             float d3 = (float)markRuns[i] - dashF;       if (d3 < 0) d3 = -d3;
             if (d1 <= tol || d3 <= tol) hits++;
         }
@@ -435,15 +435,18 @@ void MorseRxDecoder::_acquireStep()
     float bestWpm, bestConf;
     _estimateWpm(runs, count, bestWpm, bestConf);
 
-     if (markCount < 10)
-    lockThresh = MORS_LOCK_THRESHOLD_FAST;   // e.g. 0.55
+     if (markCount < 8)
+      lockThresh = MORS_LOCK_THRESHOLD_FAST;
      else
-      lockThresh = MORS_LOCK_THRESHOLD;        // e.g. 0.70
+      lockThresh = MORS_LOCK_THRESHOLD;
 
-     if (bestConf >= lockThresh)
-        _declareLocked(bestWpm);
+    if (bestConf >= lockThresh)
+    {
+        float ditF = _ditFrames(bestWpm);
+        if (ditF >= 1.0f && ditF <= (float)_frameRate * 0.5f && bestWpm > _wpmMin + 1.0f)
+            _declareLocked(bestWpm);
+    }
 }
-
 // ---------------------------------------------------------------------------
 // Tracking (LOCKED state)
 // ---------------------------------------------------------------------------

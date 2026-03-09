@@ -6,10 +6,11 @@
 // ---------------------------------------------------------------------------
 // Tunable constants  (ported from Python StreamingMorseDecoder)
 // ---------------------------------------------------------------------------
-static constexpr int   MORS_MIN_ACQUIRE_MARK_RUNS  = 20;
+static constexpr int   MORS_MIN_ACQUIRE_MARK_RUNS  = 3;
 static constexpr int   MORS_REESTIMATE_INTERVAL    = 6;
 static constexpr int   MORS_ACQUIRE_RING_SIZE      = 400;   // ~11s at 36fps
 static constexpr float MORS_LOCK_THRESHOLD         = 0.65f;
+static constexpr float MORS_LOCK_THRESHOLD_FAST    = 0.5f;
 
 static constexpr float MORS_SCHMITT_HYST_FRAC      = 0.12f;
 
@@ -28,11 +29,14 @@ static constexpr float MORS_HIST_REWARD            = 0.40f;
 static constexpr float MORS_HIST_TOL_FRAC          = 0.35f;
 
 static constexpr float MORS_ALPHA_MARK             = 0.12f;
+static constexpr float MORS_ALPHA_DOT             = 0.08f;
+static constexpr float MORS_ALPHA_DASH             = 0.20f;
 static constexpr float MORS_ALPHA_SPACE            = 0.06f;
-static constexpr float MORS_PLL_LO_FRAC            = 0.60f;
-static constexpr float MORS_PLL_HI_FRAC            = 1.55f;
+static constexpr float MORS_ALPHA_INTRA_SPACE      = 0.03f;
+static constexpr float MORS_PLL_LO_FRAC            = 0.70f;
+static constexpr float MORS_PLL_HI_FRAC            = 1.40f;
 
-static constexpr float MORS_WORD_GAP_THR           = 5.5f;
+static constexpr float MORS_WORD_GAP_THR           = 6.0f;
 static constexpr int   MORS_LOST_TIMEOUT_DITS      = 60;
 
 // ---------------------------------------------------------------------------
@@ -136,6 +140,7 @@ private:
     float _unitEst   = 0.0f;
     float _unitMin   = 0.0f;
     float _unitMax   = 0.0f;
+    float _unitLocked = 0.0f;  
 
     // --- symbol accumulation ---
     char _symbol[8] = {};
@@ -148,6 +153,7 @@ private:
     static constexpr int MAX_EVENTS = 8;
     MorseEvent _events[MAX_EVENTS];
     int        _evtCount = 0;
+    int _implausibleRuns = 0;                             //consecutive runs inconsistent with unitEst
 
     // --- internal methods ---
     void  _updatePeak(float mag);

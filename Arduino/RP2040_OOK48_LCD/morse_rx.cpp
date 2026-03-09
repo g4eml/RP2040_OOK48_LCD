@@ -63,10 +63,11 @@ int MorseRxDecoder::feed(float mag)
     _updatePeak(mag);
     _updateP20(mag);
 
-    // 2. Update Schmitt thresholds every 8 frames
+    // 2. Update Schmitt thresholds every 4 or every 8 frames
     _schmittFrame++;
-    if (_schmittFrame % 8 == 0)
-        _updateSchmitt();
+    int schmittInterval = (_state == MorseState::ACQUIRE) ? 4 : 8;
+    if (_schmittFrame % schmittInterval == 0)
+       _updateSchmitt();
 
     if (!_schmittValid)
         return 0;
@@ -88,6 +89,13 @@ int MorseRxDecoder::feed(float mag)
             _trackStep(completed.state, completed.len);
     }
 
+    if (_state == MorseState::LOCKED && _curState == 0 && _symLen > 0)
+    {
+    float spaceUnits = (float)_curLen / _unitEst;
+    if (spaceUnits >= MORS_WORD_GAP_THR)
+        _emitSymbol();
+    }
+
     // 5. Lock-loss watchdog
     if (_state == MorseState::LOCKED)
     {
@@ -97,8 +105,9 @@ int MorseRxDecoder::feed(float mag)
         int lostTimeout = (int)(MORS_LOST_TIMEOUT_DITS * _unitEst);
         if (_framesSinceMark > lostTimeout)
             _declareLost();
-        else if (_unitEst < _unitMin || _unitEst > _unitMax)
-            _declareLost();
+        else if (_unitEst < _unitLocked * MORS_PLL_LO_FRAC * 0.85f ||
+         _unitEst > _unitLocked * MORS_PLL_HI_FRAC * 1.15f)
+              _declareLost();
     }
 
     return _evtCount;
@@ -132,8 +141,19 @@ void MorseRxDecoder::_updatePeak(float mag)
 
 void MorseRxDecoder::_updateP20(float mag)
 {
+    // Initialise scale on first non-zero sample
     if (_p20Scale == 0.0f && mag > 0.0f)
         _p20Scale = (float)(MORS_P20_HIST_BINS - 1) / (mag * 8.0f);
+
+    // Re-range if peak has outgrown the histogram
+    if (_p20Scale > 0.0f && _peakHold * _p20Scale > MORS_P20_HIST_BINS * 0.9f)
+    {
+        memset(_p20Hist, 0, sizeof(_p20Hist));
+        _p20Ring.clear();
+        _p20Total = 0;
+        _p20Scale = (float)(MORS_P20_HIST_BINS - 1) / (_peakHold * 4.0f);
+    }
+
     if (_p20Scale <= 0.0f) return;
 
     int bucket = (int)(mag * _p20Scale);
@@ -181,6 +201,7 @@ void MorseRxDecoder::_updateSchmitt()
     if (noise <= 0.0f || peak / (noise + 1e-9f) < 6.0f)
     {
         _schmittValid = false;
+        _schmittState = 0;                         // reset so we don't resume mid-mark
         return;
     }
 
@@ -309,9 +330,10 @@ void MorseRxDecoder::_estimateWpm(const RunEntry *runs, int count,
     bestConf = 0.0f;
     float bestScore = -1e9f;
 
-    for (float wpm = _wpmMin; wpm <= _wpmMax + 1e-4f; wpm += 0.5f)
+    float step = (_state == MorseState::ACQUIRE) ? 1.0f : 0.5f;
+    for (float wpm = _wpmMin; wpm <= _wpmMax + 1e-4f; wpm += step)
     {
-        int uf = (int)(_ditFrames(wpm) + 0.5f);
+        int uf = (int)(_ditFrames(wpm) +0.5f);
         if (uf < 1) uf = 1;
 
         // Sub-threshold fraction
@@ -326,7 +348,14 @@ void MorseRxDecoder::_estimateWpm(const RunEntry *runs, int count,
         {
             int   s = runs[i].state, n = runs[i].len;
             float units = (float)n / (float)uf;
-            if (units < 0.5f) continue;
+            if (units < 0.5f)
+              {
+                   // Run is far too short for this WPM — add a fixed penalty
+                  // proportional to run length so many tiny runs kill the score
+                pen += (float)runs[i].len * 2.0f;
+                tw  += (float)runs[i].len;
+                continue;
+              }
             float weight = (float)(n < 10*uf ? n : 10*uf);
             float err, w;
             if (s == 1)
@@ -367,6 +396,7 @@ void MorseRxDecoder::_estimateWpm(const RunEntry *runs, int count,
             if (d1 <= tol || d3 <= tol) hits++;
         }
         float conf  = (float)hits / (float)markCount;
+
         float score = -(pen / tw) + MORS_HIST_REWARD * conf - 1.5f * subFrac;
 
         if (score > bestScore)
@@ -384,6 +414,7 @@ void MorseRxDecoder::_estimateWpm(const RunEntry *runs, int count,
 
 void MorseRxDecoder::_acquireStep()
 {
+    float lockThresh;
     int markCount = 0;
     for (int i = 0; i < _runBuf.size(); i++)
         if (_runBuf[i].state == 1) markCount++;
@@ -404,7 +435,12 @@ void MorseRxDecoder::_acquireStep()
     float bestWpm, bestConf;
     _estimateWpm(runs, count, bestWpm, bestConf);
 
-    if (bestConf >= MORS_LOCK_THRESHOLD)
+     if (markCount < 10)
+    lockThresh = MORS_LOCK_THRESHOLD_FAST;   // e.g. 0.55
+     else
+      lockThresh = MORS_LOCK_THRESHOLD;        // e.g. 0.70
+
+     if (bestConf >= lockThresh)
         _declareLocked(bestWpm);
 }
 
@@ -418,16 +454,35 @@ void MorseRxDecoder::_trackStep(int runState, int runLen)
     if (uf <= 1e-6f) return;
 
     float unitsF = (float)runLen / uf;
+
+    //a plausible run is between 0.5 and 10 units
+    // Noise bursts produce many runs that are tiny fractions of a unit
+    if (unitsF < 0.4f || unitsF > 12.0f)
+    {
+        if (++_implausibleRuns > 8)
+        {
+            _declareLost();
+            return;
+        }
+    }
+    else
+    {
+        _implausibleRuns = 0;   // reset on any good run
+    }
+
     int   units  = (int)(unitsF + 0.5f);
     if (units < 1) units = 1;
 
     if (runState == 1)
     {
-        bool isDash = (units >= 2);
-        if (_symLen < 7) _symbol[_symLen++] = isDash ? '-' : '.';
+        bool isDash = (unitsF >= 2.0f);
+        if (_symLen >= 7)                                // buffer full, force flush before overflow
+        _emitSymbol();                                  // emits '?' for the garbage, clears _symLen
+        _symbol[_symLen++] = isDash ? '-' : '.';
         float target = isDash ? 3.0f : 1.0f;
         float obs    = (float)runLen / target;
-        _unitEst = (1.0f - MORS_ALPHA_MARK) * uf + MORS_ALPHA_MARK * obs;
+        float alpha = isDash ? MORS_ALPHA_DASH : MORS_ALPHA_DOT;
+        _unitEst = (1.0f - alpha) * uf + alpha * obs;
         _framesSinceMark = 0;
     }
     else
@@ -447,7 +502,7 @@ void MorseRxDecoder::_trackStep(int runState, int runLen)
         else
         {
             float obs = (float)runLen / 1.0f;
-            _unitEst = (1.0f - MORS_ALPHA_SPACE) * uf + MORS_ALPHA_SPACE * obs;
+            _unitEst = (1.0f - MORS_ALPHA_INTRA_SPACE) * uf + MORS_ALPHA_INTRA_SPACE * obs;
         }
     }
 
@@ -478,10 +533,12 @@ void MorseRxDecoder::_declareLocked(float wpm)
     _lockedWpm = wpm;
     float uf   = _ditFrames(wpm);
     _unitEst   = uf;
+    _unitLocked = uf;
     _unitMin   = MORS_PLL_LO_FRAC * uf;
     _unitMax   = MORS_PLL_HI_FRAC * uf;
     _symLen    = 0;
     _framesSinceMark = 0;
+    _implausibleRuns = 0;
 
     MorseEvent ev; ev.kind = MorseEvt::LOCKED; ev.ch = 0; ev.wpm = wpm;
     _pushEvent(ev);
@@ -493,6 +550,7 @@ void MorseRxDecoder::_declareLocked(float wpm)
 
 void MorseRxDecoder::_declareLost()
 {
+    if (_symLen > 0) _emitSymbol();
     MorseEvent ev; ev.kind = MorseEvt::LOST; ev.ch = 0; ev.wpm = 0;
     _pushEvent(ev);
     _resetToAcquire();
@@ -501,12 +559,13 @@ void MorseRxDecoder::_declareLost()
 void MorseRxDecoder::_resetToAcquire()
 {
     _state           = MorseState::ACQUIRE;
-    _framesSinceAcq  = 0;
+    _framesSinceAcq  = MORS_REESTIMATE_INTERVAL;
     _runBuf.clear();
     _symLen          = 0;
     _framesSinceMark = 0;
     _curState        = 0;
     _curLen          = 0;
+    _implausibleRuns = 0;
     // Keep envelope/AGC state — helps Schmitt retrain quickly
 }
 

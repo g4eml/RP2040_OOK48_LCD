@@ -143,11 +143,12 @@
 #define MORSE_FRAME_SAMPLES   (MORSE_FFT_SIZE * OVERSAMPLE)   // 2048 ADC samples/frame
 #define MORSE_FRAME_RATE      36
 #define MORSESTARTFREQ        288                             //Lowest frequency we are interested in to nearest 36 Hz
-#define MORSEENDFREQ          3024                            //Highest frequency we are interested in     
+#define MORSEENDFREQ          1512                             //Highest frequency we are interested in     
 #define MORSESTARTBIN         8                             //corresponding bin number
 #define MORSE_TONE_BIN        14                              // 800 Hz / 36 Hz per bin ≈ bin 22 - start bin =14
-#define MORSE_FFT_BINS        76                             // End bin - start bin 
+#define MORSE_TONETOLERANCE    1
+#define MORSE_FFT_BINS        34                             // End bin - start bin 
 #define MORSE_WF_FRAMES       4     // accumulate N frames before waterfall send (~9/sec)
 #define MORSE_DEFAULT_WPM   12
 #define MORSE_MIN_WPM       5
-#define MORSE_MAX_WPM       40
+#define MORSE_MAX_WPM       30

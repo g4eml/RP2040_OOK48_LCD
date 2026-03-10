@@ -511,8 +511,8 @@ void calcLegend(void)
 {
    if((settings.app == OOK48) || (settings.app == MORSE))
    {
-    toneLegend[0][0] = (rxTone - toneTolerance)*  SPECWIDTH /numberOfBins ;
-    toneLegend[0][1] = (toneTolerance *2) * SPECWIDTH/ numberOfBins ;   
+    toneLegend[0][0] = (rxToneBin - toneTolerance)*  SPECWIDTH /numberOfBins ;
+    toneLegend[0][1] = (1+ toneTolerance *2) * SPECWIDTH/ numberOfBins ;   
    }
    else
    {

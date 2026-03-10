@@ -9,9 +9,10 @@ void RxInit(void)
     dmaTransferCount = MORSE_FRAME_SAMPLES;      // 2048 ADC samples → ~36 fps
     numberOfBins     = MORSE_FFT_BINS;
     startBin         = MORSESTARTBIN;
-    rxTone           = MORSE_TONE_BIN;
-    toneTolerance    = 3;
+    rxToneBin        = MORSE_TONE_BIN;
+    toneTolerance    = MORSE_TONETOLERANCE;
     numberOfTones    = 1;
+    calcLegend();
     morseDecoder.begin(MORSE_FRAME_RATE, MORSE_MIN_WPM, MORSE_MAX_WPM, MORSE_TONE_BIN);
     morseCentroidHz = (float)(MORSE_TONE_BIN + MORSESTARTBIN * (SAMPLERATE / MORSE_FFT_SIZE));
   }
@@ -20,7 +21,7 @@ void RxInit(void)
     dmaTransferCount = NUMBEROFOVERSAMPLES;
     cacheSize        = CACHESIZE;
     if (halfRate) cacheSize = CACHESIZE * 2;
-    rxTone           = TONE800;
+    rxToneBin           = TONE800;
     toneTolerance    = TONETOLERANCE;
     numberOfTones    = 1;
     numberOfBins     = OOKNUMBEROFBINS;
@@ -95,7 +96,7 @@ void RxTick(void)
     float decoderMag;
     if (!morseRainscatter)
     {
-      decoderMag = magnitude[MORSE_TONE_BIN];
+      decoderMag = magnitude[rxToneBin];
     }
     else
     {
@@ -177,7 +178,7 @@ int findBestBin(void)
 
   bestRange =0;
   topBin = 0;
-  for(int b=rxTone - toneTolerance ; b < rxTone + toneTolerance; b++)        //search each possible bin in the search range
+  for(int b=rxToneBin - toneTolerance ; b < rxToneBin + toneTolerance; b++)        //search each possible bin in the search range
     {
       max = 0 - FLT_MAX;
       min = FLT_MAX;
@@ -202,7 +203,7 @@ float findLargest(int timeslot)
 {
   float max;
   max = 0 - FLT_MAX;
-  for(int b=rxTone - toneTolerance ; b < rxTone + toneTolerance; b++)        //search each possible bin in the search range to find the largest magnitude
+  for(int b=rxToneBin - toneTolerance ; b < rxToneBin + toneTolerance; b++)        //search each possible bin in the search range to find the largest magnitude
     {
       if(toneCache[b][timeslot] > max) max = toneCache[b][timeslot];
     }

@@ -80,7 +80,6 @@ void generatePlotData(void)
     for(int p =0;p < numberOfBins; p++)                         
     {
       db[p]=2*(20*(log10(magnitude[p] / vref)));               //calculate bin amplitude relative to FS in dB
- 
     if(autolevel)
       {
       baselevel = baselevel + db[p];
@@ -111,7 +110,7 @@ void generatePlotData(void)
         uint8_t maxVal = db[strtBin];
         for (int i = strtBin + 1; i <= endBin; i++) 
         {
-            if (db[i] > maxVal) maxVal = db[i];
+          if (db[i] > maxVal) maxVal = db[i];
         }
 
         plotData[x] = maxVal; 

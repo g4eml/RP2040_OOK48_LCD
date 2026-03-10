@@ -41,7 +41,7 @@ uint8_t beaconMode;
 enum bmodes {JT4,PI4};
 
 uint32_t sampleRate;                  //samples per second.
-uint16_t rxTone;                      //tone in bins. 
+uint16_t rxToneBin;                      //tone in bins. 
 uint16_t toneTolerance;             //Tone tolerance in bins. 
 uint16_t cacheSize;                 // tone decode samples.
 float hzPerBin;

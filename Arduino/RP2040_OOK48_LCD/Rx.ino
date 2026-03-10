@@ -57,9 +57,12 @@ void RxTick(void)
     // Feed morse decoder:
     //  - normal mode: nominal tone bin magnitude
 
-    float decoderMag;
-
-    decoderMag = magnitude[rxToneBin];
+    float decoderMag = magnitude[rxToneBin];
+    //search all bins in the tolerance range and pick the one with the highest level. 
+    for(int b = rxToneBin - toneTolerance; b <= (rxToneBin + toneTolerance); b++)
+    {
+      if(magnitude[b] > decoderMag) decoderMag = magnitude[b];
+    }
 
     int n = morseDecoder.feed(decoderMag);
     for (int i = 0; i < n; i++)

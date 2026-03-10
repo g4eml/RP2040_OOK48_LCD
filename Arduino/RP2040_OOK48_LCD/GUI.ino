@@ -472,6 +472,7 @@ void processTouch(void)
       noTouch = false;
       switch(toneTolerance)
       {
+      //these cases are for OOK48
         case 5:
         toneTolerance = 11;
         break;       
@@ -480,7 +481,16 @@ void processTouch(void)
         break;
         case 34:
         toneTolerance = 5;
-        break;       
+        break; 
+      //these cases are for Morse
+        case 1:
+        toneTolerance = 4;
+        break;
+        case 4:
+        toneTolerance = 8;
+        break;
+        case 8:
+        toneTolerance = 1;      
       }
       calcLegend();
       drawLegend();

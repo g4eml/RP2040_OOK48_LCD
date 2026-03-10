@@ -30,38 +30,28 @@ static ArduinoFFT<float> MorseFFT(sample, sampleI, MORSE_FFT_SIZE, (float)SAMPLE
 
 void calcMorseSpectrum(void)
 {
-    float frameSum = 0.0f;
-    float frameMean;
-    float peak = 0.0f;
+  int bin;
     for (int i = 0; i < MORSE_FRAME_SAMPLES; i += OVERSAMPLE)
     {
-        int bin = i / OVERSAMPLE;
+        bin = i / OVERSAMPLE;
         sample[bin] = 0;
         for (int s = 0; s < OVERSAMPLE; s++)
-            sample[bin] += (float)buffer[bufIndex][i + s] - 2048.0f;
-        sample[bin] /= (float)OVERSAMPLE;
-        frameSum += sample[bin];
-        sampleI[bin] = 0.0f;
+        {
+          sample[bin] += buffer[bufIndex][i + s] - 2048.0f;
+        }
+        sample[bin] = sample[bin]/OVERSAMPLE;
+        sampleI[bin] = 0;
     }
-
-    frameMean = frameSum / (float)MORSE_FFT_SIZE;
-    for (int bin = 0; bin < MORSE_FFT_SIZE; bin++)
-    {
-        sample[bin] -= frameMean;
-        sampleI[bin] = 0.0f;
-        float a = sample[bin] < 0 ? -sample[bin] : sample[bin];
-        if (a > peak) peak = a;
-    }
-
-    uint8_t newLevel = (uint8_t)(peak / 2048.0f * 100.0f < 100.0f ? peak / 2048.0f * 100.0f : 100.0f);
-    audioLevel = (uint8_t)(audioLevel * 0.6f + newLevel * 0.4f);
 
     MorseFFT.windowing(FFTWindow::Hann, FFTDirection::Forward);
     MorseFFT.compute(FFTDirection::Forward);
     MorseFFT.complexToMagnitude();
 
     for (int m = 0; m < MORSE_FFT_BINS; m++)
+    {
         magnitude[m] = sample[startBin + m];
+    }
+
 }
 
 //Generate the display output array from the magnitude array with log scaling. Add offset and gain to the values.

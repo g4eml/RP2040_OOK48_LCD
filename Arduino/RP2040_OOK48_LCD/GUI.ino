@@ -467,7 +467,7 @@ void processTouch(void)
       return;
     }
 
-   if(touchZone(WATERLEFT, WATERTOP, WATERWIDTH, WATERHEIGHT)&& noTouch && settings.app == OOK48)
+   if(touchZone(WATERLEFT, WATERTOP, WATERWIDTH, WATERHEIGHT)&& noTouch && ((settings.app == OOK48) || (settings.app == MORSE)))
     {
       noTouch = false;
       switch(toneTolerance)
@@ -499,14 +499,11 @@ void processTouch(void)
 
 void drawLegend(void)
 {
-  uint16_t binl;
-  uint16_t binh;
-
   tft.fillRect(LEGLEFT,LEGTOP,LEGWIDTH,LEGHEIGHT, TFT_WHITE);
-   for(int l = 0 ; l < numberOfTones;l++)
-    {
-    tft.fillRect(toneLegend[l][0], LEGTOP, 1 + toneLegend[l][1] , LEGHEIGHT , TFT_ORANGE);
-    }
+  for(int l = 0 ; l < numberOfTones;l++)
+  {
+  tft.fillRect(toneLegend[l][0], LEGTOP, 1 + toneLegend[l][1] , LEGHEIGHT , TFT_ORANGE);
+  }
 
 }
 
@@ -514,7 +511,7 @@ void calcLegend(void)
 {
    if((settings.app == OOK48) || (settings.app == MORSE))
    {
-    toneLegend[0][0] = (rxToneBin - toneTolerance)*  SPECWIDTH /numberOfBins ;
+    toneLegend[0][0] = (rxTone - toneTolerance)*  SPECWIDTH /numberOfBins ;
     toneLegend[0][1] = (toneTolerance *2) * SPECWIDTH/ numberOfBins ;   
    }
    else

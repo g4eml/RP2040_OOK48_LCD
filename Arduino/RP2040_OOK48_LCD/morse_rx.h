@@ -12,8 +12,7 @@ static constexpr int   MORS_ACQUIRE_RING_SIZE      = 400;   // ~11s at 36fps
 static constexpr float MORS_LOCK_THRESHOLD         = 0.65f;
 static constexpr float MORS_LOCK_THRESHOLD_FAST    = 0.55f;
 
-static constexpr float MORS_SCHMITT_HYST_FRAC      = 0.12f;   
-static constexpr float MORSE_SCHMITT_RATIO         = 6.0f;          
+static constexpr float MORS_SCHMITT_HYST_FRAC      = 0.12f;
 
 static constexpr float MORS_PEAK_DECAY_SLOW        = 0.9995f;
 static constexpr float MORS_PEAK_DECAY_FAST        = 0.985f;

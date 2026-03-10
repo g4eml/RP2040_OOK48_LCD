@@ -198,7 +198,7 @@ void MorseRxDecoder::_updateSchmitt()
     float peak  = _peakHold;
     float noise = _noiseFloor;
 
-    if (noise <= 0.0f || peak / (noise + 1e-9f) < MORSE_SCHMITT_RATIO)
+    if (noise <= 0.0f || peak / (noise + 1e-9f) < 6.0f)
     {
         _schmittValid = false;
         _schmittState = 0;                         // reset so we don't resume mid-mark

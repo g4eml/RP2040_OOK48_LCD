@@ -80,25 +80,8 @@ static constexpr float MORS_CONF_FALL              = 0.18f;
 static constexpr int   MORS_LOST_TIMEOUT_DITS      = 120;
 
 // ---------------------------------------------------------------------------
-// Speed-change detection (bias streak)
+// WPM estimator
 // ---------------------------------------------------------------------------
-// Each mark PLL correction votes +1 (unitEst moving up) or -1 (moving down).
-// When the streak magnitude reaches BIAS_TRIGGER the decoder treats it as a
-// genuine speed change: it immediately runs an aggressive re-estimate and
-// widens the PLL clamp in the direction of the bias so _unitEst can travel
-// the full distance in one step.
-//
-// BIAS_TRIGGER = 3 means three consecutive same-direction mark corrections
-// trigger the fast response — roughly one full character (e.g. 'S' = 3 dots).
-// BIAS_BLEND_BASE is the re-estimate blend fraction at trigger; it increases
-// by BIAS_BLEND_STEP for each additional streak run beyond the trigger.
-// Capped at BIAS_BLEND_MAX so we never make a completely unconstrained jump.
-static constexpr int   MORS_BIAS_TRIGGER           = 3;
-static constexpr float MORS_BIAS_BLEND_BASE        = 0.50f;
-static constexpr float MORS_BIAS_BLEND_STEP        = 0.10f;
-static constexpr float MORS_BIAS_BLEND_MAX         = 0.85f;
-
-
 static constexpr float MORS_MORPH_THRESH_FRAC      = 0.38f;
 static constexpr float MORS_SPACE_WORD_WEIGHT      = 0.15f;
 static constexpr float MORS_SPACE_LETTER_WEIGHT    = 0.30f;
@@ -215,13 +198,6 @@ private:
     // --- silence watchdog ---
     int _framesSinceMark = 0;
 
-    // --- speed-change bias streak ---
-    // Signed counter of consecutive mark PLL corrections in the same direction.
-    // Positive = corrections pushing unitEst up (speed went down).
-    // Negative = corrections pushing unitEst down (speed went up).
-    // Reset to zero on any direction reversal or after an aggressive re-estimate.
-    int _biasStreak = 0;
-
     // --- event queue (cleared at start of each feed()) ---
     static constexpr int MAX_EVENTS = 8;
     MorseEvent _events[MAX_EVENTS];
@@ -233,7 +209,7 @@ private:
     int   _schmittStep(float val);
     bool  _updateRun(int bit, RunEntry &out);
     void  _trackStep(int runState, int runLen);
-    void  _reestimateSpeed(bool aggressive);
+    void  _reestimateSpeed();
     void  _applySpeedEstimate(float wpm);
     void  _emitSymbol();
     void  _pushEvent(MorseEvent ev);

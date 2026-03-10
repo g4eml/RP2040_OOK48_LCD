@@ -59,7 +59,6 @@ void MorseRxDecoder::reset()
     _wasLocked       = false;
     _symLen          = 0;
     _framesSinceMark = 0;
-    _biasStreak      = 0;
     _evtCount        = 0;
 }
 
@@ -98,7 +97,7 @@ int MorseRxDecoder::feed(float mag)
         int interval = isLocked() ? MORS_REESTIMATE_INTERVAL * 2
                                   : MORS_REESTIMATE_INTERVAL;
         if (_runCount % interval == 0)
-            _reestimateSpeed(false);
+            _reestimateSpeed();
     }
 
     // 5. Word-gap detection on in-progress space run
@@ -322,39 +321,7 @@ void MorseRxDecoder::_trackStep(int runState, int runLen)
         float target = isDash ? 3.0f : 1.0f;
         float obs    = (float)runLen / target;
         float alpha  = isDash ? MORS_ALPHA_DASH : MORS_ALPHA_DOT;
-        float newEst = (1.0f - alpha) * uf + alpha * obs;
-
-        // Track direction of this correction for bias-streak detection.
-        // Only mark runs vote — spaces are too variable to give a clean signal.
-        int vote = (newEst > uf) ? +1 : (newEst < uf) ? -1 : 0;
-        if (vote != 0)
-        {
-            // Same direction as current streak → extend it; opposite → reset
-            if (_biasStreak == 0 || (vote > 0) == (_biasStreak > 0))
-                _biasStreak += vote;
-            else
-                _biasStreak = vote;   // reversal: start fresh in new direction
-        }
-
-        // If the streak has reached the trigger threshold, call for an
-        // aggressive re-estimate immediately rather than waiting for the
-        // periodic interval.  The blend fraction grows with streak length
-        // so a longer sustained bias causes a larger single correction.
-        int absStreak = _biasStreak < 0 ? -_biasStreak : _biasStreak;
-        if (absStreak >= MORS_BIAS_TRIGGER)
-        {
-            // Temporarily widen the PLL clamp in the direction of the bias
-            // so _unitEst can actually travel the full required distance.
-            if (_biasStreak > 0)
-                _unitMax = MORS_COAST_HI_FRAC * _unitEst;   // speed went down
-            else
-                _unitMin = MORS_COAST_LO_FRAC * _unitEst;   // speed went up
-
-            _reestimateSpeed(true /* aggressive */);
-            _biasStreak = 0;   // consumed — start counting again
-        }
-
-        _unitEst = newEst;
+        _unitEst = (1.0f - alpha) * uf + alpha * obs;
     }
     else
     {
@@ -390,25 +357,28 @@ void MorseRxDecoder::_trackStep(int runState, int runLen)
 // Background speed re-estimator
 // ---------------------------------------------------------------------------
 //
-// Runs periodically and also on demand when a bias streak is detected.
-// aggressive=true uses a larger blend fraction so _unitEst jumps most of the
-// way to the new estimate in a single call — used for speed-change response.
-// aggressive=false uses a softer blend to avoid disrupting a stable lock.
+// Runs periodically against the recent run buffer.  If it finds a better WPM
+// than the current estimate it nudges _unitEst toward it.  The nudge is hard
+// (immediate) when coasting, soft (blended) when locked, so an already-good
+// lock is not disrupted by a brief burst of noise.
 // ---------------------------------------------------------------------------
 
-void MorseRxDecoder::_reestimateSpeed(bool aggressive)
+void MorseRxDecoder::_reestimateSpeed()
 {
     int count = _runBuf.size();
-    if (count < 4) return;
+    if (count < 4) return;   // need a few runs to estimate reliably
 
+    // Count mark runs — need at least a couple to score
     int markCount = 0;
     for (int i = 0; i < count; i++)
         if (_runBuf[i].state == 1) markCount++;
     if (markCount < 2) return;
 
+    // Copy ring to a local scratch array for morphFilter
     static RunEntry runs[MORS_RUN_RING_SIZE];
     for (int i = 0; i < count; i++) runs[i] = _runBuf[i];
 
+    // Morph-filter using the current speed estimate as the reference
     int minRun = (int)(MORS_MORPH_THRESH_FRAC * _unitEst + 0.5f);
     if (minRun < 2) minRun = 2;
     _morphFilter(runs, count, minRun);
@@ -416,35 +386,26 @@ void MorseRxDecoder::_reestimateSpeed(bool aggressive)
     float bestWpm, bestConf;
     _estimateWpm(runs, count, bestWpm, bestConf);
 
-    if (bestConf < 0.3f) return;
+    if (bestConf < 0.3f) return;   // estimator not confident enough to act on
 
     float newUnit = _ditFrames(bestWpm);
 
-    float blend;
-    if (aggressive)
+    if (isLocked())
     {
-        // Blend fraction scales with how far the streak has already grown,
-        // captured via the current |_biasStreak| before it was zeroed.
-        // Since streak is reset before this is called from _trackStep, use
-        // a fixed aggressive fraction here; the caller already widened the clamp.
-        blend = MORS_BIAS_BLEND_BASE;
-    }
-    else if (isLocked())
-    {
-        blend = 0.15f;   // soft — don't disrupt a stable lock
+        // Soft blend — don't disrupt a good lock
+        _unitEst = _unitEst * 0.85f + newUnit * 0.15f;
     }
     else
     {
-        blend = 0.70f;   // coasting — jump most of the way immediately
+        // Coasting — jump most of the way to the new estimate immediately
+        _unitEst = _unitEst * 0.30f + newUnit * 0.70f;
     }
 
-    _unitEst = _unitEst * (1.0f - blend) + newUnit * blend;
-
     // Re-clamp after adjustment
-    float lo = isLocked() ? MORS_PLL_LO_FRAC  * _unitEst
-                          : MORS_COAST_LO_FRAC * _unitEst;
-    float hi = isLocked() ? MORS_PLL_HI_FRAC  * _unitEst
-                          : MORS_COAST_HI_FRAC * _unitEst;
+    float lo = isLocked() ? MORS_PLL_LO_FRAC   * _unitEst
+                          : MORS_COAST_LO_FRAC  * _unitEst;
+    float hi = isLocked() ? MORS_PLL_HI_FRAC   * _unitEst
+                          : MORS_COAST_HI_FRAC  * _unitEst;
     if (_unitEst < lo) _unitEst = lo;
     if (_unitEst > hi) _unitEst = hi;
 

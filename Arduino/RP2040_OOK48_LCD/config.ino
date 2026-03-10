@@ -102,20 +102,12 @@ bool cfgLoop = false;
        {
         settings.decodeMode = NORMALMODE;
        }
-    if(settings.app == MORSE)
-       {
-        settings.morseDecodeMode = NORMALMODE;
-       }
       break;
     
     case 8:
       if(settings.app == OOK48)
        {
         settings.decodeMode = ALTMODE;
-       }
-      if(settings.app == MORSE)
-       {
-        settings.morseDecodeMode = RAINSCATTERMODE;
        }
       break;
     case 9:
@@ -192,7 +184,6 @@ uint16_t cfgTextcolour;
   ypos=ypos + CFG_LINESPACING*2;
   tft.drawString("GPS Baud Rate", CFG_TEXTLEFT, ypos);
   ypos=ypos + CFG_LINESPACING*2;
-  if((settings.app == OOK48)||(settings.app == MORSE)) tft.drawString("Decode Mode", CFG_TEXTLEFT, ypos);
   ypos=ypos + CFG_LINESPACING*2;
   if(settings.app == OOK48) tft.drawString("Tx Timing Advance                  ms", CFG_TEXTLEFT, ypos);
   if(settings.app == MORSE) tft.drawString("Morse WPM", CFG_TEXTLEFT, ypos);
@@ -274,21 +265,7 @@ uint16_t cfgTextcolour;
                         congfglabels[8], CFG_TEXTSIZE);
       cfgKbd[8].drawButton();
    }
- if(settings.app == MORSE)
-   {
-      if (settings.morseDecodeMode == NORMALMODE) cfgTextcolour = TFT_GREEN; else cfgTextcolour = TFT_WHITE;
-      cfgKbd[7].initButton(&tft, CFG_BUTTONSLEFT + CFG_W/2,
-                        ypos + CFG_LINESPACING/2, // x, y, w, h, outline, fill, text
-                        CFG_W, CFG_H, TFT_WHITE, TFT_BLUE, cfgTextcolour,
-                        congfglabels[7], CFG_TEXTSIZE);
-      cfgKbd[7].drawButton(); 
-      if (settings.morseDecodeMode == RAINSCATTERMODE) cfgTextcolour = TFT_GREEN; else cfgTextcolour = TFT_WHITE;
-      cfgKbd[8].initButton(&tft, CFG_BUTTONSLEFT + CFG_W + CFG_W/2 + CFG_SPACING_X,
-                        ypos + CFG_LINESPACING/2, // x, y, w, h, outline, fill, text
-                        CFG_W, CFG_H, TFT_WHITE, TFT_BLUE, cfgTextcolour,
-                        "RS", CFG_TEXTSIZE);
-      cfgKbd[8].drawButton();
-   }
+ 
     ypos=ypos + CFG_LINESPACING*2;
 // Tx Advance Button
 if(settings.app == OOK48)

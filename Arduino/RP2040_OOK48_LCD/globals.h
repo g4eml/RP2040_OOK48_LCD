@@ -18,12 +18,12 @@ struct eepromstruct
   float batcal;                   //battery voltage calibration factor
   uint8_t app;                    //currently selected application OOK48 JT4G or PI4
   uint8_t  morseWpm;              //Morse WPM
-  uint8_t morseDecodeMode;        //Morse normal or rainscatter modes.
+
 };
 
 struct eepromstruct settings;
 
-enum decodemodes {NORMALMODE,ALTMODE,RAINSCATTERMODE};
+enum decodemodes {NORMALMODE,ALTMODE};
 
 enum core1Message {GENPLOT,DRAWSPECTRUM,DRAWWATERFALL,REDLINE,CYANLINE,MESSAGE,TMESSAGE,JTMESSAGE,PIMESSAGE,MORSEMESSAGE,MORSELOCKED,MORSELOST};         //messages for control of Core 1 from Core 2
 
@@ -117,7 +117,6 @@ bool sdpresent;
 // Morse RX
 MorseRxDecoder morseDecoder;
 float morseWpmEst;    // WPM at lock, for status display
-float morseCentroidHz; // tracked Morse centroid frequency (Hz), for WF marker
 uint32_t dmaTransferCount;  // set by RxInit(), read by dma_init()
 
 uint8_t plotData[SPECWIDTH];        //Array of Plot points for spectrum display. Log scaled and offset to 0 - SPECHEIGHT and used to display new line.  

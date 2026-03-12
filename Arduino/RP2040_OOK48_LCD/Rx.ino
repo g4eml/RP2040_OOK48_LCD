@@ -12,6 +12,7 @@ void RxInit(void)
     rxToneBin        = MORSE_TONE_BIN;
     toneTolerance    = MORSE_TONETOLERANCE;
     numberOfTones    = 1;
+    textHeight = MORSETEXTHEIGHT;
     calcLegend();
     morseDecoder.begin(MORSE_FRAME_RATE, MORSE_MIN_WPM, MORSE_MAX_WPM, MORSE_TONE_BIN);
   }
@@ -25,6 +26,7 @@ void RxInit(void)
     numberOfTones    = 1;
     numberOfBins     = OOKNUMBEROFBINS;
     startBin         = OOKSTARTBIN;
+    textHeight = TEXTHEIGHT;
     calcLegend();
   }
   dma_init();                       //Initialise and start ADC conversions and DMA transfers. 
@@ -41,9 +43,14 @@ void RxTick(void)
 {
   uint8_t tn;
   static unsigned long lastDma;
-
+  static unsigned long lastWPMupdate = millis();
     if (settings.app == MORSE)
   {
+    if(millis() >= lastWPMupdate + 1000 )
+     {
+      lastWPMupdate = millis();
+      rp2040.fifo.push(MORSEWPM);      
+     }
     if (!dmaReady) return;
     lastDma = millis();
     calcMorseSpectrum();

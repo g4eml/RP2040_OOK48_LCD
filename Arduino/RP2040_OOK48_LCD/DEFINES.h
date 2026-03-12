@@ -1,4 +1,4 @@
-#define VERSION "Version 0.20"
+#define VERSION "Version 0.3"
 
 #define GPSTXPin 4                      //Serial data to GPS module 
 #define GPSRXPin 5                      //Serial data from GPS module
@@ -152,3 +152,5 @@
 #define MORSE_DEFAULT_WPM   12
 #define MORSE_MIN_WPM       5
 #define MORSE_MAX_WPM       30
+
+#define MORSETEXTHEIGHT 230               //height of text output area when in morse mode.

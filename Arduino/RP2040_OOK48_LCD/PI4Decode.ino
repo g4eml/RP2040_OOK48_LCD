@@ -13,6 +13,7 @@ void PI4Init(void)
   numberOfBins = PI4NUMBEROFBINS;
   startBin = PI4STARTBIN;
   dmaTransferCount = NUMBEROFOVERSAMPLES;
+  textHeight = TEXTHEIGHT;
 
   dma_init();                       //Initialise and start ADC conversions and DMA transfers. 
   dma_handler();                    //call the interrupt handler once to start transfers

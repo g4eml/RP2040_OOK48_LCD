@@ -419,6 +419,7 @@ void MorseRxDecoder::_reestimateSpeed(bool aggressive)
     if (bestConf < 0.3f) return;
 
     float newUnit = _ditFrames(bestWpm);
+    morseWpmCurrent = bestWpm;
 
     float blend;
     if (aggressive)

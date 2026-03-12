@@ -25,7 +25,7 @@ struct eepromstruct settings;
 
 enum decodemodes {NORMALMODE,ALTMODE};
 
-enum core1Message {GENPLOT,DRAWSPECTRUM,DRAWWATERFALL,REDLINE,CYANLINE,MESSAGE,TMESSAGE,JTMESSAGE,PIMESSAGE,MORSEMESSAGE,MORSELOCKED,MORSELOST};         //messages for control of Core 1 from Core 2
+enum core1Message {GENPLOT,DRAWSPECTRUM,DRAWWATERFALL,REDLINE,CYANLINE,MESSAGE,TMESSAGE,JTMESSAGE,PIMESSAGE,MORSEMESSAGE,MORSELOCKED,MORSELOST,MORSEWPM};         //messages for control of Core 1 from Core 2
 
 
 uint16_t dma_chan;                        //DMA Channel Number
@@ -99,6 +99,8 @@ uint16_t textcol;                    //current colume position for text output
 uint8_t waterRow;                 //Counter for current Waterfall display row. 
 bool autolevel = true;
 
+uint16_t textHeight;
+
 bool noTouch = true;
 
 int TxPointer = 0;
@@ -117,6 +119,7 @@ bool sdpresent;
 // Morse RX
 MorseRxDecoder morseDecoder;
 float morseWpmEst;    // WPM at lock, for status display
+float morseWpmCurrent;  //Current tracking morse WPM
 uint32_t dmaTransferCount;  // set by RxInit(), read by dma_init()
 
 uint8_t plotData[SPECWIDTH];        //Array of Plot points for spectrum display. Log scaled and offset to 0 - SPECHEIGHT and used to display new line.  

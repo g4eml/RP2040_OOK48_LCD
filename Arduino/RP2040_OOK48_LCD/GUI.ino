@@ -87,7 +87,7 @@ void drawSpectrum(void)
 
 void textClear(void)
 {
-  tft.fillRect(TEXTLEFT, TEXTTOP, TEXTWIDTH, TEXTHEIGHT, TFT_WHITE);
+  tft.fillRect(TEXTLEFT, TEXTTOP, TEXTWIDTH, textHeight, TFT_WHITE);
   tft.setTextSize(1);
   tft.setTextDatum(TL_DATUM);
   textrow = 0;
@@ -101,7 +101,7 @@ void textPrintLine(const char* message)
     sdfile.println(message);
    }
 
- if(textrow > (TEXTTOP + TEXTHEIGHT - tft.fontHeight()))
+ if(textrow > (TEXTTOP + textHeight - tft.fontHeight()))
     {
       textClear();
     }
@@ -120,7 +120,7 @@ void textPrintChar(char m, uint16_t col)
     sdfile.write(&m,1);
    }
 
- if(textrow > (TEXTTOP + TEXTHEIGHT - tft.fontHeight()))
+ if(textrow > (TEXTTOP + textHeight - tft.fontHeight()))
     {
       textClear();
     }
@@ -185,6 +185,13 @@ char BUTLabel[6][10] = {"Clear","Config","","App","Set Tx","Tx"};
 // Invoke the TFT_eSPI button class and create all the  objects
 TFT_eSPI_Button BUTkey[6];
 
+// Create 2 Extra Buttons for morse mode
+char MORSELabel[2][10] = {"Lock","Search"};
+
+// Invoke the TFT_eSPI button class and create all the  objects
+TFT_eSPI_Button MORSEbut[2];
+
+
 void drawButtons(void)
 {
   tft.fillRect(BUTSLEFT,BUTSTOP,BUTSWIDTH,BUTSHEIGHT,TFT_BLACK);
@@ -230,7 +237,35 @@ void drawButtons(void)
      }
   }
 
+  if(settings.app == MORSE) drawMorseButtons();
 }
+
+void drawMorseButtons(void)
+{
+  tft.fillRect(TEXTLEFT,textHeight,480-TEXTLEFT,BUTSTOP - textHeight - 10,TFT_WHITE);
+
+// Draw the Buttons
+
+  for (uint8_t i= 0; i< 2; i++) 
+  {
+      char blank[2] = " ";
+      tft.setFreeFont(BUTLABEL_FONT);
+
+      MORSEbut[i].initButton(&tft, TEXTLEFT +150 + i * (BUTWIDTH + BUTGAP),textHeight + 20, 
+                        BUTWIDTH, BUTHEIGHT, TFT_WHITE, TFT_BLUE, TFT_WHITE,
+                        blank, 1);
+      MORSEbut[i].drawButton(0,MORSELabel[i]);
+  }
+}
+
+void updateWPM(void)
+{
+    tft.fillRect(TEXTLEFT,textHeight,100,40,TFT_WHITE);
+    char ww[20];
+    sprintf(ww,"%0.0f WPM",morseWpmCurrent);
+    tft.drawString(ww,TEXTLEFT +10,textHeight +20);
+}
+
 
 void touch_calibrate(bool force)
 {

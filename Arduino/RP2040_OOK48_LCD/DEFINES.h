@@ -150,7 +150,7 @@
 #define MORSE_FFT_BINS        34                             // End bin - start bin 
 #define MORSE_WF_FRAMES       4     // accumulate N frames before waterfall send (~9/sec)
 #define MORSE_DEFAULT_WPM   12
-#define MORSE_MIN_WPM       5
+#define MORSE_MIN_WPM       6
 #define MORSE_MAX_WPM       30
 
 #define MORSETEXTHEIGHT 230               //height of text output area when in morse mode.

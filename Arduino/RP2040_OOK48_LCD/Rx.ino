@@ -14,7 +14,8 @@ void RxInit(void)
     numberOfTones    = 1;
     textHeight = MORSETEXTHEIGHT;
     calcLegend();
-    morseDecoder.begin(MORSE_FRAME_RATE, MORSE_MIN_WPM, MORSE_MAX_WPM, MORSE_TONE_BIN);
+    updateWPM();
+    morseDecoder.begin(MORSE_FRAME_RATE, MORSE_DEFAULT_WPM , MORSE_TONE_BIN);
   }
   else
   {
@@ -43,14 +44,8 @@ void RxTick(void)
 {
   uint8_t tn;
   static unsigned long lastDma;
-  static unsigned long lastWPMupdate = millis();
     if (settings.app == MORSE)
   {
-    if(millis() >= lastWPMupdate + 1000 )
-     {
-      lastWPMupdate = millis();
-      rp2040.fifo.push(MORSEWPM);      
-     }
     if (!dmaReady) return;
     lastDma = millis();
     calcMorseSpectrum();
@@ -79,12 +74,12 @@ void RxTick(void)
       {
         rp2040.fifo.push(MORSEMESSAGE + (ev.ch <<16));
       }
-      else if (ev.kind == MorseEvt::LOCKED)
+      else if (ev.kind == MorseEvt::SIGNAL_ACQUIRED)
       {
         morseWpmEst = ev.wpm;
         rp2040.fifo.push(MORSELOCKED);
       }
-      else if (ev.kind == MorseEvt::LOST)
+      else if (ev.kind == MorseEvt::SIGNAL_LOST)
       {
         rp2040.fifo.push(MORSELOST);
       }

@@ -186,7 +186,7 @@ char BUTLabel[6][10] = {"Clear","Config","","App","Set Tx","Tx"};
 TFT_eSPI_Button BUTkey[6];
 
 // Create 2 Extra Buttons for morse mode
-char MORSELabel[2][10] = {"Lock","Search"};
+char MORSELabel[2][10] = {"Dec","Inc"};
 
 // Invoke the TFT_eSPI button class and create all the  objects
 TFT_eSPI_Button MORSEbut[2];
@@ -251,19 +251,21 @@ void drawMorseButtons(void)
       char blank[2] = " ";
       tft.setFreeFont(BUTLABEL_FONT);
 
-      MORSEbut[i].initButton(&tft, TEXTLEFT +150 + i * (BUTWIDTH + BUTGAP),textHeight + 20, 
+      MORSEbut[i].initButton(&tft, TEXTLEFT + 55 + i * 2 * (BUTWIDTH + BUTGAP),textHeight + 20, 
                         BUTWIDTH, BUTHEIGHT, TFT_WHITE, TFT_BLUE, TFT_WHITE,
                         blank, 1);
       MORSEbut[i].drawButton(0,MORSELabel[i]);
   }
+  updateWPM();
 }
 
 void updateWPM(void)
 {
-    tft.fillRect(TEXTLEFT,textHeight,100,40,TFT_WHITE);
+    tft.fillRoundRect(TEXTLEFT+100,textHeight+5,70,30,5,TFT_WHITE);
     char ww[20];
-    sprintf(ww,"%0.0f WPM",morseWpmCurrent);
-    tft.drawString(ww,TEXTLEFT +10,textHeight +20);
+    tft.setTextColor(TFT_BLUE);
+    sprintf(ww,"%0.0f WPM",morseDecoder.wpm());
+    tft.drawString(ww,TEXTLEFT +100,textHeight +11);
 }
 
 
@@ -320,6 +322,13 @@ bool screenTouched(void)
         {
           BUTkey[i].press(false);  // tell the buttons they are NOT pressed
         }
+    if(settings.app == MORSE)
+     {
+        for(int i=0;i < 2;i++)
+        {
+          MORSEbut[i].press(false);  // tell the buttons they are NOT pressed
+        }     
+     }
     noTouch = true;
     return false;
   }   
@@ -339,6 +348,17 @@ void processTouch(void)
         }
       }
 
+      if(settings.app == MORSE)
+      {
+        for (uint8_t b = 0; b < 2; b++) 
+        {
+          if (MORSEbut[b].contains(t_x, t_y)) 
+          {
+            MORSEbut[b].press(true);  // tell the button it is pressed
+          }
+        }
+      }
+
      // Check if any key has changed state
       for (uint8_t b = 0; b < 6; b++) 
       {
@@ -348,6 +368,18 @@ void processTouch(void)
         }
       }
       
+      if(settings.app == MORSE)
+      {
+        for (uint8_t b = 0; b < 2; b++) 
+          {
+          if (MORSEbut[b].justPressed()) 
+          {
+            butPressed = b + 10;                //+10 for Morse Buttons
+          }
+        }
+      }
+
+
  if(butPressed >=0)
  {
     switch(butPressed)
@@ -355,7 +387,6 @@ void processTouch(void)
       case 0:
       noTouch = false;
       textClear();
-      if(settings.app == MORSE) morseDecoder.reset();
       break;
       
       case 1:
@@ -484,6 +515,24 @@ void processTouch(void)
          }
         }
       break;
+
+      case 10:                //Morse Button 1 = Dec speed
+      float sp;
+      noTouch = false;
+      sp = morseDecoder.wpm();
+      sp = sp - 2.0;
+      if(sp < MORSE_MIN_WPM) sp = MORSE_MIN_WPM;
+      morseDecoder.setWpm(sp);
+      updateWPM();
+      break;
+
+      case 11:                //Morse Button 2 = Inc speed
+      noTouch = false;
+      sp = morseDecoder.wpm();
+      sp = sp + 2.0;
+      if(sp > MORSE_MAX_WPM) sp = MORSE_MAX_WPM;
+      morseDecoder.setWpm(sp);
+      updateWPM();
     }
  }
  else

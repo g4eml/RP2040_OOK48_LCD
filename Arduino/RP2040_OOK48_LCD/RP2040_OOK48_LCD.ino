@@ -285,9 +285,6 @@ void loop1()
         break;
         case MORSELOST:
         break;
-        case MORSEWPM:
-        updateWPM();
-        break;
       }
     }
 

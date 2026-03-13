@@ -234,7 +234,6 @@ void loop1()
   uint32_t command;
   uint32_t value;
   char m[64];
-  unsigned long inc;
  
     if((gpsSec != lastSec) | (millis() > lastTimeUpdate + 2000))
     {         

@@ -124,7 +124,7 @@ bool cfgLoop = false;
        {
         txt[0] = 32;
         txt[1] = 0;
-        getText("Enter Morse Tx Speed in WPM", txt,2);
+        getText("Enter Default Morse Speed in WPM", txt,2);
         settings.morseWpm = atoi(txt);
         if(settings.morseWpm <MORSE_MIN_WPM) settings.morseWpm = MORSE_MIN_WPM;
         if(settings.morseWpm >MORSE_MAX_WPM) settings.morseWpm = MORSE_MAX_WPM;
@@ -186,7 +186,7 @@ uint16_t cfgTextcolour;
   ypos=ypos + CFG_LINESPACING*2;
   ypos=ypos + CFG_LINESPACING*2;
   if(settings.app == OOK48) tft.drawString("Tx Timing Advance                  ms", CFG_TEXTLEFT, ypos);
-  if(settings.app == MORSE) tft.drawString("Morse WPM", CFG_TEXTLEFT, ypos);
+  if(settings.app == MORSE) tft.drawString("Default Morse WPM", CFG_TEXTLEFT, ypos);
   ypos=ypos + CFG_LINESPACING*2;
   if(settings.app == OOK48) tft.drawString("Rx Timing Retard                     ms", CFG_TEXTLEFT, ypos);
   if(sdpresent)

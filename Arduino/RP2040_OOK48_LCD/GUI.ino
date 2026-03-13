@@ -261,11 +261,11 @@ void drawMorseButtons(void)
 
 void updateWPM(void)
 {
-    tft.fillRoundRect(TEXTLEFT+100,textHeight+5,70,30,5,TFT_WHITE);
+    tft.fillRect(TEXTLEFT+100,textHeight+5,70,30,TFT_WHITE);
     char ww[20];
     tft.setTextColor(TFT_BLUE);
     sprintf(ww,"%0.0f WPM",morseDecoder.wpm());
-    tft.drawString(ww,TEXTLEFT +100,textHeight +11);
+    tft.drawString(ww,TEXTLEFT +100,textHeight+11);
 }
 
 
@@ -450,6 +450,7 @@ void processTouch(void)
             morseTx.stop();
             morseTx.buildSequence(settings.TxMessage[TxMessNo]);
             morseTx.start();
+            morseTx.setWpm(morseDecoder.wpm());
             add_repeating_timer_us(-((int32_t)morseTx.intervalUs()), TxIntervalInterrupt, NULL, &TxIntervalTimer);
            }
            else
@@ -482,7 +483,6 @@ void processTouch(void)
           }
           else
           {
-            morseTx.setWpm(settings.morseWpm);
             morseTx.buildSequence(settings.TxMessage[TxMessNo]);
             messageChanging = true;
             cancel_repeating_timer(&TxIntervalTimer);
@@ -492,6 +492,7 @@ void processTouch(void)
             BUTkey[5].drawButton(0,"Rx");
             displayTx();
             Key = 0;
+            morseTx.setWpm(morseDecoder.wpm());
             add_repeating_timer_us(-((int32_t)morseTx.intervalUs()), TxIntervalInterrupt, NULL, &TxIntervalTimer);
             messageChanging = false;          
           }
@@ -524,6 +525,12 @@ void processTouch(void)
       if(sp < MORSE_MIN_WPM) sp = MORSE_MIN_WPM;
       morseDecoder.setWpm(sp);
       updateWPM();
+      if(mode == TX)
+       {
+          morseTx.setWpm(morseDecoder.wpm());
+          cancel_repeating_timer(&TxIntervalTimer);
+          add_repeating_timer_us(-((int32_t)morseTx.intervalUs()), TxIntervalInterrupt, NULL, &TxIntervalTimer);
+       }
       break;
 
       case 11:                //Morse Button 2 = Inc speed
@@ -533,6 +540,12 @@ void processTouch(void)
       if(sp > MORSE_MAX_WPM) sp = MORSE_MAX_WPM;
       morseDecoder.setWpm(sp);
       updateWPM();
+      if(mode == TX)
+       {
+          morseTx.setWpm(morseDecoder.wpm());
+          cancel_repeating_timer(&TxIntervalTimer);
+          add_repeating_timer_us(-((int32_t)morseTx.intervalUs()), TxIntervalInterrupt, NULL, &TxIntervalTimer);
+       }
     }
  }
  else

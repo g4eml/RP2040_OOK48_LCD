@@ -57,25 +57,8 @@ static constexpr float MORS_INTER_CHAR_UNITS       = 2.0f;
 static constexpr float MORS_WORD_GAP_THR           = 6.0f;
 
 // ---------------------------------------------------------------------------
-// Dot/dash ratio scoring
+// Confidence
 // ---------------------------------------------------------------------------
-// Tracks the last N mark runs and scores how well the dot/dash mix matches
-// expected Morse proportions. A heavily skewed ratio (nearly all dots or
-// nearly all dashes) indicates a harmonic speed mis-setting and suppresses
-// confidence even if individual runs are plausible.
-//
-// Expected dash fraction in typical Morse text is roughly 0.20–0.45
-// (varies with content). The score is 1.0 at the centre of this band and
-// falls linearly to 0.0 outside RATIO_MIN..RATIO_MAX.
-// The ratio score is blended into the confidence update multiplicatively:
-//   confidence += CONF_RISE * ratioScore
-// so a perfect ratio gives full credit and a skewed ratio gives reduced credit.
-static constexpr int   MORS_RATIO_WINDOW           = 16;   // mark runs to consider
-static constexpr float MORS_RATIO_MIN              = 0.15f; // below this → too few dashes
-static constexpr float MORS_RATIO_MAX              = 0.55f; // above this → too many dashes
-static constexpr float MORS_RATIO_IDEAL            = 0.30f; // centre of expected band
-
-
 // Confidence is a 0..1 score updated on each completed run.
 //   >= CONF_HIGH  →  isActive() returns true
 //   == 0          →  SIGNAL_LOST event emitted
@@ -90,25 +73,6 @@ static constexpr float MORS_CONF_FALL              = 0.18f;
 // After this many dit-lengths with no mark the signal is considered lost.
 // 120 dits @ 20 WPM / 36 fps ≈ 7 s — survives pauses between overs.
 static constexpr int   MORS_LOST_TIMEOUT_DITS      = 120;
-
-// ---------------------------------------------------------------------------
-// Fixed-size circular buffer
-// ---------------------------------------------------------------------------
-template<typename T, int N>
-struct MorsRing {
-    T   data[N];
-    int head = 0;
-    int cnt  = 0;
-
-    void push(T v) {
-        data[(head + cnt) % N] = v;
-        if (cnt < N) cnt++;
-        else          head = (head + 1) % N;
-    }
-    T    operator[](int i) const { return data[(head + i) % N]; }
-    void clear() { head = 0; cnt = 0; }
-    int  size()  const { return cnt; }
-};
 
 // ---------------------------------------------------------------------------
 // Events
@@ -194,12 +158,6 @@ private:
     float _confidence  = 0.0f;
     bool  _wasActive   = false;   // for event edge detection
 
-    // --- dot/dash ratio tracking ---
-    // Ring of the last MORS_RATIO_WINDOW mark classifications (1=dash, 0=dot).
-    // Used to compute a ratio score that suppresses confidence at harmonic speeds.
-    MorsRing<uint8_t, MORS_RATIO_WINDOW> _markHistory;
-    int   _dashCount   = 0;   // number of dashes in current _markHistory window
-
     // --- silence watchdog ---
     int _framesSinceMark = 0;
 
@@ -214,7 +172,6 @@ private:
     int   _schmittStep(float val);
     bool  _updateRun(int bit, RunEntry &out);
     void  _decodeRun(int runState, int runLen);
-    float _ratioScore() const;   // 0..1 based on dot/dash mix in recent marks
     void  _emitSymbol();
     void  _pushEvent(MorseEvent ev);
 

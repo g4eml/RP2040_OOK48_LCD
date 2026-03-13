@@ -25,9 +25,9 @@ static constexpr int MORSE_TABLE_SIZE = sizeof(MORSE_TABLE) / sizeof(MORSE_TABLE
 
 void MorseRxDecoder::begin(int frameRate, float wpm, int toneBin)
 {
-    _frameRate = frameRate;
-    _toneBin   = toneBin;
-    _wpm       = wpm;
+    _frameRate  = frameRate;
+    _toneBin    = toneBin;
+    _wpm        = wpm;
     _unitFrames = _ditFrames(wpm);
     reset();
 }
@@ -50,8 +50,6 @@ void MorseRxDecoder::reset()
     _symLen          = 0;
     _confidence      = 0.0f;
     _wasActive       = false;
-    _markHistory.clear();
-    _dashCount       = 0;
     _framesSinceMark = 0;
     _evtCount        = 0;
 }
@@ -64,10 +62,6 @@ void MorseRxDecoder::setWpm(float wpm)
 
     _wpm        = wpm;
     _unitFrames = _ditFrames(wpm);
-
-    // Clear mark history — the old ratio is meaningless at the new speed.
-    _markHistory.clear();
-    _dashCount = 0;
 }
 
 int MorseRxDecoder::feed(float mag)
@@ -274,26 +268,11 @@ void MorseRxDecoder::_decodeRun(int runState, int runLen)
 
         if (plausible)
         {
-            // Classify as dot or dash
-            bool isDash = (unitsF >= MORS_DOT_DASH_BOUNDARY);
-
-            // Update the dot/dash history ring.
-            // If the ring is full, subtract the outgoing entry from _dashCount
-            // before it is overwritten.
-            if (_markHistory.size() == MORS_RATIO_WINDOW)
-                _dashCount -= _markHistory[0];   // oldest entry leaving window
-            _markHistory.push(isDash ? 1 : 0);
-            _dashCount += isDash ? 1 : 0;
-
-            // Confidence rises by CONF_RISE scaled by how well the current
-            // dot/dash mix matches expected Morse proportions.
-            // This suppresses confidence at harmonic speeds where the mix
-            // is heavily skewed toward all-dots or all-dashes.
-            _confidence += MORS_CONF_RISE * _ratioScore();
+            _confidence += MORS_CONF_RISE;
             if (_confidence > 1.0f) _confidence = 1.0f;
 
             if (_symLen >= 7) _emitSymbol();   // buffer full — flush
-            _symbol[_symLen++] = isDash ? '-' : '.';
+            _symbol[_symLen++] = (unitsF < MORS_DOT_DASH_BOUNDARY) ? '.' : '-';
         }
         else
         {
@@ -321,46 +300,8 @@ void MorseRxDecoder::_decodeRun(int runState, int runLen)
 }
 
 // ---------------------------------------------------------------------------
-// Dot/dash ratio score
+// Symbol emit
 // ---------------------------------------------------------------------------
-// Returns a 0..1 score reflecting how well the recent dot/dash mix matches
-// expected Morse proportions.
-//
-// With fewer than 4 marks in the window the sample is too small to be
-// meaningful, so we return 1.0 (no penalty) to avoid suppressing confidence
-// during the first few characters after a speed change.
-//
-// Once the window has enough samples the score is 1.0 when the dash fraction
-// is near RATIO_IDEAL, falling linearly to 0.0 at RATIO_MIN and RATIO_MAX.
-// ---------------------------------------------------------------------------
-
-float MorseRxDecoder::_ratioScore() const
-{
-    int total = _markHistory.size();
-    if (total < 4) return 1.0f;   // too few samples — no penalty yet
-
-    float dashFrac = (float)_dashCount / (float)total;
-
-    // Linear ramp up from RATIO_MIN to RATIO_IDEAL, then down to RATIO_MAX
-    float score;
-    if (dashFrac <= MORS_RATIO_MIN || dashFrac >= MORS_RATIO_MAX)
-    {
-        score = 0.0f;
-    }
-    else if (dashFrac <= MORS_RATIO_IDEAL)
-    {
-        score = (dashFrac - MORS_RATIO_MIN) /
-                (MORS_RATIO_IDEAL - MORS_RATIO_MIN);
-    }
-    else
-    {
-        score = (MORS_RATIO_MAX - dashFrac) /
-                (MORS_RATIO_MAX - MORS_RATIO_IDEAL);
-    }
-    return score;
-}
-
-
 
 void MorseRxDecoder::_emitSymbol()
 {

@@ -56,10 +56,6 @@ void MorseRxDecoder::reset()
 
 void MorseRxDecoder::setWpm(float wpm)
 {
-    // Flush any partial symbol so old-speed elements are not mixed with
-    // new-speed elements in the same symbol buffer.
-    if (_symLen > 0) _emitSymbol();
-
     _wpm        = wpm;
     _unitFrames = _ditFrames(wpm);
 }

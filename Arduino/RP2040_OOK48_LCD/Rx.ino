@@ -117,7 +117,7 @@ void RxTick(void)
           if(PPSActive)                                         //decodes are only valid if the PPS Pulse is present
           { 
             decodeCache();                                      //extract the character
-            rp2040.fifo.push(MESSAGE + decoded << 16);          //Ask Core 1 to display it 
+            rp2040.fifo.push(MESSAGE + (decoded << 16));          //Ask Core 1 to display it 
           }
         }                                  
       dmaReady = false;                                         //Clear the flag ready for next time     

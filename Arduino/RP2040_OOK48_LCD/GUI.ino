@@ -425,6 +425,11 @@ void processTouch(void)
       break;
 
       case 3:
+      if(sdfile)                 //is the SD file Open?
+         {
+           sdfile.close();        //close it
+           recButton();
+         }
       settings.app = getApp();
       saveSettings();
       rp2040.reboot();                    //force a reboot on app selection. 

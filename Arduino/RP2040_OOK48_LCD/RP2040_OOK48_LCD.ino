@@ -93,9 +93,12 @@ bool PPSIntervalInterrupt(struct repeating_timer *t)
 //1PPS Interrupt 
 void ppsISR(void)
 {
+  PPSActive = 3;
+ if(settings.app == OOK48)            //we are only interested in the 1PPS interrupt for OOK48 mode
+ {
   if(mode == RX)
   {
-   if(settings.rxRetard == 0)           // no delay, call the 1PPS routine immediately
+   if(settings.rxRetard == 0)          // no delay, call the 1PPS routine immediately
    {
     doPPS();
    }
@@ -113,46 +116,33 @@ void ppsISR(void)
    }
    else                                 // call the 1PPS routine after a delay 
    {
-      if (morseTx.isDashActive())
-      return;
-
       add_repeating_timer_ms(1000 - settings.txAdvance,PPSIntervalInterrupt,NULL,&PPSIntervalTimer);    //start a delayed callback
    }
   }
+ }
 }
 
 
 // Indirect interrupt routine for 1 Pulse per second input Delayed by retard or advance settings. 
 void doPPS(void)
 {
- PPSActive = 3;
-    if (isOokLikeApp())
+    if (mode == RX)
     {
-        if (mode == RX)
-        {
-            dma_stop();
-            dma_handler();
-            dmaReady = 0;
-            if ((halfRate == false) || (halfRate & (gpsSec & 0x01)))
-                cachePoint = 0;
-            else
-                cachePoint = 8;
-        }
+        dma_stop();
+        dma_handler();
+        dmaReady = 0;
+        if ((halfRate == false) || (halfRate & (gpsSec & 0x01)))
+            cachePoint = 0;
         else
-        {
-            cancel_repeating_timer(&TxIntervalTimer);
-            if (morseTx.isActive())
-            {
-                add_repeating_timer_us(-((int32_t)morseTx.intervalUs()), TxIntervalInterrupt, NULL, &TxIntervalTimer);
-                morseTx.tick(mode == TX, Key);
-            }
-            else
-            {
-                add_repeating_timer_us(-TXINTERVAL, TxIntervalInterrupt, NULL, &TxIntervalTimer);
-                TxSymbol();
-            }
-        }
+            cachePoint = 8;
     }
+    else
+    { 
+      cancel_repeating_timer(&TxIntervalTimer);
+      add_repeating_timer_us(-TXINTERVAL, TxIntervalInterrupt, NULL, &TxIntervalTimer);
+      TxSymbol();
+    }
+
 }
 
 //core 1 handles the GUI

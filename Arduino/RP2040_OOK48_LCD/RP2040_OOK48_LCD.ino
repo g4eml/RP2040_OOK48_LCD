@@ -1,7 +1,8 @@
 
 // OOK48 Encoder and Decoder LCD version
 // Plus Beacon Decoder
-// Colin Durbridge G4EML 2025
+// Plus Morse Encoder and Decoder
+// Colin Durbridge G4EML 2026
 
 
 #include <hardware/dma.h>
@@ -16,6 +17,7 @@
 #include <SPI.h>
 #include "SdFat_Adafruit_Fork.h"
 #include "Adafruit_TinyUSB.h"
+#include "morse_tx.h"
 
 SdFat sd;
 
@@ -33,6 +35,8 @@ struct repeating_timer TxIntervalTimer;                   //repeating timer for 
 
 struct repeating_timer PPSIntervalTimer;                  // and another for the 1PPS signal delay
 
+static MorseTx morseTx;
+
 //Run once on power up. Core 0 does the time critical work. Core 1 handles the GUI.  
 void setup() 
 {
@@ -43,7 +47,7 @@ void setup()
     digitalWrite(KEYPIN,0);
     pinMode(TXPIN,OUTPUT);
     digitalWrite(TXPIN,0);
-    if(settings.app == OOK48)
+    if (isOokLikeApp())
      {
        mode = RX;  
        RxInit();
@@ -69,8 +73,14 @@ void setup()
 //Interrupt called every symbol time to update the Key output. 
 bool TxIntervalInterrupt(struct repeating_timer *t)
 {
-  TxSymbol();
-  return true;                    //retrigger this timer
+    if (morseTx.isActive())
+    {
+        morseTx.tick(mode == TX, Key);
+        return true;
+    }
+
+    TxSymbol();
+    return true;
 }
 
 //Interrupt called when the 1PPS delay has expired. 
@@ -83,9 +93,12 @@ bool PPSIntervalInterrupt(struct repeating_timer *t)
 //1PPS Interrupt 
 void ppsISR(void)
 {
+  PPSActive = 3;
+ if(settings.app == OOK48)            //we are only interested in the 1PPS interrupt for OOK48 mode
+ {
   if(mode == RX)
   {
-   if(settings.rxRetard == 0)           // no delay, call the 1PPS routine immediately
+   if(settings.rxRetard == 0)          // no delay, call the 1PPS routine immediately
    {
     doPPS();
    }
@@ -106,36 +119,30 @@ void ppsISR(void)
       add_repeating_timer_ms(1000 - settings.txAdvance,PPSIntervalInterrupt,NULL,&PPSIntervalTimer);    //start a delayed callback
    }
   }
+ }
 }
 
 
 // Indirect interrupt routine for 1 Pulse per second input Delayed by retard or advance settings. 
 void doPPS(void)
 {
-  PPSActive = 3;              //reset 3 second timeout for PPS signal
-  if(settings.app == OOK48)            //don't need to do anything with the PPS when running beacon decoder. 
-  {
-   if(mode == RX)
+    if (mode == RX)
     {
-      dma_stop();
-      dma_handler();        //call dma handler to reset the DMA timing and restart the transfers
-      dmaReady = 0;
-      if((halfRate == false ) || (halfRate & (gpsSec & 0x01) ))
-      {
-        cachePoint = 0;        //Reset ready for the first symbol
-      }
-      else 
-      {
-        cachePoint = 8;        //Reset ready for the first symbol of the second character
-      } 
-    } 
-   else 
-    {
-      cancel_repeating_timer(&TxIntervalTimer);                           //Stop the symbol timer if it is running. 
-      add_repeating_timer_us(-TXINTERVAL,TxIntervalInterrupt,NULL,&TxIntervalTimer);    // re-start the Symbol timer
-      TxSymbol();                       //send the first symbol
+        dma_stop();
+        dma_handler();
+        dmaReady = 0;
+        if ((halfRate == false) || (halfRate & (gpsSec & 0x01)))
+            cachePoint = 0;
+        else
+            cachePoint = 8;
     }
-  }
+    else
+    { 
+      cancel_repeating_timer(&TxIntervalTimer);
+      add_repeating_timer_us(-TXINTERVAL, TxIntervalInterrupt, NULL, &TxIntervalTimer);
+      TxSymbol();
+    }
+
 }
 
 //core 1 handles the GUI
@@ -167,15 +174,18 @@ void setup1()
   textClear();
   switch(settings.app)
    {
-    case 0:
+    case OOK48:
     textPrintLine("OOK48 Selected");
     break;
-    case 1:
+    case BEACONJT4:
     textPrintLine("JT4G Selected");
     break;
-    case 2:
+    case BEACONPI4:
     textPrintLine("PI4 Selected");
-    break;    
+    break;
+    case MORSE: 
+    textPrintLine("Morse Selected");
+    break;   
    }
    textPrintLine("");
 }
@@ -184,22 +194,27 @@ void setup1()
 //Main Loop Core 0. Runs forever. Does most of the work.
 void loop() 
 {
-  if(settings.app == OOK48)
-   {
-     if(mode == RX)
-      {
-        RxTick();
-      }
-     else 
-      {
-        TxTick();
-      }
-   }
-   else           //Beacon Decoder
-   {
-     beaconTick();
-   }
-
+    if (isOokLikeApp())
+    {
+        if (mode == RX)
+            RxTick();
+        else
+        {
+            TxTick();
+            if (morseTx.consumeCompleteRequest())
+            {
+                mode = RX;
+                digitalWrite(KEYPIN, 0);
+                digitalWrite(TXPIN, 0);
+                Key = 0;
+                cancel_repeating_timer(&TxIntervalTimer);
+            }
+        }
+    }
+    else
+    {
+        beaconTick();
+    }
 }
 
 
@@ -207,8 +222,8 @@ void loop()
 void loop1()
 {
   uint32_t command;
+  uint32_t value;
   char m[64];
-  unsigned long inc;
  
     if((gpsSec != lastSec) | (millis() > lastTimeUpdate + 2000))
     {         
@@ -221,7 +236,7 @@ void loop1()
 
   if(rp2040.fifo.pop_nb(&command))          //have we got something to process from core 0?
     {
-      switch(command)
+      switch(command & 0xFFFF)
       {
         case GENPLOT:
         generatePlotData();
@@ -239,10 +254,10 @@ void loop1()
         markWaterfall(TFT_CYAN);
         break;
         case MESSAGE:
-        textPrintChar(decoded,TFT_BLUE);                                 
+        textPrintChar(command >> 16,TFT_BLUE);                                 
         break;
         case TMESSAGE:
-        textPrintChar(TxCharSent,TFT_RED);                               
+        textPrintChar(command >> 16,TFT_RED);                               
         break;
         case JTMESSAGE:
         sprintf(m,"%02d:%02d %.0lf :%s",gpsHr,gpsMin, sigNoise,JTmessage);
@@ -252,8 +267,12 @@ void loop1()
         sprintf(m,"%02d:%02d %.0lf :%s",gpsHr,gpsMin, sigNoise,PImessage);
         textPrintLine(m);                                  
         break;
-        case ERROR:
-        textPrintChar(decoded,TFT_ORANGE);                                           
+        case MORSEMESSAGE:
+        textPrintChar(command >> 16,TFT_BLUE);
+        break;
+        case MORSELOCKED:
+        break;
+        case MORSELOST:
         break;
       }
     }
@@ -281,6 +300,10 @@ void loop1()
       }
 }
 
+bool isOokLikeApp(void)
+{
+    return (settings.app == OOK48 || settings.app == MORSE);
+}
 
 void processNMEA(void)
 {
@@ -469,6 +492,12 @@ void loadSettings(void)
   if(settings.app >3) 
    {
     settings.app = 0;
+    ss = true;
+   }
+
+   if((settings.morseWpm > MORSE_MAX_WPM) || (settings.morseWpm < MORSE_MIN_WPM))
+   {
+    settings.morseWpm = MORSE_DEFAULT_WPM;
     ss = true;
    }
 

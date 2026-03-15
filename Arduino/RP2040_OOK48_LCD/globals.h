@@ -1,3 +1,4 @@
+#include "morse_rx.h"
 //Global variables
 
 //EEPROM Structure. This structure is written to the EEPROM. All members are therefore non-volatile. 
@@ -16,20 +17,22 @@ struct eepromstruct
   uint16_t rxRetard;              //Rx Timing retard in ms
   float batcal;                   //battery voltage calibration factor
   uint8_t app;                    //currently selected application OOK48 JT4G or PI4
+  uint8_t  morseWpm;              //Morse WPM
+
 };
 
 struct eepromstruct settings;
 
 enum decodemodes {NORMALMODE,ALTMODE};
 
-enum core1Message {GENPLOT,DRAWSPECTRUM,DRAWWATERFALL,REDLINE,CYANLINE,MESSAGE,TMESSAGE,ERROR,JTMESSAGE,PIMESSAGE};         //messages for control of Core 1 from Core 2
+enum core1Message {GENPLOT,DRAWSPECTRUM,DRAWWATERFALL,REDLINE,CYANLINE,MESSAGE,TMESSAGE,JTMESSAGE,PIMESSAGE,MORSEMESSAGE,MORSELOCKED,MORSELOST};         //messages for control of Core 1 from Core 2
 
 
-uint dma_chan;                        //DMA Channel Number
+uint16_t dma_chan;                        //DMA Channel Number
 bool dmaReady;                        //Flag to indicate a DMA buffer is ready to be processed.
 uint8_t bufIndex = 0;                 //Index to the current DMA buffer. Alternates 0/1.
 
-enum apps {OOK48,BEACONJT4,BEACONPI4};
+enum apps {OOK48,MORSE,BEACONJT4,BEACONPI4};
 
 uint8_t mode;
 enum modes {RX,TX};
@@ -38,7 +41,7 @@ uint8_t beaconMode;
 enum bmodes {JT4,PI4};
 
 uint32_t sampleRate;                  //samples per second.
-uint16_t rxTone;                      //tone in bins. 
+uint16_t rxToneBin;                      //tone in bins. 
 uint16_t toneTolerance;             //Tone tolerance in bins. 
 uint16_t cacheSize;                 // tone decode samples.
 float hzPerBin;
@@ -88,12 +91,15 @@ uint16_t buffer[2][NUMBEROFOVERSAMPLES];     //2 DMA buffers to allow one to be 
 float sample[NUMBEROFSAMPLES];              //array for the averaged samples 
 float sampleI[NUMBEROFSAMPLES];             //imaginary part for FFT
 float magnitude[JT4NUMBEROFBINS];            //Array for signal spectrum
+uint8_t  audioLevel;    // RX audio level 0-100 (peak-smoothed, for volume guidance)
 
 uint16_t t_x = 0, t_y = 0;            // To store the touch coordinates
 uint16_t textrow;                    //current row for text output
 uint16_t textcol;                    //current colume position for text output
 uint8_t waterRow;                 //Counter for current Waterfall display row. 
 bool autolevel = true;
+
+uint16_t textHeight;
 
 bool noTouch = true;
 
@@ -110,7 +116,11 @@ bool messageChanging;
 
 bool sdpresent;
 
-
+// Morse RX
+MorseRxDecoder morseDecoder;
+float morseWpmEst;    // WPM at lock, for status display
+float morseWpmCurrent;  //Current tracking morse WPM
+uint32_t dmaTransferCount;  // set by RxInit(), read by dma_init()
 
 uint8_t plotData[SPECWIDTH];        //Array of Plot points for spectrum display. Log scaled and offset to 0 - SPECHEIGHT and used to display new line.  
 uint8_t lastplotData[SPECWIDTH];    //Array of Plot points for last Spectrum display. Used to erase previous line.

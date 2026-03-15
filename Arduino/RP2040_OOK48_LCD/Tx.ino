@@ -63,7 +63,7 @@ void TxTick(void)
 
     if(TxSent)        //if we have just finished sending a character 
      {
-        if(! messageChanging) rp2040.fifo.push(TMESSAGE);          //Ask Core 1 to display it. 
+        if(! messageChanging) rp2040.fifo.push(TMESSAGE + (TxCharSent << 16));          //Ask Core 1 to display it. 
         TxSent = false;
      }
   }

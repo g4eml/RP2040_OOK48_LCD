@@ -26,6 +26,33 @@ void calcSpectrum(void)
 
 }
 
+static ArduinoFFT<float> MorseFFT(sample, sampleI, MORSE_FFT_SIZE, (float)SAMPLERATE);
+
+void calcMorseSpectrum(void)
+{
+  int bin;
+    for (int i = 0; i < MORSE_FRAME_SAMPLES; i += OVERSAMPLE)
+    {
+        bin = i / OVERSAMPLE;
+        sample[bin] = 0;
+        for (int s = 0; s < OVERSAMPLE; s++)
+        {
+          sample[bin] += buffer[bufIndex][i + s] - 2048.0f;
+        }
+        sample[bin] = sample[bin]/OVERSAMPLE;
+        sampleI[bin] = 0;
+    }
+
+    MorseFFT.windowing(FFTWindow::Hann, FFTDirection::Forward);
+    MorseFFT.compute(FFTDirection::Forward);
+    MorseFFT.complexToMagnitude();
+
+    for (int m = 0; m < MORSE_FFT_BINS; m++)
+    {
+        magnitude[m] = sample[startBin + m];
+    }
+
+}
 
 //Generate the display output array from the magnitude array with log scaling. Add offset and gain to the values.
 void generatePlotData(void)
@@ -43,7 +70,6 @@ void generatePlotData(void)
     for(int p =0;p < numberOfBins; p++)                         
     {
       db[p]=2*(20*(log10(magnitude[p] / vref)));               //calculate bin amplitude relative to FS in dB
- 
     if(autolevel)
       {
       baselevel = baselevel + db[p];
@@ -74,7 +100,7 @@ void generatePlotData(void)
         uint8_t maxVal = db[strtBin];
         for (int i = strtBin + 1; i <= endBin; i++) 
         {
-            if (db[i] > maxVal) maxVal = db[i];
+          if (db[i] > maxVal) maxVal = db[i];
         }
 
         plotData[x] = maxVal; 

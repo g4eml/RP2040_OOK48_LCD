@@ -2,26 +2,104 @@
 
 void RxInit(void)
 {
-  sampleRate = OVERSAMPLERATE;                  //samples per second.  
-  cacheSize = CACHESIZE;                    // tone decode samples.
-  if(halfRate) cacheSize = CACHESIZE*2;
-  rxTone = TONE800;
-  toneTolerance = TONETOLERANCE;
-  numberOfTones = 1;
-  numberOfBins = OOKNUMBEROFBINS;
-  startBin = OOKSTARTBIN;
+  sampleRate = OVERSAMPLERATE;
 
-  calcLegend();
+  if (settings.app == MORSE)
+  {
+    dmaTransferCount = MORSE_FRAME_SAMPLES;      // 2048 ADC samples → ~36 fps
+    numberOfBins     = MORSE_FFT_BINS;
+    startBin         = MORSESTARTBIN;
+    rxToneBin        = MORSE_TONE_BIN;
+    toneTolerance    = MORSE_TONETOLERANCE;
+    numberOfTones    = 1;
+    textHeight = MORSETEXTHEIGHT;
+    calcLegend();
+    updateWPM();
+    morseDecoder.begin(MORSE_FRAME_RATE, MORSE_DEFAULT_WPM , MORSE_TONE_BIN);
+  }
+  else
+  {
+    dmaTransferCount = NUMBEROFOVERSAMPLES;
+    cacheSize        = CACHESIZE;
+    if (halfRate) cacheSize = CACHESIZE * 2;
+    rxToneBin           = TONE800;
+    toneTolerance    = TONETOLERANCE;
+    numberOfTones    = 1;
+    numberOfBins     = OOKNUMBEROFBINS;
+    startBin         = OOKSTARTBIN;
+    textHeight = TEXTHEIGHT;
+    calcLegend();
+  }
   dma_init();                       //Initialise and start ADC conversions and DMA transfers. 
   dma_handler();                    //call the interrupt handler once to start transfers
   dmaReady = false;                 //reset the transfer ready flag
   cachePoint = 0;                   //zero the data received cache
 }
 
+// Waterfall accumulator for morse mode (file-static, persists across calls)
+static float  morseWfAccum[MORSE_FFT_BINS] = {};
+static uint8_t morseWfCount = 0;
+
 void RxTick(void)
 {
   uint8_t tn;
   static unsigned long lastDma;
+    if (settings.app == MORSE)
+  {
+    if (!dmaReady) return;
+    lastDma = millis();
+    calcMorseSpectrum();
+
+    const float binHz = (float)SAMPLERATE / (float)MORSE_FFT_SIZE;
+
+    // Accumulate bin magnitudes for waterfall
+    for (int i = 0; i < MORSE_FFT_BINS; i++)
+      morseWfAccum[i] += magnitude[i];
+
+    // Feed morse decoder:
+    //  - normal mode: nominal tone bin magnitude
+
+    float decoderMag = magnitude[rxToneBin];
+    //search all bins in the tolerance range and pick the one with the highest level. 
+    for(int b = rxToneBin - toneTolerance; b <= (rxToneBin + toneTolerance); b++)
+    {
+      if(magnitude[b] > decoderMag) decoderMag = magnitude[b];
+    }
+
+    int n = morseDecoder.feed(decoderMag);
+    for (int i = 0; i < n; i++)
+    {
+      MorseEvent ev = morseDecoder.event(i);
+      if ((ev.kind == MorseEvt::CHAR)||(ev.kind == MorseEvt::WORD_SEP)) 
+      {
+        rp2040.fifo.push(MORSEMESSAGE + (ev.ch <<16));
+      }
+      else if (ev.kind == MorseEvt::SIGNAL_ACQUIRED)
+      {
+        morseWpmEst = ev.wpm;
+        rp2040.fifo.push(MORSELOCKED);
+      }
+      else if (ev.kind == MorseEvt::SIGNAL_LOST)
+      {
+        rp2040.fifo.push(MORSELOST);
+      }
+    }
+
+    // Send waterfall every MORSE_WF_FRAMES frames (~9/sec)
+    if (++morseWfCount >= MORSE_WF_FRAMES)
+    {
+      morseWfCount = 0;
+      for (int i = 0; i < MORSE_FFT_BINS; i++)
+        magnitude[i] = morseWfAccum[i];
+      rp2040.fifo.push(GENPLOT);
+      rp2040.fifo.push(DRAWSPECTRUM);
+      rp2040.fifo.push(DRAWWATERFALL);
+      memset(morseWfAccum, 0, sizeof(morseWfAccum));
+    }
+
+    dmaReady = false;
+    return;
+  }
 
   if((millis() - lastDma) > 250) cachePoint = 0;                //if we have not had a DAm tranfer recently reset the pointer. (allows the spectrum to freerun with no GPS signal)
 
@@ -39,7 +117,7 @@ void RxTick(void)
           if(PPSActive)                                         //decodes are only valid if the PPS Pulse is present
           { 
             decodeCache();                                      //extract the character
-            rp2040.fifo.push(MESSAGE);                         //Ask Core 1 to display it 
+            rp2040.fifo.push(MESSAGE + (decoded << 16));          //Ask Core 1 to display it 
           }
         }                                  
       dmaReady = false;                                         //Clear the flag ready for next time     
@@ -57,7 +135,7 @@ int findBestBin(void)
 
   bestRange =0;
   topBin = 0;
-  for(int b=rxTone - toneTolerance ; b < rxTone + toneTolerance; b++)        //search each possible bin in the search range
+  for(int b=rxToneBin - toneTolerance ; b < rxToneBin + toneTolerance; b++)        //search each possible bin in the search range
     {
       max = 0 - FLT_MAX;
       min = FLT_MAX;
@@ -82,7 +160,7 @@ float findLargest(int timeslot)
 {
   float max;
   max = 0 - FLT_MAX;
-  for(int b=rxTone - toneTolerance ; b < rxTone + toneTolerance; b++)        //search each possible bin in the search range to find the largest magnitude
+  for(int b=rxToneBin - toneTolerance ; b < rxToneBin + toneTolerance; b++)        //search each possible bin in the search range to find the largest magnitude
     {
       if(toneCache[b][timeslot] > max) max = toneCache[b][timeslot];
     }

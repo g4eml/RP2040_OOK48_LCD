@@ -1,4 +1,4 @@
-#define VERSION "Version 0.20"
+#define VERSION "Version 0.3"
 
 #define GPSTXPin 4                      //Serial data to GPS module 
 #define GPSRXPin 5                      //Serial data from GPS module
@@ -136,3 +136,21 @@
 #define PI4TONETOLERANCE 12                                        //Tone tolerance 12 * 6 = +- 72Hz 
 #define PI4NUMBEROFBINS 167                                        //167 bins between STARTFREQ and ENDFREQ
 
+// Morse RX mode FFT / DMA parameters
+// 256-pt FFT at 9216 Hz effective → 36 Hz/bin, 36 fps
+//spectrum plot is 288Hz to 3024 Hz in 36Hz Bins
+#define MORSE_FFT_SIZE        256
+#define MORSE_FRAME_SAMPLES   (MORSE_FFT_SIZE * OVERSAMPLE)   // 2048 ADC samples/frame
+#define MORSE_FRAME_RATE      36
+#define MORSESTARTFREQ        288                             //Lowest frequency we are interested in to nearest 36 Hz
+#define MORSEENDFREQ          1512                             //Highest frequency we are interested in     
+#define MORSESTARTBIN         8                             //corresponding bin number
+#define MORSE_TONE_BIN        14                              // 800 Hz / 36 Hz per bin ≈ bin 22 - start bin =14
+#define MORSE_TONETOLERANCE    1
+#define MORSE_FFT_BINS        34                             // End bin - start bin 
+#define MORSE_WF_FRAMES       4     // accumulate N frames before waterfall send (~9/sec)
+#define MORSE_DEFAULT_WPM   12
+#define MORSE_MIN_WPM       6
+#define MORSE_MAX_WPM       30
+
+#define MORSETEXTHEIGHT 230               //height of text output area when in morse mode.

@@ -32,14 +32,14 @@ It is described in the document https://github.com/g4eml/RP2040_OOK48_LCD/blob/m
 
 - USB Drive mode to allow downloading of SD card files to a PC.
 
-- Also now includes decode only mode for JT4G and PI4 beacon signals. 
+- Also now includes encode/decode mode for Morse Code and decode only mode for JT4G and PI4 beacon signals.
 
 ## Operation Description
 
 ### Display
 The display is split into 4 main areas. On the left are the Spectrum display and Waterfall. These are used to tune the reciever to the correct frequency. 
 
-in OOK48 mode the Spectrum and Waterfall span from 500 Hz to 1100 Hz. Underneath the spectrum display there is an orange band which indicates the correct frequency range for decoding (centred on 800 Hz) . The receiver needs to be tuned such that the received tone falls withing this orange band. 
+In OOK48 and Morse modes the Spectrum and Waterfall span from 500 Hz to 1100 Hz. Underneath the spectrum display there is an orange band which indicates the correct frequency range for decoding (centred on 800 Hz) . The receiver needs to be tuned such that the received tone falls withing this orange band. 
 
 Received messages will appear at one character per second on the right hand side of the display. 
 
@@ -90,6 +90,8 @@ This mode can pnly be exited by powering off the module.
 - Tx Timing Advance. Allows a fixed delay to be added to compensate for signal processing delays in the Tx chain. (such as DSP audio processing)
 
 - Rx Timing Retard. Allows a fixed delay to be added to compensate for any signal processing delays in the Rx chain. (such as noise reduction)
+ 
+- Default Morse WPM. This is the Morse code speed set at power on. This speed can be adjusted during Morse Reception using the two buttons on the Text Display. 
 
 - Activate USB Drive Mode.  Allows the module to be connected to a PC where it will appear as a USB drive allowing the contents of the SD card to be read or deleted. The module must be powered off to exit this mode. 
 

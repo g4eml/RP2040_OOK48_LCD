@@ -37,6 +37,9 @@ struct repeating_timer PPSIntervalTimer;                  // and another for the
 
 static MorseTx morseTx;
 
+volatile bool core0Ready = false;
+volatile bool core1Ready = false;
+
 //Run once on power up. Core 0 does the time critical work. Core 1 handles the GUI.  
 void setup() 
 {
@@ -47,6 +50,8 @@ void setup()
     digitalWrite(KEYPIN,0);
     pinMode(TXPIN,OUTPUT);
     digitalWrite(TXPIN,0);
+    core0Ready = true;                    //signal this core is ready. 
+    while(!core1Ready);                   //wait for core 1 to be ready. 
     if (isOokLikeApp())
      {
        mode = RX;  
@@ -150,10 +155,9 @@ void setup1()
 {
   Serial2.setRX(GPSRXPin);              //Configure the GPIO pins for the GPS module
   Serial2.setTX(GPSTXPin);
-  while((settings.baudMagic != 42) || (settings.app == 255))                   //wait for core zero to initialise 
-   {
-    delay(1);
-   }
+  
+  while (!core0Ready) delay(1);         //wait for Core 0 to initialise
+  
   Serial2.begin(settings.gpsBaud);    
 
   SPI1.setRX(SDO);
@@ -166,6 +170,7 @@ void setup1()
     {
        SdFile::dateTimeCallback(dateTime);           //set a callback function to set the files attributes. 
     }
+  core1Ready = true;                                //allow core 0 to continue.
 
   gpsPointer = 0;
   waterRow = 0;

@@ -310,10 +310,10 @@ void touch_calibrate(bool force)
 bool screenTouched(void)
  {
   uint16_t raw = tft.getTouchRawZ();
-  if(raw > 1000)
+  if(raw > 300)
   {
     if(noTouch == false) return false;
-    bool pressed =tft.getTouch(&t_x, &t_y);
+    bool pressed =tft.getTouch(&t_x, &t_y,300);
     return pressed;
   }
   else

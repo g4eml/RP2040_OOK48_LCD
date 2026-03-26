@@ -123,7 +123,7 @@ The LCD screen, controller chip and Touch Screen controller appear to be exactly
 If you are searching for these online the critical points are that it needs to be a 3.5" display  320 x 480 resolution with an ILI9488 controller and touch screen. 
 There are lots of similar displays out there but the correct ones are usually Red and have 14 connections at one end of the board and 4 connections at the other. Be careful as these are also available without the touch screen. 
 Full schematic and PCB designs are in the PCB V2 folder. 
-Note that these alternative displays come in at least two different versions.The functionality is the same but the 3D printed enclosure has to be slightly different. The displays can be identified by the position of the flex cable to the touch screen. On the 'Type A' display the flex cable is nearest to the 14 pin connector. On the 'Type B' display the flex cable is nearest to the 4 pin connector.
+Note that these alternative displays come in at least two different versions.The functionality is the same but the 3D printed enclosure has to be slightly different. The displays can be identified by the position of the flex cable to the touch screen. On the 'Type A' display the flex cable is nearest to the 14 pin connector. On the 'Type B' display the flex cable is nearest to the 4 pin connector. The picture above shows the 'Type A' display.
 
 A GPS module is also essential and must have a 1 Pulse per second output. This pulse is used to synchronise the start of each character. 
 

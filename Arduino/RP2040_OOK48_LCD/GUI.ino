@@ -478,11 +478,12 @@ void processTouch(void)
          {
           if(settings.app == OOK48)
           {
-           mode = TX;
            TxInit();
-           digitalWrite(TXPIN, 1);
            BUTkey[5].drawButton(0,"Rx");
            displayTx();
+           digitalWrite(TXPIN, 1);
+           delay(500);                    // Allow time for the rig to go to Tx
+           mode = TX;
            TxPointer = 0;
            TxBitPointer = 0;
           }
@@ -493,9 +494,10 @@ void processTouch(void)
             cancel_repeating_timer(&TxIntervalTimer);
             morseTx.start(); 
             mode = TX; 
-            digitalWrite(TXPIN, 1);
             BUTkey[5].drawButton(0,"Rx");
             displayTx();
+            digitalWrite(TXPIN, 1);
+            delay(500);                    // Allow time for the rig to go to Tx
             Key = 0;
             morseTx.setWpm(morseDecoder.wpm());
             add_repeating_timer_us(-((int32_t)morseTx.intervalUs()), TxIntervalInterrupt, NULL, &TxIntervalTimer);

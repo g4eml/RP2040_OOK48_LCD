@@ -30,7 +30,7 @@ static constexpr float MORS_ENV_MIN_SNR            = 2.5f;
 // Schmitt trigger
 // ---------------------------------------------------------------------------
 // Hysteresis as a fraction of peak-to-valley range.
-static constexpr float MORS_SCHMITT_HYST_FRAC      = 0.12f;
+static constexpr float MORS_SCHMITT_HYST_FRAC      = 0.2f;
 
 // Midpoint bias: negative shifts threshold down, favouring mark-heavy signals.
 static constexpr float MORS_SCHMITT_CENTRE_BIAS    = -0.05f;

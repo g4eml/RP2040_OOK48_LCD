@@ -4502,12 +4502,6 @@
 		(uuid "0fa88b5b-af82-43db-90f8-2d3f9120c286")
 	)
 	(junction
-		(at 102.87 52.07)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "0fe990ca-761e-4d86-8eb9-362741c6cf60")
-	)
-	(junction
 		(at 76.2 170.18)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -4544,12 +4538,6 @@
 		(uuid "7fc08ec6-af45-4906-a755-26ac54010e9b")
 	)
 	(junction
-		(at 97.79 62.23)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "8052db72-286d-4a11-b56b-5dc756c630b5")
-	)
-	(junction
 		(at 54.61 27.94)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -4566,12 +4554,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "d422f742-acb4-4f4e-b2a8-9cfc7e94b250")
-	)
-	(junction
-		(at 102.87 44.45)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "d5792823-e302-4102-a72a-98cd47ea4766")
 	)
 	(junction
 		(at 90.17 62.23)
@@ -4658,6 +4640,10 @@
 		(uuid "db144039-2d60-40b9-9257-b6e97caa3675")
 	)
 	(no_connect
+		(at 162.56 110.49)
+		(uuid "e8ba946f-3468-40dc-8575-f15737c02f30")
+	)
+	(no_connect
 		(at 116.84 113.03)
 		(uuid "eb8c5312-d7a4-4ac1-8e62-daa4c92bd1cc")
 	)
@@ -4700,16 +4686,6 @@
 			(type default)
 		)
 		(uuid "060f3d38-078a-439e-971f-dab1ad5f1bc7")
-	)
-	(wire
-		(pts
-			(xy 102.87 44.45) (xy 107.95 44.45)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0692467b-4225-42db-adab-0e1c17633357")
 	)
 	(wire
 		(pts
@@ -5033,23 +5009,13 @@
 	)
 	(wire
 		(pts
-			(xy 95.25 44.45) (xy 102.87 44.45)
+			(xy 95.25 44.45) (xy 107.95 44.45)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
 		(uuid "4bb95d6a-74a3-4ca1-8444-a11955a361c6")
-	)
-	(wire
-		(pts
-			(xy 97.79 62.23) (xy 102.87 62.23)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "50c594dc-0060-422e-9a8a-7657d8bc9ec0")
 	)
 	(wire
 		(pts
@@ -5113,16 +5079,6 @@
 	)
 	(wire
 		(pts
-			(xy 162.56 110.49) (xy 166.37 110.49)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "585a204f-dffd-4ebb-8b7a-a1e19ce5d5f0")
-	)
-	(wire
-		(pts
 			(xy 60.96 62.23) (xy 76.2 62.23)
 		)
 		(stroke
@@ -5130,16 +5086,6 @@
 			(type default)
 		)
 		(uuid "5a0c6121-5dd8-405a-ad46-3269565a63b4")
-	)
-	(wire
-		(pts
-			(xy 113.03 52.07) (xy 102.87 52.07)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5aa9423f-24fa-429c-be2b-dea5f5d4d781")
 	)
 	(wire
 		(pts
@@ -5623,16 +5569,6 @@
 	)
 	(wire
 		(pts
-			(xy 102.87 52.07) (xy 102.87 53.34)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "dd3f051b-1a9e-4a68-ae40-d5007351fa33")
-	)
-	(wire
-		(pts
 			(xy 231.14 88.9) (xy 236.22 88.9)
 		)
 		(stroke
@@ -5710,16 +5646,6 @@
 			(type default)
 		)
 		(uuid "ea0714c0-17ac-45f3-af1f-840354d0ae9b")
-	)
-	(wire
-		(pts
-			(xy 102.87 60.96) (xy 102.87 62.23)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "eea293ef-841a-48f1-88ef-a7d4fb3ac26d")
 	)
 	(wire
 		(pts
@@ -5810,16 +5736,6 @@
 			(justify right)
 		)
 		(uuid "1a1b2b87-a45f-4b6d-ac47-b93a15bdac9b")
-	)
-	(label "GP27-BAT"
-		(at 166.37 110.49 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "24a9cf47-6dbc-4224-ab1b-d8f9a8d54c2d")
 	)
 	(label "IO12-MISO"
 		(at 231.14 83.82 180)
@@ -6021,16 +5937,6 @@
 			(justify right)
 		)
 		(uuid "83fb23c9-8faf-431f-85a3-db0d86650dc5")
-	)
-	(label "GP27-BAT"
-		(at 113.03 52.07 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "860f9831-ff2b-4676-b407-67136d87e4a8")
 	)
 	(label "IO18-LED"
 		(at 231.14 96.52 180)
@@ -6565,75 +6471,6 @@
 			(project ""
 				(path "/9e450d93-50b3-4aad-bb89-e951560c22c5"
 					(reference "R1")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 102.87 57.15 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "27745a2a-c579-4298-af15-0e680e95c05b")
-		(property "Reference" "R7"
-			(at 104.648 55.88 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "100K"
-			(at 104.648 58.928 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder"
-			(at 101.092 57.15 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 102.87 57.15 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 102.87 57.15 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "5a3de5b5-420a-44b5-b932-9b0994aa4040")
-		)
-		(pin "1"
-			(uuid "65c27345-cc75-4450-a044-43a391a54d5a")
-		)
-		(instances
-			(project "OOK48_PICO"
-				(path "/9e450d93-50b3-4aad-bb89-e951560c22c5"
-					(reference "R7")
 					(unit 1)
 				)
 			)
@@ -7462,75 +7299,6 @@
 			(project "OOK48_PICO"
 				(path "/9e450d93-50b3-4aad-bb89-e951560c22c5"
 					(reference "R5")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 102.87 48.26 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "6a160df2-c672-424e-aa90-933c6d464390")
-		(property "Reference" "R6"
-			(at 104.648 46.99 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "100K"
-			(at 104.648 49.784 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder"
-			(at 101.092 48.26 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 102.87 48.26 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 102.87 48.26 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "8616b86c-750b-4dbc-a7fc-e10e8eb841b5")
-		)
-		(pin "1"
-			(uuid "5ba2fa7c-1c9d-4227-9f47-22443a752c52")
-		)
-		(instances
-			(project "OOK48_PICO"
-				(path "/9e450d93-50b3-4aad-bb89-e951560c22c5"
-					(reference "R6")
 					(unit 1)
 				)
 			)

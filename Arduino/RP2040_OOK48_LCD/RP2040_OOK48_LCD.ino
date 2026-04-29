@@ -318,6 +318,10 @@ void processNMEA(void)
  gpsActive = true;
  if(RMCValid())                                               //is this a valid RMC sentence?
   {
+    if(GPSDebug)
+     {
+     textPrintLine(gpsBuffer); 
+     }
     int p=strcspn(gpsBuffer , ",") +1;                        // find and skip the first comma
     p= p + strcspn(gpsBuffer+p , ",") + 1;                    // find and skip the second comma 
     if(gpsBuffer[p] == 'A')                                   // is the data valid?
@@ -380,6 +384,7 @@ bool RMCValid(void)
     return false;
    }
 }
+
 // Converts dddmm.mmm format to decimal degrees (ddd.ddd)
 float convertToDecimalDegrees(float dddmm_mmm) 
 {

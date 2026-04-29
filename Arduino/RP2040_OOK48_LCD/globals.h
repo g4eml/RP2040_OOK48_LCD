@@ -72,6 +72,7 @@ char decoded;                         //decoded  Message character
 char gpsBuffer[256];                     //GPS data buffer
 int gpsPointer;                          //GPS buffer pointer. 
 char gpsCh;
+bool GPSDebug = false;
 bool gpsActive = false; 
 int lastSec = 0;
 int gpsSec = -1;                       //GPS clock time  -1 for GPS Invalid

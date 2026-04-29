@@ -96,21 +96,23 @@ bool cfgLoop = false;
       Serial2.end();
       Serial2.begin(settings.gpsBaud);
       break;
-
     case 7:
+      GPSDebug = !GPSDebug;
+      break;
+    case 8:
       if(settings.app == OOK48)
        {
         settings.decodeMode = NORMALMODE;
        }
       break;
     
-    case 8:
+    case 9:
       if(settings.app == OOK48)
        {
         settings.decodeMode = ALTMODE;
        }
       break;
-    case 9:
+    case 10:
       if(settings.app == OOK48)
        {
         txt[0] = 32;
@@ -130,7 +132,7 @@ bool cfgLoop = false;
         if(settings.morseWpm >MORSE_MAX_WPM) settings.morseWpm = MORSE_MAX_WPM;
        }
       break;
-    case 10:
+    case 11:
       if(settings.app == OOK48)
        {
         txt[0] = 32;
@@ -141,13 +143,13 @@ bool cfgLoop = false;
         if(settings.rxRetard > 999) settings.rxRetard = 999;
        }
       break;
-    case 11:
+    case 12:
       if(sdpresent)
        {
          doUSBDrive();
        }
       break;
-    case 12:
+    case 13:
       cfgLoop = true;
       break;
     }
@@ -157,7 +159,7 @@ bool cfgLoop = false;
 
 
 void drawCFGKbd(void){
-char congfglabels[CFG_NUMBEROFBUTTONS][6]={"6", "8", "10", "1s", "2s", "9600", "38400", "Norm", "Alt", "","","USB","EXIT"};
+char congfglabels[CFG_NUMBEROFBUTTONS][6]={"6", "8", "10", "1s", "2s", "9600", "38400","Test", "Norm", "Alt", "","","USB","EXIT"};
 char txt[10];
 int ypos;
 uint16_t cfgTextcolour;
@@ -165,11 +167,6 @@ uint16_t cfgTextcolour;
   // Draw pad background
   tft.fillRect(CFG_X, 0, CFG_WIDTH, CFG_HEIGHT, TFT_DARKGREY);
 
-
-
-
- 
-  
   // Draw the string, the value returned is the width in pixels
   tft.setTextColor(TFT_CYAN);
    //Version Number
@@ -248,22 +245,28 @@ uint16_t cfgTextcolour;
                         CFG_W, CFG_H, TFT_WHITE, TFT_BLUE, cfgTextcolour,
                         congfglabels[6], CFG_TEXTSIZE);
       cfgKbd[6].drawButton(); 
+      if (GPSDebug == true) cfgTextcolour = TFT_GREEN; else cfgTextcolour = TFT_WHITE;
+      cfgKbd[7].initButton(&tft, CFG_BUTTONSLEFT + 2*CFG_W + CFG_W/2 + 2*CFG_SPACING_X,
+                          ypos + CFG_LINESPACING/2, // x, y, w, h, outline, fill, text
+                        CFG_W, CFG_H, TFT_WHITE, TFT_BLUE, cfgTextcolour,
+                        congfglabels[7], CFG_TEXTSIZE);
+      cfgKbd[7].drawButton(); 
   ypos=ypos + CFG_LINESPACING*2;
 // Decode Mode Buttons
  if(settings.app == OOK48)
    {
       if (settings.decodeMode == NORMALMODE) cfgTextcolour = TFT_GREEN; else cfgTextcolour = TFT_WHITE;
-      cfgKbd[7].initButton(&tft, CFG_BUTTONSLEFT + CFG_W/2,
-                        ypos + CFG_LINESPACING/2, // x, y, w, h, outline, fill, text
-                        CFG_W, CFG_H, TFT_WHITE, TFT_BLUE, cfgTextcolour,
-                        congfglabels[7], CFG_TEXTSIZE);
-      cfgKbd[7].drawButton(); 
-      if (settings.decodeMode == ALTMODE) cfgTextcolour = TFT_GREEN; else cfgTextcolour = TFT_WHITE;
-      cfgKbd[8].initButton(&tft, CFG_BUTTONSLEFT + CFG_W + CFG_W/2 + CFG_SPACING_X,
+      cfgKbd[8].initButton(&tft, CFG_BUTTONSLEFT + CFG_W/2,
                         ypos + CFG_LINESPACING/2, // x, y, w, h, outline, fill, text
                         CFG_W, CFG_H, TFT_WHITE, TFT_BLUE, cfgTextcolour,
                         congfglabels[8], CFG_TEXTSIZE);
-      cfgKbd[8].drawButton();
+      cfgKbd[8].drawButton(); 
+      if (settings.decodeMode == ALTMODE) cfgTextcolour = TFT_GREEN; else cfgTextcolour = TFT_WHITE;
+      cfgKbd[9].initButton(&tft, CFG_BUTTONSLEFT + CFG_W + CFG_W/2 + CFG_SPACING_X,
+                        ypos + CFG_LINESPACING/2, // x, y, w, h, outline, fill, text
+                        CFG_W, CFG_H, TFT_WHITE, TFT_BLUE, cfgTextcolour,
+                        congfglabels[9], CFG_TEXTSIZE);
+      cfgKbd[9].drawButton();
    }
  
     ypos=ypos + CFG_LINESPACING*2;
@@ -271,52 +274,52 @@ uint16_t cfgTextcolour;
 if(settings.app == OOK48)
   {
       cfgTextcolour = TFT_WHITE;
-      cfgKbd[9].initButton(&tft, CFG_BUTTONSLEFT + CFG_W/2,
+      cfgKbd[10].initButton(&tft, CFG_BUTTONSLEFT + CFG_W/2,
                         ypos + CFG_LINESPACING/2, // x, y, w, h, outline, fill, text
                         CFG_W, CFG_H, TFT_WHITE, TFT_BLUE, cfgTextcolour,
-                        congfglabels[9], CFG_TEXTSIZE);
+                        congfglabels[10], CFG_TEXTSIZE);
       sprintf(txt,"%d",settings.txAdvance);
-      cfgKbd[9].drawButton(false,txt); 
+      cfgKbd[10].drawButton(false,txt); 
   }
   if(settings.app == MORSE)
-  {
-      cfgTextcolour = TFT_WHITE;
-      cfgKbd[9].initButton(&tft, CFG_BUTTONSLEFT + CFG_W/2,
-                        ypos + CFG_LINESPACING/2, // x, y, w, h, outline, fill, text
-                        CFG_W, CFG_H, TFT_WHITE, TFT_BLUE, cfgTextcolour,
-                        congfglabels[9], CFG_TEXTSIZE);
-      sprintf(txt,"%d",settings.morseWpm);
-      cfgKbd[9].drawButton(false,txt); 
-  }
-    ypos=ypos + CFG_LINESPACING*2;
-// Rx Retard Buttons
-if(settings.app == OOK48)
   {
       cfgTextcolour = TFT_WHITE;
       cfgKbd[10].initButton(&tft, CFG_BUTTONSLEFT + CFG_W/2,
                         ypos + CFG_LINESPACING/2, // x, y, w, h, outline, fill, text
                         CFG_W, CFG_H, TFT_WHITE, TFT_BLUE, cfgTextcolour,
                         congfglabels[10], CFG_TEXTSIZE);
+      sprintf(txt,"%d",settings.morseWpm);
+      cfgKbd[10].drawButton(false,txt); 
+  }
+    ypos=ypos + CFG_LINESPACING*2;
+// Rx Retard Buttons
+if(settings.app == OOK48)
+  {
+      cfgTextcolour = TFT_WHITE;
+      cfgKbd[11].initButton(&tft, CFG_BUTTONSLEFT + CFG_W/2,
+                        ypos + CFG_LINESPACING/2, // x, y, w, h, outline, fill, text
+                        CFG_W, CFG_H, TFT_WHITE, TFT_BLUE, cfgTextcolour,
+                        congfglabels[11], CFG_TEXTSIZE);
       sprintf(txt,"%d",settings.rxRetard);      
-      cfgKbd[10].drawButton(false,txt);
+      cfgKbd[11].drawButton(false,txt);
   }
 // USB Drive Button
       if(sdpresent)
        {
          ypos=ypos + CFG_LINESPACING*2;
          cfgTextcolour = TFT_WHITE;
-         cfgKbd[11].initButton(&tft,CFG_BUTTONSLEFT + CFG_W/2 + CFG_W/2 +10,
+         cfgKbd[12].initButton(&tft,CFG_BUTTONSLEFT + CFG_W/2 + CFG_W/2 +10,
                         ypos + CFG_LINESPACING/2, // x, y, w, h, outline, fill, text
                         CFG_W, CFG_H, TFT_WHITE, TFT_BLUE, cfgTextcolour,
-                        congfglabels[11], CFG_TEXTSIZE);     
-         cfgKbd[11].drawButton();
+                        congfglabels[12], CFG_TEXTSIZE);     
+         cfgKbd[12].drawButton();
        }
 // Exit Button
-      cfgKbd[12].initButton(&tft, CFG_WIDTH - (CFG_W) + 20,
+      cfgKbd[13].initButton(&tft, CFG_WIDTH - (CFG_W) + 20,
                         CFG_LINESPACING*14 + CFG_LINESPACING/2 +10, // x, y, w, h, outline, fill, text
                         CFG_W, CFG_H, TFT_WHITE, TFT_BLUE, TFT_WHITE,
-                        congfglabels[12],  CFG_TEXTSIZE);
-      cfgKbd[12].drawButton(); 
+                        congfglabels[13],  CFG_TEXTSIZE);
+      cfgKbd[13].drawButton(); 
 }
 
 void showVoltage(bool force,bool cal)

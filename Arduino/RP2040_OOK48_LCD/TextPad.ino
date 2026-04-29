@@ -133,7 +133,8 @@ int getText(const char* prompt, char* st, int len)
             if (textIndex > 0) 
             {
               textIndex--;
-              textBuffer[textIndex] = 0;//' ';
+              if(textBuffer[textIndex] == LOCTOKEN) locEntered = false;
+              textBuffer[textIndex] = 0;
             }
           }
 
@@ -161,6 +162,7 @@ int getText(const char* prompt, char* st, int len)
           if (b == 41)          //Clear
           {
             textIndex = 0; // Reset index to 0
+            locEntered = false;
             textBuffer[textIndex] = 0; // Place null in buffer
           }
 

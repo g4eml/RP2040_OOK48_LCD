@@ -115,6 +115,8 @@ void textPrintLine(const char* message)
 
 void textPrintChar(char m, uint16_t col)
 {
+ if(!GPSDebug)
+  {
   if((sdpresent) & (sdfile))
    {
     sdfile.write(&m,1);
@@ -143,7 +145,7 @@ void textPrintChar(char m, uint16_t col)
        }
    }
   
-  
+  }
 
 }
 

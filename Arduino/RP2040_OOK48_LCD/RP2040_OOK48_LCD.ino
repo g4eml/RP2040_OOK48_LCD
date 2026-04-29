@@ -320,6 +320,14 @@ void processNMEA(void)
   {
     if(GPSDebug)
      {
+     if(PPSActive >0)
+      {
+        textPrintLine("1 PPS present");
+      }
+      else
+      {
+        textPrintLine("1 PPS Not present");
+      }
      textPrintLine(gpsBuffer); 
      }
     int p=strcspn(gpsBuffer , ",") +1;                        // find and skip the first comma

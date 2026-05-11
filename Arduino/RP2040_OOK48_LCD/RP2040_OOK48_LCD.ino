@@ -565,8 +565,13 @@ bool autoBaud(int rate)
 }
 
 //replaces a token with an expanded string. returns the result in new. 
-void replaceToken(char * news, char * orig, char search, const char * rep)
+void replaceToken(char * news, char * orig, char search, char * rep)
 {
+  if(rep[0] == '-')     //invalid Locator replaced by space for Morse code
+   {
+    rep[0] = ' ';
+    rep[1] = 0;
+   }
   int outp=0;
   for(int i=0 ; ;i++ )
     {

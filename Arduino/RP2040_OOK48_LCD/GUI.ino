@@ -341,6 +341,7 @@ void processTouch(void)
 {
   int butPressed = -1;
   char fname[16];
+  char txstr[64];
 // Check if any key coordinate boxes contain the touch coordinates
       for (uint8_t b = 0; b < 6; b++) 
       {
@@ -455,7 +456,8 @@ void processTouch(void)
            if(settings.app == MORSE)
            {
             morseTx.stop();
-            morseTx.buildSequence(settings.TxMessage[TxMessNo]);
+            replaceToken(txstr,settings.TxMessage[TxMessNo],LOCTOKEN, qthLocator ); 
+            morseTx.buildSequence(txstr);
             morseTx.start();
             morseTx.setWpm(morseDecoder.wpm());
             add_repeating_timer_us(-((int32_t)morseTx.intervalUs()), TxIntervalInterrupt, NULL, &TxIntervalTimer);
@@ -491,7 +493,8 @@ void processTouch(void)
           }
           else
           {
-            morseTx.buildSequence(settings.TxMessage[TxMessNo]);
+            replaceToken(txstr,settings.TxMessage[TxMessNo],LOCTOKEN, qthLocator ); 
+            morseTx.buildSequence(txstr);
             messageChanging = true;
             cancel_repeating_timer(&TxIntervalTimer);
             morseTx.start(); 

@@ -12,7 +12,7 @@ void initGUI(void)
     Serial2.end();
     clearEEPROM();
     touch_calibrate(1);
-    loadSettings();
+    loadSettings(1);
     Serial2.begin(settings.gpsBaud);
    }
    else

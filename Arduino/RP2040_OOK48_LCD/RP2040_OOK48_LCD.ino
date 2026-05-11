@@ -44,7 +44,7 @@ volatile bool core1Ready = false;
 void setup() 
 {
     EEPROM.begin(1024);
-    loadSettings();
+    loadSettings(0);
     pinMode(PPSINPUT,INPUT);
     pinMode(KEYPIN,OUTPUT);
     digitalWrite(KEYPIN,0);
@@ -447,12 +447,12 @@ void convertToMaid(void)
     qthLocator[settings.locatorLength] = '\0'; // Shorten Locator string
 }
 
-void loadSettings(void)
+void loadSettings(bool reset)
 {
   bool ss = false;
   EEPROM.get(0,settings);             //read the settings structure
 
-  if(settings.baudMagic != 42)
+  if((settings.baudMagic != 42) || (reset))
    {
      if(autoBaud(9600))
       {
@@ -468,7 +468,7 @@ void loadSettings(void)
       }
    }
 
-   if(settings.messageMagic != 173)
+   if((settings.messageMagic != 173) || (reset))
    {
     for(int i=0;i<10;i++)
      {
@@ -478,42 +478,42 @@ void loadSettings(void)
     ss=true; 
    }
 
-  if((settings.locatorLength <6) || (settings.locatorLength > 10))
+  if((settings.locatorLength <6) || (settings.locatorLength > 10)|| (reset))
    {
     settings.locatorLength = 8;
     ss=true;
    }
 
-  if(settings.decodeMode > 1)
+  if((settings.decodeMode > 1)|| (reset))
    {
     settings.decodeMode =0;
     ss = true;
    }
 
-  if(settings.txAdvance > 999)
+  if((settings.txAdvance > 999)|| (reset))
    {
     settings.txAdvance =0;
     ss = true;
    }
 
-  if(settings.rxRetard > 999)
+  if((settings.rxRetard > 999)|| (reset))
    {
     settings.rxRetard =0;
     ss = true;
    }
 
-  if((settings.batcal < 300) | (settings.batcal > 1000))
+  if((settings.batcal < 300) || (settings.batcal > 1000) || (reset))
    {
     settings.batcal = BATCAL;
    }
 
-  if(settings.app >3) 
+  if((settings.app >3)|| (reset)) 
    {
     settings.app = 0;
     ss = true;
    }
 
-   if((settings.morseWpm > MORSE_MAX_WPM) || (settings.morseWpm < MORSE_MIN_WPM))
+   if((settings.morseWpm > MORSE_MAX_WPM) || (settings.morseWpm < MORSE_MIN_WPM) || (reset))
    {
     settings.morseWpm = MORSE_DEFAULT_WPM;
     ss = true;
@@ -534,6 +534,7 @@ void clearEEPROM(void)
    {
     EEPROM.write(i,0);
    }
+   EEPROM.commit();
 }
 
 

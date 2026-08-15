@@ -181,6 +181,7 @@ uint16_t cfgTextcolour;
   ypos=ypos + CFG_LINESPACING*2;
   tft.drawString("GPS Baud Rate", CFG_TEXTLEFT, ypos);
   ypos=ypos + CFG_LINESPACING*2;
+  if(settings.app == OOK48) tft.drawString("Decode Mode", CFG_TEXTLEFT, ypos);
   ypos=ypos + CFG_LINESPACING*2;
   if(settings.app == OOK48) tft.drawString("Tx Timing Advance                  ms", CFG_TEXTLEFT, ypos);
   if(settings.app == MORSE) tft.drawString("Default Morse WPM", CFG_TEXTLEFT, ypos);

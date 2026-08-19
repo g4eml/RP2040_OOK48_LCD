@@ -83,8 +83,10 @@ This mode can pnly be exited by powering off the module.
 
 - Character Period. Selects the normal 1S per character or the optional 2 Seconds per character. Both ends of the link need to have the same settings. 
 
-- GPS Baud Rate. Selects 9600 Baud for the older GPS modules or 38400 for more recent modules. 
+- GPS Baud Rate. Selects 9600 Baud for the older GPS modules or 38400 for more recent modules.
 
+- GPS Test Mode. If selected the right hand side of the main scree will show the status of the GPS 1PPS signal and NMEA messages, these can be used to confirm the correct operation of the GPS module.
+   
 - Decode Mode. Selects Normal or Alternate mode. Normal mode is tolerant of frequency drift and chirping. Alternate mode needs a very stable drift free tone but is slightly more sensitive.
 
 - Tx Timing Advance. Allows a fixed delay to be added to compensate for signal processing delays in the Tx chain. (such as DSP audio processing)
@@ -132,20 +134,25 @@ A GPS module is also essential and must have a 1 Pulse per second output. This p
 
 ## Connecting
 
+### Elecrow module
+
 The receiver is connected to the HMI module via a simple level shifting interface. Details are shown in this document [Connections](Documents/Schematic.pdf)
 
 The  GPS module can be connected the Connector on the top of the module as per the schematic. Alternatively it can be connected to the UART1 connector on the lower edge of the MHI Module. However the 1PPS signal will still need to be connected to the top connector. 
 
 The power is provided by the USB-C connector marked 'USB' on the end of the HMI module, or optionally by a 3.7V lithium cell connected to the BAT connector. 
 
+### New PCB
+
+All of the interfacing components are included on the new PCB. Connect the radio and GPS modules to the marked connectors. A Single Cell Lithium battery can be connected to the BAT connector and an ON/OFF switch to the SW connector. 
 
 ## Programming or updating the HMI Module (quick method) 
 
 1. Locate the latest compiled firmware file 'RP2040_OOK48_LCD.uf2' which will be found here https://github.com/g4eml/RP2040_OOK48_LCD/releases and save it to your desktop. 
 
-2. Connect the HMI Module to your PC using the USB-C port on the side. 
+2. Connect the Module to your PC using the USB-C port. 
 
-3. Hold down the BOOT button on the back of the HMI module and briefly press the Reset button. The RP2040 should appear as a USB disk drive on your PC.
+3. If using the Elecraft module hold down the BOOT button on the back of the HMI module and briefly press the Reset button. If using the New PCB remove the power and hold down the BOOT button on the Pico while re-applying the power. The RP2040 should appear as a USB disk drive on your PC.
 
 3. Copy the .uf2 file onto the USB drive. The RP2040 will recognise the file and immediately update its firmware and reboot.
 
@@ -224,7 +231,7 @@ This will normaly be found at 'Documents/Arduino/libraries/TFT_eSPI'
 
    USB Stack: "Adafruit TinyUSB"  
 
-5. Connect the HMI Module to the USB port, hold down the BOOT button and briefly press the reset Button. 
+5. Connect the Module to the USB port, hold down the BOOT button while powering on. 
 
 6. Click Sketch/Upload.
 

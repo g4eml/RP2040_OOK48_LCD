@@ -23,7 +23,7 @@ bool cfgLoop = false;
   {
   drawCFGKbd();
   delay(50); // UI debouncing
-  showVoltage(true,false);
+  showVoltage(true,0);
     while(!done)
     {
 
@@ -44,7 +44,16 @@ bool cfgLoop = false;
 
         if(pressed && t_y > 300 && t_x > 200 && t_x <270)             //touch on voltage display 
          {
-           showVoltage(true,true);                                    //recalibrate to 4.2V
+          txt[0] = 32;
+           txt[1] = 0;
+           getText("Enter Measured Voltage", txt,4);
+           float entvolt = atof(txt);
+           if((entvolt > 2.0)&(entvolt<6.0))
+           {
+           showVoltage(true,entvolt);                                    //recalibrate
+           }
+           done=true;
+           ch=99;
          }
 
         // Check if any key has changed state
@@ -56,7 +65,7 @@ bool cfgLoop = false;
             done = true;
           }
         }
-       showVoltage(false,false);
+       showVoltage(false,0);
     }
 
   switch(ch)
@@ -323,7 +332,7 @@ if(settings.app == OOK48)
       cfgKbd[13].drawButton(); 
 }
 
-void showVoltage(bool force,bool cal)
+void showVoltage(bool force,float cal)
 {
   char txt[10];
   float voltage;
@@ -334,9 +343,9 @@ void showVoltage(bool force,bool cal)
     voltage = voltage + (float) buffer[bufIndex][i]/settings.batcal;
    }
   voltage = voltage / 1024;
-  if(cal)                                 //if we are calibrating adjust settings.batcal so that the result is 4.20
+  if(cal>0)                                 //if we are calibrating adjust settings.batcal so that the result is 4.20
    {
-    float error = voltage/4.20;           //calculate the error percentage
+    float error = voltage/cal;           //calculate the error percentage
     settings.batcal = settings.batcal * error;
    }
   if((abs(voltage - lastvolt) > 0.01) | (force))

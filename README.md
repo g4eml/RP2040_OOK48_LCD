@@ -101,9 +101,7 @@ This mode can pnly be exited by powering off the module.
 
 - Version Number. 
 
-- Voltage Display. This shows the current battery voltage.  This reading may need calibrating for each module. Power the module using the USB port and disconnect or turn off the battery. The voltage should then read 4.20V. 
-If calibration is required, just touch the voltage area of the screen and it will automatically calibrate to read 4.20V. Reconnect the battery to view the battery voltage. 
-
+- Voltage Display. This shows the current battery voltage.  This reading may need calibrating for each module. Measure the true battery voltage with a multimeter. Touch the Displayed voltage and enter the measured value. Exit the calibration screen to save the new calibration value. 
 
 ## Hardware Requirements
 

@@ -1,5 +1,5 @@
 #include <ctype.h>
-#include "defines.h"
+#include "DEFINES.h"
 #include "morse_tx.h"
 #include <Arduino.h>
 

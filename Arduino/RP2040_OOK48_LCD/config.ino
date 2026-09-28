@@ -1,7 +1,7 @@
 
 
 uint8_t ch;
-TFT_eSPI_Button cfgKbd[CFG_NUMBEROFBUTTONS];
+LGFX_Button cfgKbd[CFG_NUMBEROFBUTTONS];
 
 void configPage(void){
 /*
@@ -171,7 +171,7 @@ bool cfgLoop = false;
 char congfglabels[CFG_NUMBEROFBUTTONS][6]={"6", "8", "10", "1s", "2s", "9600", "38400","Test", "Norm", "Alt", "","","USB","EXIT"};
 char txt[10];
 int ypos;
-uint16_t cfgTextcolour;
+int cfgTextcolour;
 
   // Draw pad background
   tft.fillRect(CFG_X, 0, CFG_WIDTH, CFG_HEIGHT, TFT_DARKGREY);
@@ -179,10 +179,10 @@ uint16_t cfgTextcolour;
   // Draw the string, the value returned is the width in pixels
   tft.setTextColor(TFT_CYAN);
    //Version Number
-  tft.setFreeFont(&FreeSans9pt7b);
+  tft.setFont(&FreeSans9pt7b);
   tft.drawString(VERSION, CFG_TEXTLEFT, 300);
   // Line 1
-  tft.setFreeFont(&FreeSans12pt7b);  // Font
+  tft.setFont(&FreeSans12pt7b);  // Font
   ypos=CFG_LINESPACING*0.5;
   tft.drawString("Set Locator length", CFG_TEXTLEFT, ypos);
   ypos=ypos + CFG_LINESPACING*2;
@@ -202,7 +202,7 @@ uint16_t cfgTextcolour;
       tft.drawString("Activate USB Drive Mode", CFG_TEXTLEFT, ypos);
     }
 
-  tft.setFreeFont(KB_FONT); 
+  tft.setFont(KB_FONT); 
 
   ypos=CFG_LINESPACING*0.5; 
    //Locator Buttons
@@ -351,7 +351,7 @@ void showVoltage(bool force,float cal)
   if((abs(voltage - lastvolt) > 0.01) | (force))
    {
      sprintf(txt,"%0.2f V",voltage);
-     tft.setFreeFont(&FreeSans12pt7b);  // Font
+     tft.setFont(&FreeSans12pt7b);  // Font
      tft.setTextColor(TFT_CYAN);
      tft.fillRect(200, 300, 70, 20, TFT_DARKGREY);
      tft.drawString(txt, 200, 300);

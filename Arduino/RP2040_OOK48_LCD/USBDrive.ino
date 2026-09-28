@@ -9,7 +9,7 @@ void doUSBDrive(void)
 
   tft.fillScreen(TFT_BLACK);
   tft.setCursor(50,50);
-  tft.setFreeFont(&FreeSansBold24pt7b);
+  tft.setFont(&FreeSansBold24pt7b);
   tft.setTextDatum(TL_DATUM);
   tft.setTextSize(1);
   tft.setTextColor(TFT_WHITE, TFT_BLACK);

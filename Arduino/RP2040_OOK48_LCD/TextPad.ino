@@ -35,8 +35,8 @@ char keybLabel[40][2] = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "0",
 
 char keybSpecial[5][6] = {"SPACE", "CLR", "DEL", "<-", "LOC"};
 
-// Invoke the TFT_eSPI button class and create all the button objects
-TFT_eSPI_Button keyb[45];
+// Invoke the LovyanGFX button class and create all the button objects
+LGFX_Button keyb[45];
 
 
 //------------------------------------------------------------------------------------------
@@ -64,7 +64,7 @@ int getText(const char* prompt, char* st, int len)
   //write Prompt
 
   tft.setTextDatum(TL_DATUM);        // Use top left corner as text coord datum
-  tft.setFreeFont(&FreeSans12pt7b);  // Choose a nice font that fits box
+  tft.setFont(&FreeSans12pt7b);  // Choose a nice font that fits box
   // Draw the string, the value returned is the width in pixels
   tft.setTextColor(TFT_CYAN);
   tft.drawString(prompt, BPROMPT_X, BPROMPT_Y);
@@ -96,7 +96,7 @@ int getText(const char* prompt, char* st, int len)
       for (uint8_t b = 0; b < 45; b++) 
       {
 
-       tft.setFreeFont(KB_FONT);
+       tft.setFont(KB_FONT);
 
         if (keyb[b].justReleased()) keyb[b].drawButton();     // draw normal
 
@@ -189,7 +189,7 @@ void displaytext(int colour)
     replaceToken(newstr,textBuffer, LOCTOKEN, "{LOC}");
 
     tft.setTextDatum(TL_DATUM);        // Use top left corner as text coord datum
-    tft.setFreeFont(&FreeSans9pt7b);  // Choose a nice font that fits box
+    tft.setFont(&FreeSans9pt7b);  // Choose a nice font that fits box
     // Draw the string, the value returned is the width in pixels
     tft.setTextColor(colour);
     int xwidth = tft.drawString(newstr, TEXT_X + 4, TEXT_Y + 12);
@@ -213,7 +213,7 @@ void drawKeyBoard()
       uint8_t b = col + row * 10;
 
 
-    tft.setFreeFont(KB_FONT);
+    tft.setFont(KB_FONT);
 
       keyb[b].initButton(&tft, KEYB_X + col * (KEYB_W + KEYB_SPACING_X),
                         KEYB_Y + row * (KEYB_H + KEYB_SPACING_Y), // x, y, w, h, outline, fill, text

@@ -14,7 +14,9 @@ void RxInit(void)
     numberOfTones    = 1;
     textHeight = MORSETEXTHEIGHT;
     calcLegend();
-    updateWPM();
+    //updateWPM() removed here: RxInit() runs on core 0 at the same time as core 1 is
+    //initialising the display, and two cores must not drive the display at once.
+    //Core 1 draws the WPM itself when it draws the Morse buttons (drawMorseButtons()).
     morseDecoder.begin(MORSE_FRAME_RATE, MORSE_DEFAULT_WPM , MORSE_TONE_BIN);
   }
   else

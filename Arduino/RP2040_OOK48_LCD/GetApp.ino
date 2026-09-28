@@ -5,8 +5,8 @@
 // Create buttons
 char AppLabel[4][30] = {"OOK48","Morse","JT4G Decoder","PI4 Decoder"};
 
-// Invoke the TFT_eSPI button class and create all the button objects
-TFT_eSPI_Button Appkey[4];
+// Invoke the LovyanGFX button class and create all the button objects
+LGFX_Button Appkey[4];
 
 //------------------------------------------------------------------------------------------
 int getApp(void) 
@@ -41,7 +41,7 @@ int getApp(void)
       for (uint8_t b = 0; b < 4; b++) 
       {
 
-        tft.setFreeFont(AppLABEL_FONT);
+        tft.setFont(AppLABEL_FONT);
 
         if (Appkey[b].justPressed()) 
         {
@@ -61,7 +61,7 @@ int getApp(void)
 void drawApp()
 {
   char blank[2] = " ";
-  uint16_t backcolour[4];
+  int backcolour[4];
   // Draw the three buttons
      for(int i = 0;i<4;i++)
      {
@@ -76,7 +76,7 @@ void drawApp()
      }
 
 
-      tft.setFreeFont(AppLABEL_FONT);
+      tft.setFont(AppLABEL_FONT);
 
       Appkey[0].initButton(&tft, 240, 40,300,60, // x, y, w, h, outline, fill, text
                         TFT_WHITE, backcolour[0], TFT_WHITE,

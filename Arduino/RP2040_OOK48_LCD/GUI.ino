@@ -3,6 +3,7 @@
 void initGUI(void)
 {
   tft.init();                       //initialise the TFT display hardware
+  tft.setBrightness(255);           //backlight fully on (TFT_eSPI did this automatically in init())
   tft.setRotation(1);               //Set the TFT to Landscape
   tft.fillScreen(TFT_BLACK);        //Clear the TFT
   if(screenTouched())
@@ -42,7 +43,7 @@ void displayTx(void)
 {
   tft.fillRect(SPECLEFT,SPECTOP,SPECWIDTH, SPECHEIGHT + WATERHEIGHT + LEGHEIGHT,TFT_RED);   //Create Black background for the Waterfall
   tft.setTextColor(TFT_BLACK);
-  tft.setFreeFont(&FreeSansBold24pt7b);
+  tft.setFont(&FreeSansBold24pt7b);
   tft.setTextDatum(TL_DATUM);
   tft.setTextSize(1);
   tft.drawString("TX",SPECLEFT + (SPECWIDTH)/2 -40,SPECTOP + SPECHEIGHT);
@@ -106,7 +107,7 @@ void textPrintLine(const char* message)
       textClear();
     }
   tft.setTextColor(TFT_BLUE);
-  tft.setFreeFont(&FreeSans9pt7b);
+  tft.setFont(&FreeSans9pt7b);
   tft.setTextSize(1);
   tft.setTextDatum(TL_DATUM);
   tft.drawString(message,TEXTLEFT,TEXTTOP+textrow);
@@ -127,7 +128,7 @@ void textPrintChar(char m, uint16_t col)
       textClear();
     }
   tft.setTextColor(col);
-  tft.setFreeFont(&FreeSans9pt7b);
+  tft.setFont(&FreeSans9pt7b);
   tft.setTextDatum(TL_DATUM);
   if((m == 13)|(m == 10))
    {
@@ -173,7 +174,7 @@ void showTime(void)
 
   tft.fillRect(0,0,SPECWIDTH,40,TFT_CYAN);
   tft.setTextColor(TFT_BLACK);
-  tft.setFreeFont(&FreeSans9pt7b);
+  tft.setFont(&FreeSans9pt7b);
   tft.setTextDatum(TL_DATUM);
   tft.drawString(t,0,0);
   tft.setTextDatum(TR_DATUM);
@@ -184,14 +185,14 @@ void showTime(void)
 // Create 6 Buttons
 char BUTLabel[6][10] = {"Clear","Config","","App","Set Tx","Tx"};
 
-// Invoke the TFT_eSPI button class and create all the  objects
-TFT_eSPI_Button BUTkey[6];
+// Invoke the LovyanGFX button class and create all the  objects
+LGFX_Button BUTkey[6];
 
 // Create 2 Extra Buttons for morse mode
 char MORSELabel[2][10] = {"Dec","Inc"};
 
-// Invoke the TFT_eSPI button class and create all the  objects
-TFT_eSPI_Button MORSEbut[2];
+// Invoke the LovyanGFX button class and create all the  objects
+LGFX_Button MORSEbut[2];
 
 
 void drawButtons(void)
@@ -210,7 +211,7 @@ void drawButtons(void)
   for (uint8_t i= 0; i< 6; i++) 
   {
       char blank[2] = " ";
-      tft.setFreeFont(BUTLABEL_FONT);
+      tft.setFont(BUTLABEL_FONT);
 
       if(i == 5)
        {
@@ -251,7 +252,7 @@ void drawMorseButtons(void)
   for (uint8_t i= 0; i< 2; i++) 
   {
       char blank[2] = " ";
-      tft.setFreeFont(BUTLABEL_FONT);
+      tft.setFont(BUTLABEL_FONT);
 
       MORSEbut[i].initButton(&tft, TEXTLEFT + 55 + i * 2 * (BUTWIDTH + BUTGAP),textHeight + 20, 
                         BUTWIDTH, BUTHEIGHT, TFT_WHITE, TFT_BLUE, TFT_WHITE,
@@ -271,13 +272,19 @@ void updateWPM(void)
 }
 
 
+//LovyanGFX uses 8 calibration values (TFT_eSPI used 5). They are kept in the new
+//settings.lgfxCalData[] at the end of the settings structure, so none of the other
+//saved settings move. Old TFT_eSPI calibration is ignored and a new calibration
+//is run once on first boot.
+#define LGFX_CAL_MAGIC 0x0B
+
 void touch_calibrate(bool force)
 {
 
-  if (settings.calMagic == 0x0A && !REPEAT_CAL && !force)
+  if (settings.lgfxCalMagic == LGFX_CAL_MAGIC && !REPEAT_CAL && !force)
   {
     // calibration data valid
-    tft.setTouch(settings.calData);
+    tft.setTouchCalibrate(settings.lgfxCalData);
   } 
   else 
   {
@@ -299,11 +306,13 @@ void touch_calibrate(bool force)
       tft.println("Set REPEAT_CAL to false to stop this running again!");
     }
 
-    tft.calibrateTouch(settings.calData, TFT_MAGENTA, TFT_BLACK, 15);
+    tft.setTouchThreshold(TOUCH_Z_CALIBRATE);   // corners need a lower pressure threshold (as TFT_eSPI)
+    tft.calibrateTouch(settings.lgfxCalData, TFT_MAGENTA, TFT_BLACK, 15);
+    tft.setTouchThreshold(TOUCH_Z_THRESHOLD);   // back to normal for everyday use
 
     tft.setTextColor(TFT_GREEN, TFT_BLACK);
     tft.println("Calibration complete!");
-    settings.calMagic = 0x0A;
+    settings.lgfxCalMagic = LGFX_CAL_MAGIC;
     saveSettings();
   }
 
@@ -518,7 +527,7 @@ void processTouch(void)
            digitalWrite(KEYPIN, 0);
            digitalWrite(TXPIN, 0);
            cancel_repeating_timer(&TxIntervalTimer);
-           tft.setFreeFont(BUTLABEL_FONT);
+           tft.setFont(BUTLABEL_FONT);
            BUTkey[5].drawButton(0,"Tx");
            BUTkey[4].drawButton(0,"Set Tx");
            clearSpectrum();

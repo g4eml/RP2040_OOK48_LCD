@@ -36,7 +36,10 @@ void dma_init(void)
     adc_select_input(ADC_CHAN);                                  //select the Analogue input channel.
     adc_fifo_setup(true,true,1,false,false);                     //Enable ADC FIFO. Raise DRQ when 1 conversion is available. No Error bit and no bit shifting. 
     adc_set_clkdiv(48000000/sampleRate);                         //Number of clock cycles between sample triggers. 0 = continuous. 48MHz clock. (minimumm allowed value = 98)
-    uint dma_chan = dma_claim_unused_channel(true);              //Find unused DMA channel and save it. 
+    dma_chan = dma_claim_unused_channel(true);                   //Find unused DMA channel and save it in the global dma_chan used by the handler.
+                                                                 //(was 'uint dma_chan = ...', which only set a local copy and left the global at 0.
+                                                                 // That only worked while the ADC happened to get channel 0. LovyanGFX also claims
+                                                                 // a DMA channel, so the ADC could get channel 1 and the handler drove the wrong one.)
     dma_channel_config cfg = dma_channel_get_default_config(dma_chan);   //create a DMA config structure
     channel_config_set_transfer_data_size(&cfg, DMA_SIZE_16);    //DMA 16 bit transfers
     channel_config_set_read_increment(&cfg, false);              //Do not increment the read address after each transfer

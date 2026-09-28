@@ -5,8 +5,8 @@
 
 struct eepromstruct
 {
-  uint8_t calMagic;               //calibration magic value to indicate validity
-  uint16_t calData[5];            //screen calibration data
+  uint8_t calMagic;               //old TFT_eSPI calibration magic - no longer used, kept so the EEPROM layout doesn't change
+  uint16_t calData[5];            //old TFT_eSPI calibration data  - no longer used, kept so the EEPROM layout doesn't change
   uint8_t baudMagic;              //baud rate magic value to indicate validity
   uint16_t gpsBaud;               //GPS baud rate
   uint8_t messageMagic;          //message magic value to indicate validity
@@ -18,6 +18,8 @@ struct eepromstruct
   float batcal;                   //battery voltage calibration factor
   uint8_t app;                    //currently selected application OOK48 JT4G or PI4
   uint8_t  morseWpm;              //Morse WPM
+  uint8_t  lgfxCalMagic;          //LovyanGFX touch calibration magic value to indicate validity
+  uint16_t lgfxCalData[8];        //LovyanGFX touch calibration data (8 values)
 
 };
 
